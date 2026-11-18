@@ -1,0 +1,6 @@
+# Shopware checkout: its own git repository (shopware/shopware + fork remote)
+/instance/
+# Git worktrees of the instance for comparing branches and pull requests
+/review/*
+!/review/README.md
+.DS_Store
