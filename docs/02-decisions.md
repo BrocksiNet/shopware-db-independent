@@ -7,3 +7,4 @@
 | 2026-11-18 | No plugins, no commercial. Open source core only. | Keeps the proof of concept bounded. |
 | 2026-11-18 | Layout: `README.md`, `docs/`, `instance/`, `review/`. | See README. |
 | 2026-11-18 | Two git repositories: this research repository, and `instance/` as a clone of `shopware/shopware` on branch `poc/postgresql`. | Research docs and core changes have different histories; the core branch stays mergeable with trunk and can go to a fork as one branch. |
+| 2026-11-18 | Fresh installs on PostgreSQL run the real migrations, translated automatically (also for future migrations), instead of shipping a converted schema. | Long term solution; a schema check against PostgreSQL catches new migrations that do not translate. |
