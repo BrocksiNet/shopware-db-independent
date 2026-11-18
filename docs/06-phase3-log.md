@@ -119,6 +119,98 @@ The copied installation has no products and one category, so the listings are em
 
 Not tested yet: any write (registration, cart, order), the admin API, indexers and scheduled tasks.
 
+## Step 4: writes, indexers, cart and checkout
+
+Driven through the admin API (`PATCH /api/product/...`) and the store API (cart, registration, order).
+
+### Statement rewrites in the driver middleware
+
+Both run in `SqlTranslationMiddleware` after the lexical translation.
+
+1. `UpsertRewriter.php`
+   - `INSERT IGNORE` becomes `ON CONFLICT DO NOTHING`.
+   - `ON DUPLICATE KEY UPDATE` becomes `ON CONFLICT (primary key) DO UPDATE SET`, `VALUES(col)` becomes `EXCLUDED.col`.
+   - Columns on the right side of an assignment are qualified with the table.
+     `count = count + 1` is ambiguous on PostgreSQL (existing or `EXCLUDED` row), MySQL reads the existing row.
+   - `REPLACE INTO` becomes an upsert on the primary key.
+   - The primary key is read from `pg_index` and cached per connection.
+2. `UpdateRewriter.php`
+   - Qualified `SET` targets lose the qualifier.
+   - `UPDATE a, b SET ... WHERE w` becomes `UPDATE a SET ... FROM b WHERE w`.
+   - `UPDATE a [INNER] JOIN b ON c SET ... WHERE w` becomes `UPDATE a SET ... FROM b WHERE (c) AND (w)`.
+   - `LEFT JOIN` is not rewritten, those call sites were changed (see below).
+
+Limits:
+
+- The conflict target is always the primary key.
+  MySQL `ON DUPLICATE KEY` and `REPLACE` react to every unique index.
+- `INSERT IGNORE` on PostgreSQL only skips duplicates, MySQL also turns other errors (for example a too long value) into warnings.
+- A rewritten `REPLACE` keeps the values of columns that are not part of the statement, MySQL deletes the row and resets them to their defaults.
+
+### REPLACE in `MultiInsertQueryQueue`
+
+The keyword dictionary indexer failed with `duplicate key value violates unique constraint "product_keyword_dictionary.uniq.language_id_keyword"`.
+The table has a primary key and a second unique key, `REPLACE` on MySQL resolves a conflict on either.
+On PostgreSQL the queue no longer emits `REPLACE`.
+For every unique key (primary key and unique indexes from `pg_index`) whose columns are all part of the insert it deletes the matching rows, then it inserts.
+Both run in the existing `RetryableTransaction`.
+Duplicates inside one batch are not removed, a batch that contains the same key twice still fails.
+
+### Call sites changed
+
+| File | Change | Platforms |
+|---|---|---|
+| `Content/Product/Stock/StockStorage.php` | `UPDATE product LEFT JOIN product parent` replaced by a correlated sub select | PostgreSQL branch |
+| `Content/Product/DataAbstractionLayer/StatesUpdater.php` | `LEFT JOIN` + partial `GROUP BY` replaced by `EXISTS` | all |
+| `Content/Newsletter/.../CustomerNewsletterSalesChannelsUpdater.php` | reset statement without `LEFT JOIN`, sub select on `newsletter_recipient` | all |
+| `System/NumberRange/.../IncrementSqlStorage.php` | MySQL user variable `@nr... :=` replaced by `ON CONFLICT ... RETURNING last_value` | PostgreSQL branch |
+
+### Translator additions
+
+- Bare `user` is quoted, it is a reserved word on PostgreSQL and a table name in Shopware.
+- A string literal used as alias (`AS '0'`) becomes a quoted identifier.
+- Identifiers longer than 63 bytes are shortened to a prefix plus a hash, the column case map restores the full name in the result.
+  PostgreSQL cuts identifiers after 63 bytes (`max_identifier_length`), MySQL allows 256 characters for an alias.
+  The DAL builds aliases like `order_delivery.shippingOrderAddress.country.translation.addressFormat` (69 characters), the order read failed with an undefined array key.
+  Plain cutting could make two aliases equal, hence the hash.
+
+### Binary strings and serialized PHP
+
+`product.cheapest_price` is a MySQL `LONGTEXT` that holds `serialize()` output, which contains NUL bytes.
+Bound as text, PostgreSQL ended the value at the first NUL byte without an error, reading it back failed in `unserialize()`.
+
+- The column is `bytea` now, the schema generator has an explicit list for such columns (`SERIALIZED_TEXT_COLS`).
+- `IdCodecStatement` binds a string parameter as binary when it contains a NUL byte or is not valid UTF-8.
+- Verified in the container: a value with NUL bytes round trips through `bytea` when bound as `BINARY` or `LARGE_OBJECT`, bound as `STRING` it came back shortened (53 of 82 bytes).
+
+Other `LONGTEXT` columns named `payload` were not checked for serialized content yet.
+
+### More shims
+
+| Shim | Reason |
+|---|---|
+| `sha2(text, integer)` | Used in raw SQL. |
+| `json_quote(text)` | `ManyToManyIdFieldUpdater` builds JSON arrays with `GROUP_CONCAT(JSON_QUOTE(...))`. |
+| assignment cast `text` to `jsonb` | The JSON built as text is written into a `jsonb` column. |
+| `integer` to `boolean` cast made an assignment cast | `UPDATE seo_url SET is_deleted = 0`. |
+
+The last one changes `pg_cast` directly, because a second cast for the same type pair can not be created.
+That needs a superuser and is not possible on most managed services.
+It is a proof of concept shortcut, the real fix is to bind booleans or write `false`.
+
+### State after step 4
+
+| Flow | Result |
+|---|---|
+| Admin API: create tax, property group, product; update product | 2xx, indexers write keywords, SEO URL, `property_ids`, states, cheapest price |
+| Storefront: home listing, search, suggest, product detail with the new product | 200, product shown |
+| Store API: add to cart, read cart | 200, cart persisted |
+| Store API: register customer | 200, customer number from the number range |
+| Store API: place order | 200, order number 10002, state `open` |
+
+Not tested yet: the administration UI, scheduled tasks and the message queue, media upload, theme compile, the installer.
+No tests were written for the new classes.
+
 ## Findings outside the request path
 
 - `Maintenance/System/Service/DatabaseConnectionFactory` and `DatabaseConnectionInformation::toDBALParameters()` hard code `pdo_mysql` and a MySQL / MariaDB version check.

@@ -1716,7 +1716,7 @@ CREATE TABLE "product" (
     "canonical_product_version_id" uuid,
     "canonicalProduct" uuid,
     "cmsPage" uuid,
-    "cheapest_price" text COLLATE "ci",
+    "cheapest_price" bytea,
     "cheapest_price_accessor" text COLLATE "ci",
     "states" jsonb,
     "variant_listing_config" jsonb,

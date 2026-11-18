@@ -14,6 +14,7 @@ Design decisions (see findings.md):
   * DATETIME(n)/TIMESTAMP(n)           -> timestamp(n) (without time zone, values are UTC)
   * LONGTEXT with CHECK(JSON_VALID())  -> jsonb (the CHECK is dropped, the type enforces it)
   * LONGBLOB/MEDIUMBLOB                -> bytea
+  * LONGTEXT holding PHP serialize()   -> bytea (explicit list, SERIALIZED_TEXT_COLS)
   * unsigned INT -> bigint, unsigned BIGINT -> bigint (values > 2^63-1 not representable)
   * utf8mb4_unicode_ci string columns  -> nondeterministic ICU collation "ci" (case + accent insensitive)
   * generated columns                  -> GENERATED ALWAYS AS (...) STORED|VIRTUAL (PG18), expression rewritten for jsonb
@@ -111,6 +112,9 @@ def main():
                              extra=extra.lower(), gen=genexpr, coll=coll))
     colinfo = {(t, c['name']): c for t in tcols for c in tcols[t]}
 
+    # LONGTEXT columns that hold PHP serialize() output. It contains NUL bytes, which PostgreSQL text can not store.
+    SERIALIZED_TEXT_COLS = {('product', 'cheapest_price')}
+
     def pg_type(t, c):
         ct, dt = c['ctype'], c['dtype']
         unsigned = 'unsigned' in ct
@@ -127,6 +131,8 @@ def main():
         if dt in ('varchar', 'char'):
             m = re.match(r'(var)?char\((\d+)\)', ct)
             return '%s(%s)' % ('varchar' if m.group(1) else 'char', m.group(2))
+        if (t, c['name']) in SERIALIZED_TEXT_COLS:
+            return 'bytea'
         if dt in ('text', 'mediumtext', 'longtext', 'tinytext'):
             return 'jsonb' if (t, c['name']) in json_cols else 'text'
         if dt in ('longblob', 'mediumblob', 'blob', 'tinyblob', 'varbinary', 'binary'):
