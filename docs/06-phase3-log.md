@@ -269,3 +269,25 @@ In the administration the dashboard, product list and detail, order list and det
 
 Not covered: other administration modules (rules, flows, media, themes, import / export) and a full click through of every tab.
 `json_contains` ignores the optional path argument.
+
+## Step 6: remaining administration areas
+
+Every area below was driven through the admin API, the store API or the console on PostgreSQL, with the PostgreSQL log checked after each call.
+Test data used ids starting with `c0000000`, the order for the flow and promotion checks went through `/store-api/checkout/order`.
+
+| Area | What was run | Error | Fix | Platforms |
+| --- | --- | --- | --- | --- |
+| Rules | create a rule with `andContainer`, `cartCartAmount`, `cartLineItemOfType`, `customerBillingCountry`, `dayOfWeek`, set it as availability rule of a shipping method, add a product to the cart | none, the payload was indexed and the cart blocked the shipping method as expected | none | |
+| Flow builder | create a flow on `checkout.order.placed` with `action.add.order.tag`, place an order, `messenger:consume async` | none, one `order_tag` row was written (the first attempt failed on a foreign key because the test tag did not exist, same on MySQL) | none | |
+| Media | create media, upload a PNG through `/api/_action/media/{id}/upload`, rename, delete, media folder with child and configuration, folder tree search, `media:generate-thumbnails`, `media:generate-media-types` | none | none | |
+| Theme | `theme:compile`, read the configuration, change `sw-color-brand-primary`, assign the theme | none | none | |
+| Import / export | export the product profile, import a CSV with one updated and one new product | none, both logs reached `succeeded` | none | |
+| Promotions | create a promotion with a code and a 10 % cart discount, add the code to the cart, place the order | `orders_per_customer_count` was written with the key `"\"<id>\""`, because `JSON_SET(doc, '$."<id>"', n)` kept the quotes | the path helper in `mysql-compat.sql` parses quoted keys (`$."key"`), `json_set` and `json_remove` use it | PostgreSQL only |
+| Category | create, nest, move, delete | none | none | |
+| Sales channel | create with domain and relations, update, delete | none | none | |
+| Product variants | property group with two options, configurator settings on `aaaaaaaaaaaa4aaa8aaaaaaaaaaaaa10`, two variants written as children, storefront detail page | none | none | |
+
+Known remaining difference: the count in `orders_per_customer_count` is stored as a JSON string (`"2"`) instead of a number, because the integer parameter reaches `json_set` as text.
+Nothing in core reads the column (it is deprecated and only written), so this has no effect.
+`storefront detail` probes with `/tmp/pg-step.sh` printed status `000` but rendered the page title without an error in the PostgreSQL log, the cause of the `000` was not investigated.
+Not covered: a click through of the administration modules in the browser, theme compile with a changed value in the storefront output, and promotions with individual codes or advanced rules.
