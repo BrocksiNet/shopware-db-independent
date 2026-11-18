@@ -374,3 +374,23 @@ They only matter when an enclosing transaction is open and more statements or a 
 
 PHPUnit only runs against MySQL (`DATABASE_URL=$MYSQL_URL`), it can not bootstrap against PostgreSQL.
 The rewriter and queue unit tests ran there, and the PostgreSQL behaviour was checked with the flows above and with small scripts against the running containers.
+
+## Wave 2, PHPStan
+
+`composer phpstan` on `src/Core/Framework/Adapter/Database/PostgreSQL/` reported 77 errors in 7 files, the newsletter slice 3 more.
+The analysis cache directory was created with `mkdir -p var/cache/phpstan` inside `instance-web-1`.
+
+| Kind | Count | Fix |
+|---|---|---|
+| Regex `$` anchor also matches before a trailing newline | 62 | `D` modifier added to the pattern flags (same as `\z`) |
+| `md5()` | 2 | `Hasher::hash($value, 'md5')`, output identical |
+| `new \InvalidArgumentException` | 2 | `AdapterException::unparsableColumnDefinition()` and `unmappedColumnType()` |
+| Missing array shape for `mapType()` / `parseColumn()` | 6 | full column shape incl. `extra?: string` |
+| `$w[0]` / `$named[0]` possibly undefined | 3 | default for `$w[0]`, `$named` only read after a successful match |
+| Unused constant `LIVE_VERSION_UUID`, unused parameter `$collation` | 2 | removed |
+| `preg_match_all` with a pattern passed in | 1 | callers run `preg_match_all` with literal patterns and pass the matches to `topLevelWord()` |
+| Native time reads in `SqlNewsletterRecipientStorage` | 2 | `ClockInterface` injected |
+| `string|null` salutation key | 1 | `?? ''` |
+
+No baseline entries and no `@phpstan-ignore`.
+Verified by a run: PHPStan on `src/Core/Framework/Adapter/` and `src/Core/Content/Newsletter/` reports 0 errors, the 92 unit tests of the directory pass, the migration check reports 910 migrations and 0 schema differences, the newsletter integration tests pass (10 tests, 68 assertions).
