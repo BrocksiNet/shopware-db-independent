@@ -231,6 +231,8 @@ The last one changes `pg_cast` directly, because a second cast for the same type
 That needs a superuser and is not possible on most managed services.
 It is a proof of concept shortcut, the real fix is to bind booleans or write `false`.
 
+This shortcut was removed again in Step 7, the call sites now write real booleans.
+
 ### State after step 4
 
 | Flow | Result |
@@ -291,3 +293,86 @@ Known remaining difference: the count in `orders_per_customer_count` is stored a
 Nothing in core reads the column (it is deprecated and only written), so this has no effect.
 `storefront detail` probes with `/tmp/pg-step.sh` printed status `000` but rendered the page title without an error in the PostgreSQL log, the cause of the `000` was not investigated.
 Not covered: a click through of the administration modules in the browser, theme compile with a changed value in the storefront output, and promotions with individual codes or advanced rules.
+
+## Step 7: hardening
+
+This step removes the proof of concept shortcuts that were left in the shims.
+All code changes are in `instance/` on `poc/postgresql`, in four commits: `09022c2ea0e`, `f9bb4e5cdff`, `a6009d13658` and `4c998b16740`.
+
+### The `pg_cast` shortcut is gone
+
+The `UPDATE pg_cast SET castcontext='a'` block is removed from `mysql-compat.sql`.
+Writes of `0` and `1` to boolean columns now fail on PostgreSQL, so the call sites were changed to PHP booleans or `TRUE` and `FALSE` literals (commit `09022c2ea0e`).
+
+Fixed call sites:
+
+- `RetryWebhookMessageFailedSubscriber` and `WebhookHealthService`: `active => false`.
+- `WebhookLifecycleHandler`: `active => true`, and `only_live_version` is cast to bool.
+- `ProductExportGenerateTaskHandler`: `is_running => false`.
+- `PaymentTokenLifecycle` and `JWTFactoryV2`: `consumed => true`.
+- `AppSeoUrlLifecycleHandler`, `RepairLinkCategorySeoUrlTakeoverCommand`, `RuleIndexerSubscriber`: `is_deleted`, `is_modified` and `invalid` as literals.
+- `ProductStreamIndexer`: `invalid => true`.
+- `SeoUrlPersister`: `is_canonical`, `is_modified`, `is_deleted` in the UPDATE, the insert values and the query builder.
+- Test helpers `TestUser` and `ElasticsearchTestTestBehaviour`.
+- Unit tests `RuleIndexerSubscriberTest` and `SeoUrlPersisterTest` follow the new SQL.
+
+The `product` PATCH first still failed with `column "is_deleted" is of type boolean but expression is of type integer`.
+The cause was `SeoUrlPersister`, which a first search had missed, and after the fix the request returned 204.
+The storefront, the checkout (`/tmp/pg-store.sh`) and a product write (`/tmp/pg-w.sh`) work without the cast.
+
+Comparisons such as `is_deleted = 0` still work, because the `boolean = integer` operators stay in the shims.
+Only the assignment of an integer to a boolean column needed the code changes.
+
+### Upsert conflict targets
+
+`UpsertRewriter` used the primary key as the only conflict target, because `ON CONFLICT` takes exactly one target and MySQL reacts to every unique key.
+A statement can now name its target with a leading comment `/* conflict-target: col_a, col_b */`.
+MySQL ignores the comment, and `UpsertRewriter` reads it from the statement prefix and uses it instead of the primary key (commit `f9bb4e5cdff`).
+
+The hint is used at these call sites:
+
+- `MultiInsertQueryQueue::setConflictTarget()` writes the hint in front of the statement.
+- `SeoUrlPersister` sets `language_id, sales_channel_id, seo_path_info`.
+- `ConsentRepository` sets `name, identifier`.
+
+`SalesChannelContextPersister` had a `REPLACE` that could hit two unique keys, the token and the customer per sales channel.
+In the `UniqueConstraintViolationException` branch it now runs a `DELETE` of both matches and an `INSERT` in `RetryableTransaction`.
+
+Unit tests: a new case in `UpsertRewriterTest` and `MultiInsertQueryQueueTest::testConflictTargetIsPassedAsCommentForUpserts`.
+
+Documented, not changed:
+
+- The hint is opt-in, all other `ON DUPLICATE KEY UPDATE` and `REPLACE` statements still use the primary key.
+- `theme_runtime_config` has the primary key `theme_id` and a unique `technical_name`, a conflict only happens when the same technical name is saved under another theme id.
+- `INSERT IGNORE` becomes `ON CONFLICT DO NOTHING` without a target, so it skips every unique key like MySQL, but it does not downgrade foreign key errors.
+- The `ShopConfigurator` upsert of `system_config` looks up the id first, so it is not affected.
+
+### GROUP_CONCAT with ORDER BY
+
+MySQL writes `GROUP_CONCAT(x ORDER BY y DESC SEPARATOR '|')`.
+PostgreSQL needs the separator as a second argument before `ORDER BY`.
+Without a rewrite the separator was not rejected but silently ended up as part of the sort key.
+
+`MySQLToPostgreSQLTranslator` now moves the separator in front of `ORDER BY`, so the example becomes `GROUP_CONCAT(x , '|' ORDER BY y DESC)` (commit `a6009d13658`).
+The test `testGroupConcatSeparatorMovesBeforeOrderBy` has a data provider with the cases.
+
+Still not valid on PostgreSQL: `DISTINCT` combined with an `ORDER BY` expression that is not in the argument list.
+Only `ORDER BY NULL` is dropped.
+
+### Aborted transactions
+
+After a failed statement PostgreSQL aborts the whole transaction (SQLSTATE `25P02`), and a later `COMMIT` rolls back silently.
+MySQL keeps the transaction usable, so code that catches the exception and continues breaks on PostgreSQL.
+DBAL 4 uses savepoints for nested transactions, so wrapping the risky statement in `$connection->transactional()` makes catch and continue safe.
+
+`WebhookOutboxStore` had two such sites, both catching `UniqueConstraintViolationException` after a failing insert.
+Both inserts now run in their own `transactional()` call, with a comment that explains the difference (commit `4c998b16740`).
+
+Not examined in detail: the other `catch (DBALException)` and `catch (DriverException)` sites such as `Translator`, `FeatureFlagRegistry` and `Kernel`.
+They only matter when an enclosing transaction is open and more statements or a commit follow the caught error.
+`LockWaitTimeout` (`55P03`) is not mapped to `LockWaitTimeoutException` and was not tested.
+
+### Verification
+
+PHPUnit only runs against MySQL (`DATABASE_URL=$MYSQL_URL`), it can not bootstrap against PostgreSQL.
+The rewriter and queue unit tests ran there, and the PostgreSQL behaviour was checked with the flows above and with small scripts against the running containers.
