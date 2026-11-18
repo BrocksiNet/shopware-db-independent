@@ -183,7 +183,40 @@ Bound as text, PostgreSQL ended the value at the first NUL byte without an error
 - `IdCodecStatement` binds a string parameter as binary when it contains a NUL byte or is not valid UTF-8.
 - Verified in the container: a value with NUL bytes round trips through `bytea` when bound as `BINARY` or `LARGE_OBJECT`, bound as `STRING` it came back shortened (53 of 82 bytes).
 
-Other `LONGTEXT` columns named `payload` were not checked for serialized content yet.
+#### Audit of the other text columns
+
+No further column needs to change, `SERIALIZED_TEXT_COLS` stays as it is.
+
+Code: every `serialize(` and `PHPUnserializeFieldSerializer` / `SerializedField` write in `src/` (without migrations and tests) was followed to its target column.
+
+| Writer | Target column | Type on PostgreSQL |
+|---|---|---|
+| `CheapestPriceUpdater` | `product.cheapest_price` | `bytea` (fixed above), the only `SerializedField` user (`CheapestPriceField`) |
+| `RulePayloadUpdater` | `rule.payload` | `bytea` |
+| `FlowPayloadUpdater` | `flow.payload` | `bytea` |
+| `RuleConditionLifecycleHandler` | `app_script_condition.constraints` (`BlobField`) | `bytea` |
+| `MediaIndexer`, `FileSaver` | `media.thumbnails_ro`, `media.media_type` | `bytea` |
+| `MediaFolderConfigurationIndexer` | `media_folder_configuration.media_thumbnail_sizes_ro` | `bytea` |
+| `OutboxInsert` via `WebhookOutboxStore::insertEventLog` | `webhook_event_log.serialized_webhook_message` | `bytea` |
+| `CartPersister` | `cart.payload` | `bytea` |
+| Messenger (`messenger_messages.body`, `text`) | `PhpSerializer` writes `addslashes(serialize(...))`, NUL becomes the two characters `\0` | safe as `text` |
+| `MailSender` | written to the filesystem, not the database | n/a |
+
+The `LONGTEXT payload` columns from the handoff (`version_commit_data`, `order_transaction`, `order_delivery`, `promotion_individual_code`, `sales_channel_api_context`, `order_line_item`, `app_feature`) are `jsonb` on PostgreSQL and written with `JsonField` / `json_encode`, not `serialize()`.
+Example: `SalesChannelContextPersister` line 57 and `OrderLineItemDefinition` line 103.
+
+Data: a scan of all 725 text-like MariaDB columns (NUL byte, `O:`, `a:`, `s:` prefixes) and of the 64 `text` columns on PostgreSQL gave no hit.
+This only shows that the lane data is nearly empty (for example `product` has 0 rows on MariaDB), it is no evidence for the other columns, the code audit is.
+
+Read side, verified with real reads through the running application:
+
+- Store API `POST /product` returns `calculatedCheapestPrice`, which is computed from the unserialized `product.cheapest_price` (861 bytes with NUL bytes).
+- Admin API `GET /api/media-folder-configuration` returns `mediaThumbnailSizes` with three sizes, unserialized from the `bytea` column.
+- `GET /api/flow`, `/api/rule` and `/api/media` answer 200.
+
+Related, not changed: PostgreSQL `jsonb` rejects the escape `\u0000` (`select '"a\u0000b"'::jsonb` gives `unsupported Unicode escape sequence`).
+A `JsonField` value that contains a NUL byte in a string would therefore fail on PostgreSQL, where MySQL `JSON` accepts it.
+No such value was found in the lane data, whether the core produces one is not verified.
 
 ### More shims
 
