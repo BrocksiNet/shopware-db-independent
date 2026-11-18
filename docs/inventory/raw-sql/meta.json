@@ -1,0 +1,8 @@
+{
+ "php_files_considered": 5933,
+ "in_scope": 446,
+ "scope_imports_connection": 436,
+ "excluded_migration": 982,
+ "scope_executes_sql_no_connection_import": 10,
+ "excluded_dal": 474
+}

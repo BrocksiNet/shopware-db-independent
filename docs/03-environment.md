@@ -27,33 +27,37 @@ PostgreSQL 18 can generate UUIDv7 ids natively.
 
 1. `sw-dev lane create pg --ref trunk --path <project>/instance --full-clone`
 2. Web image: the dev image has no PostgreSQL driver. `environment/web.Dockerfile`
-   describes the image. It was actually produced with the equivalent
-   run-and-commit, because `podman build` hung (see below):
+   describes the image:
 
    ```bash
-   podman run --name pgsql-ext-build --user root --entrypoint sh \
-     ghcr.io/shopware/docker-dev:php8.4-node24-caddy \
-     -c 'install-php-extensions pdo_pgsql pgsql'
-   podman commit --change 'USER www-data' --change 'ENTRYPOINT ["/entrypoint"]' \
-     --change 'CMD ["/usr/bin/supervisord","-c","/etc/supervisord.conf"]' \
-     pgsql-ext-build localhost/shopware-docker-dev-pgsql:php8.4-node24-caddy
+   podman build -t localhost/shopware-docker-dev-pgsql:php8.4-node24-caddy \
+     -f docs/environment/web.Dockerfile docs/environment
    ```
 3. `~/shopware-dev/instances/pg.yaml` (outside this repository) got the `image`
    override and `POSTGRES_URL` for `web`, the `postgres` service and the
    `postgres-data` volume.
 
-## Known problem: Podman VM `/Users` mount hangs
+## Incident: Podman VM `/Users` mount hung (resolved)
 
-On 2026-11-18 every read under `/Users` inside the Podman VM blocked (`ls -d
-/Users` stays in uninterruptible wait). Effects:
+On 2026-11-18, for at least 30 minutes, every read under `/Users` inside the
+Podman VM blocked (`podman machine ssh "ls -d /Users"` stayed in uninterruptible
+wait). While it lasted:
 
-- `podman build` with a context under `/Users` hangs without output.
-- Compose cannot create a container that bind-mounts a host path. The shared
-  override mounts `~/.local/share/phpactor/phpactor.phar` into `web`.
+- `podman build` with a context under `/Users` hung without printing a step.
+- `podman compose up -d --force-recreate web` hung at "Recreate"/"Creating",
+  because the shared override bind-mounts
+  `~/.local/share/phpactor/phpactor.phar` into `web`.
 
-Workaround in `pg.yaml`: `volumes: !override` for `web`, keeping only the
-`shopware-src` volume. The lane has no phpactor until that block is removed.
-Source sync is unaffected, it runs through Mutagen and a named volume.
+It cleared without a VM restart (uptime was unchanged). The cause is not
+established. It was first seen after a `podman build` that used `/tmp` as build
+context was started and aborted.
 
-The cause is not established. A `podman machine` restart is the expected fix; it
-stops the containers of every lane, so it has not been done.
+Afterwards the image was rebuilt from `environment/web.Dockerfile` (24 s), the
+temporary `volumes: !override` workaround was removed from `pg.yaml`, and the
+web container was recreated with `sw-dev compose recreate-web pg`.
+
+Check if it happens again:
+
+```bash
+podman machine ssh "timeout 6 ls -d /Users >/dev/null; echo exit=\$?"   # 124 = hung
+```

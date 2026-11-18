@@ -1,0 +1,510 @@
+## version
++--------------------------+
+| version()                |
++--------------------------+
+| 10.11.16-MariaDB-ubu2204 |
++--------------------------+
+## tables (BASE TABLE) / views
++------------+----------+
+| table_type | count(*) |
++------------+----------+
+| BASE TABLE |      250 |
++------------+----------+
+## columns
++----------+
+| count(*) |
++----------+
+|     2168 |
++----------+
+## indexes (distinct table,index) / index columns by type
++-----+
+| idx |
++-----+
+| 726 |
++-----+
++------------+-----+
+| index_type | idx |
++------------+-----+
+| BTREE      | 726 |
++------------+-----+
+## primary keys / unique / non-unique
++-----------+---------------------------------------+
+| k         | count(distinct table_name,index_name) |
++-----------+---------------------------------------+
+| NONUNIQUE |                                   379 |
+| PRIMARY   |                                   250 |
+| UNIQUE    |                                    97 |
++-----------+---------------------------------------+
+## foreign keys
++----------+
+| count(*) |
++----------+
+|      418 |
++----------+
+## FK rules
++-------------+-------------+----------+
+| delete_rule | update_rule | count(*) |
++-------------+-------------+----------+
+| CASCADE     | CASCADE     |      263 |
+| RESTRICT    | CASCADE     |       66 |
+| SET NULL    | CASCADE     |       47 |
+| CASCADE     | RESTRICT    |       22 |
+| SET NULL    | RESTRICT    |        8 |
+| RESTRICT    | RESTRICT    |        7 |
+| NO ACTION   | CASCADE     |        3 |
+| CASCADE     | NO ACTION   |        2 |
++-------------+-------------+----------+
+## triggers
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+## generated/virtual columns
++------+-------------------+----------+
+| g    | extra             | count(*) |
++------+-------------------+----------+
+|    1 | STORED GENERATED  |        4 |
+|    1 | VIRTUAL GENERATED |       11 |
++------+-------------------+----------+
+## check constraints (total / JSON_VALID)
++----------+---------------------------------------+
+| count(*) | sum(check_clause like '%json_valid%') |
++----------+---------------------------------------+
+|      376 |                                   374 |
++----------+---------------------------------------+
+## fulltext indexes
++---------------------------------------+
+| count(distinct table_name,index_name) |
++---------------------------------------+
+|                                     0 |
++---------------------------------------+
+## ON UPDATE CURRENT_TIMESTAMP
++----------+
+| count(*) |
++----------+
+|        1 |
++----------+
+## auto_increment columns
++---------------------+----------------+---------------------+
+| table_name          | column_name    | column_type         |
++---------------------+----------------+---------------------+
+| customer            | auto_increment | bigint(20) unsigned |
+| version_commit      | auto_increment | bigint(20)          |
+| messenger_stats     | id             | bigint(20) unsigned |
+| version_commit_data | auto_increment | bigint(20)          |
+| category            | auto_increment | int(11)             |
+| cart                | auto_increment | bigint(20)          |
+| order               | auto_increment | bigint(20) unsigned |
+| consent_log         | id             | bigint(20) unsigned |
+| messenger_messages  | id             | bigint(20)          |
+| webhook_delivery    | id             | bigint(20) unsigned |
+| product             | auto_increment | int(11)             |
++---------------------+----------------+---------------------+
+## enum/set columns
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+## distinct column types
++------------------------+-----+
+| column_type            | n   |
++------------------------+-----+
+| binary(16)             | 715 |
+| datetime(3)            | 431 |
+| varchar(255)           | 334 |
+| longtext               | 268 |
+| tinyint(1)             | 124 |
+| int(11)                |  69 |
+| double                 |  19 |
+| varchar(64)            |  15 |
+| varchar(500)           |  14 |
+| varchar(50)            |  13 |
+| varchar(32)            |  13 |
+| mediumtext             |  12 |
+| tinyint(1) unsigned    |  12 |
+| varchar(100)           |  10 |
+| longblob               |   8 |
+| datetime               |   8 |
+| bigint(20) unsigned    |   7 |
+| int(11) unsigned       |   7 |
+| varchar(20)            |   7 |
+| varchar(1024)          |   6 |
+| int(10) unsigned       |   6 |
+| text                   |   5 |
+| varchar(2048)          |   5 |
+| date                   |   4 |
+| bigint(20)             |   4 |
+| decimal(10,3) unsigned |   4 |
+| mediumblob             |   3 |
+| int(8)                 |   3 |
+| tinyint(4)             |   3 |
+| varchar(512)           |   3 |
+| float                  |   3 |
+| varchar(750)           |   3 |
+| timestamp(6)           |   2 |
+| varchar(254)           |   2 |
+| varchar(45)            |   2 |
+| varchar(80)            |   2 |
+| int(3)                 |   2 |
+| smallint(6)            |   2 |
+| varchar(70)            |   2 |
+| varchar(40)            |   2 |
+| int(5)                 |   1 |
+| char(3)                |   1 |
+| decimal(10,3)          |   1 |
+| varchar(3)             |   1 |
+| varchar(5000)          |   1 |
+| varchar(4096)          |   1 |
+| double(10,3)           |   1 |
+| char(32)               |   1 |
+| varchar(190)           |   1 |
+| varchar(127)           |   1 |
+| tinyint(3) unsigned    |   1 |
+| decimal(11,4) unsigned |   1 |
+| decimal(15,6) unsigned |   1 |
+| int(1) unsigned        |   1 |
++------------------------+-----+
+## BINARY(16) classification: id col (id/*_id), other
++------------+----------+
+| k          | count(*) |
++------------+----------+
+| id/fk-like |      691 |
+| other      |       24 |
++------------+----------+
+## BINARY(16) non-id-named columns
++----------------------+---------------------+
+| table_name           | column_name         |
++----------------------+---------------------+
+| category_translation | internal_link       |
+| product              | canonicalProduct    |
+| product              | categories          |
+| product              | cmsPage             |
+| product              | cover               |
+| product              | crossSellings       |
+| product              | customFieldSets     |
+| product              | deliveryTime        |
+| product              | featureSet          |
+| product              | guaranteeTermsMedia |
+| product              | mainCategories      |
+| product              | manufacturer        |
+| product              | media               |
+| product              | openGraphMedia      |
+| product              | prices              |
+| product              | properties          |
+| product              | tags                |
+| product              | tax                 |
+| product              | translations        |
+| product              | unit                |
+| product              | visibilities        |
+| seo_url              | foreign_key         |
+| webhook_delivery     | partition_key       |
+| webhook_stream       | partition_key       |
++----------------------+---------------------+
+## other binary/varbinary/blob
++----------------------------+----------------------------+-------------+
+| table_name                 | column_name                | column_type |
++----------------------------+----------------------------+-------------+
+| app_script_condition       | constraints                | longblob    |
+| cart                       | payload                    | longblob    |
+| flow                       | payload                    | longblob    |
+| media                      | media_type                 | longblob    |
+| media                      | thumbnails_ro              | longblob    |
+| media_folder_configuration | media_thumbnail_sizes_ro   | longblob    |
+| rule                       | payload                    | longblob    |
+| webhook_event_log          | serialized_webhook_message | longblob    |
+| app                        | icon                       | mediumblob  |
+| app_flow_action            | icon                       | mediumblob  |
+| plugin                     | icon                       | mediumblob  |
++----------------------------+----------------------------+-------------+
+## json columns (data_type json) and longtext w/ json_valid check
++----------+
+| count(*) |
++----------+
+|      374 |
++----------+
+## charset/collation by column
++--------------------+--------------------+----------+
+| character_set_name | collation_name     | count(*) |
++--------------------+--------------------+----------+
+| utf8mb4            | utf8mb4_bin        |      218 |
+| utf8mb4            | utf8mb4_unicode_ci |      507 |
++--------------------+--------------------+----------+
+## table collations
++--------------------+----------+
+| table_collation    | count(*) |
++--------------------+----------+
+| utf8mb4_unicode_ci |      250 |
++--------------------+----------+
+## unique indexes on string columns (not PK)
++-----------------------------+---------------------------------------------------------+------------------------------------------------------------------+----------------------------------------------------------+
+| table_name                  | index_name                                              | cols                                                             | colls                                                    |
++-----------------------------+---------------------------------------------------------+------------------------------------------------------------------+----------------------------------------------------------+
+| app                         | uniq.name                                               | name                                                             | utf8mb4_unicode_ci                                       |
+| app_action_button           | uniq.app_action_button.action                           | action,app_id                                                    | utf8mb4_unicode_ci                                       |
+| app_feature                 | uniq.app_feature.app_name_type_name                     | app_name,type,name                                               | utf8mb4_unicode_ci,utf8mb4_unicode_ci,utf8mb4_unicode_ci |
+| app_flow_action             | uniq.app_flow_action.name                               | name                                                             | utf8mb4_unicode_ci                                       |
+| app_flow_event              | name                                                    | name                                                             | utf8mb4_unicode_ci                                       |
+| app_flow_event              | uniq.app_flow_event.name                                | name                                                             | utf8mb4_unicode_ci                                       |
+| consent_state               | uniq.consent_state                                      | name,identifier                                                  | utf8mb4_unicode_ci,utf8mb4_unicode_ci                    |
+| currency                    | uniq.currency.iso_code                                  | iso_code                                                         | utf8mb4_unicode_ci                                       |
+| customer                    | hash                                                    | hash                                                             | utf8mb4_unicode_ci                                       |
+| custom_entity               | name                                                    | name                                                             | utf8mb4_unicode_ci                                       |
+| custom_field                | uniq.custom_field.name                                  | name                                                             | utf8mb4_unicode_ci                                       |
+| custom_field_set_relation   | uniq.custom_field_set_relation.entity_name              | set_id,entity_name                                               | utf8mb4_unicode_ci                                       |
+| document                    | uniq.deep_link_code                                     | deep_link_code                                                   | utf8mb4_unicode_ci                                       |
+| document                    | uniq.document.document_number__type_name                | document_number,type_name                                        | utf8mb4_unicode_ci,utf8mb4_unicode_ci                    |
+| document_file               | uniq.document_file.document_id__document_format         | document_id,document_format                                      | utf8mb4_unicode_ci                                       |
+| document_type               | uniq.document_type.technical_name                       | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| import_export_profile       | uniq.import_export_profile.technical_name               | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| invalidation_tags           | tag                                                     | tag                                                              | utf8mb4_unicode_ci                                       |
+| locale                      | uniq.code                                               | code                                                             | utf8mb4_unicode_ci                                       |
+| mail_template_type          | uniq.mail_template_type.technical_name                  | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| measurement_display_unit    | uniq.measurement_display_unit.short_name                | short_name                                                       | utf8mb4_unicode_ci                                       |
+| measurement_system          | uniq.measurement_system.technical_name                  | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| media_default_folder        | uniq.media_default_folder.entity                        | entity                                                           | utf8mb4_unicode_ci                                       |
+| newsletter_recipient        | hash                                                    | hash                                                             | utf8mb4_unicode_ci                                       |
+| number_range_type           | uniq.technical_name                                     | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| oauth_auth_code             | uniq.oauth_auth_code.code_id                            | code_id                                                          | utf8mb4_unicode_ci                                       |
+| oauth_user                  | user_sub                                                | user_sub                                                         | utf8mb4_unicode_ci                                       |
+| order                       | uniq.deep_link_code                                     | deep_link_code,version_id                                        | utf8mb4_unicode_ci                                       |
+| payment_method              | uniq.technical_name                                     | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| plugin                      | uniq.baseClass                                          | base_class                                                       | utf8mb4_unicode_ci                                       |
+| plugin                      | uniq.name                                               | name                                                             | utf8mb4_unicode_ci                                       |
+| product                     | uniq.product.product_number__version_id                 | product_number,version_id                                        | utf8mb4_unicode_ci                                       |
+| product_export              | file_name                                               | file_name                                                        | utf8mb4_unicode_ci                                       |
+| product_keyword_dictionary  | uniq.language_id_keyword                                | language_id,keyword                                              | utf8mb4_unicode_ci                                       |
+| product_search_config_field | uniq.search_config_field.field__config_id               | field,product_search_config_id                                   | utf8mb4_unicode_ci                                       |
+| product_sorting             | uniq.product_sorting.url_key                            | url_key                                                          | utf8mb4_unicode_ci                                       |
+| promotion                   | code                                                    | code                                                             | utf8mb4_unicode_ci                                       |
+| promotion                   | individual_code_pattern                                 | individual_code_pattern                                          | utf8mb4_unicode_ci                                       |
+| promotion_individual_code   | code                                                    | code                                                             | utf8mb4_unicode_ci                                       |
+| refresh_token               | uniq.token_id                                           | token_id                                                         | utf8mb4_unicode_ci                                       |
+| sales_channel               | uniq.access_key                                         | access_key                                                       | utf8mb4_unicode_ci                                       |
+| sales_channel_domain        | uniq.sales_channel_domain.url                           | url                                                              | utf8mb4_unicode_ci                                       |
+| sales_channel_file          | uniq.sales_channel_file.sc_id_family_file_name          | sales_channel_id,file_family,file_name                           | utf8mb4_unicode_ci,utf8mb4_unicode_ci                    |
+| salutation                  | uniq.salutation_key                                     | salutation_key                                                   | utf8mb4_unicode_ci                                       |
+| scheduled_task              | uniq.scheduled_task.scheduled_task_class                | scheduled_task_class                                             | utf8mb4_unicode_ci                                       |
+| seo_url                     | uniq.seo_url.foreign_key                                | language_id,sales_channel_id,foreign_key,route_name,is_canonical | utf8mb4_unicode_ci                                       |
+| seo_url                     | uniq.seo_url.seo_path_info                              | language_id,sales_channel_id,seo_path_info                       | utf8mb4_unicode_ci                                       |
+| seo_url_template            | uniq.seo_url_template.route_name                        | sales_channel_id,route_name                                      | utf8mb4_unicode_ci                                       |
+| shipping_method             | uniq.technical_name                                     | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| snippet                     | uniq.snippet_set_id_translation_key                     | snippet_set_id,translation_key                                   | utf8mb4_unicode_ci                                       |
+| state_machine               | uniq.state_machine.technical_name                       | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| state_machine_state         | uniq.technical_name_state_machine                       | technical_name,state_machine_id                                  | utf8mb4_unicode_ci                                       |
+| state_machine_transition    | uniq.state_machine_transition.action_name_state_machine | action_name,state_machine_id,from_state_id,to_state_id           | utf8mb4_unicode_ci                                       |
+| system_config               | uniq.system_config.configuration_key__sales_channel_id  | configuration_key,sales_channel_id                               | utf8mb4_unicode_ci                                       |
+| tax_provider                | uniq.tax_provider.identifier                            | identifier                                                       | utf8mb4_unicode_ci                                       |
+| tax_rule_type               | uniq.technical_name                                     | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| theme                       | uniq.theme.technical_name                               | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| theme_runtime_config        | uidx.technical_name                                     | technical_name                                                   | utf8mb4_unicode_ci                                       |
+| user                        | uniq.user.email                                         | email                                                            | utf8mb4_unicode_ci                                       |
+| user                        | uniq.user.username                                      | username                                                         | utf8mb4_unicode_ci                                       |
+| user_config                 | uniq.user_id_key                                        | user_id,key                                                      | utf8mb4_unicode_ci                                       |
+| webhook                     | uniq.webhook.name                                       | name,app_id                                                      | utf8mb4_unicode_ci                                       |
++-----------------------------+---------------------------------------------------------+------------------------------------------------------------------+----------------------------------------------------------+
+## triggers
+## generated columns
++----------------------------+---------------------------------+--------------+-------------------+-------------------------------------------------------------+
+| table_name                 | column_name                     | column_type  | extra             | generation_expression                                       |
++----------------------------+---------------------------------+--------------+-------------------+-------------------------------------------------------------+
+| media                      | file_hash                       | varchar(32)  | STORED GENERATED  | json_unquote(json_extract(`meta_data`,'$.hash'))            |
+| sales_channel_domain       | external_storefront_language_id | binary(16)   | VIRTUAL GENERATED | if(`is_external_storefront` = 1,`language_id`,NULL)         |
+| order                      | order_date                      | date         | STORED GENERATED  | cast(`order_date_time` as date)                             |
+| order                      | amount_total                    | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.totalPrice'))          |
+| order                      | amount_net                      | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.netPrice'))            |
+| order                      | position_price                  | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.positionPrice'))       |
+| order                      | tax_status                      | varchar(255) | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.taxStatus'))           |
+| order                      | shipping_total                  | double       | VIRTUAL GENERATED | json_unquote(json_extract(`shipping_costs`,'$.totalPrice')) |
+| product_keyword_dictionary | reversed                        | varchar(500) | STORED GENERATED  | reverse(`keyword`)                                          |
+| order_line_item            | unit_price                      | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.unitPrice'))           |
+| order_line_item            | total_price                     | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.totalPrice'))          |
+| order_delivery_position    | total_price                     | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.totalPrice'))          |
+| order_delivery_position    | unit_price                      | double       | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.unitPrice'))           |
+| order_delivery_position    | quantity                        | int(11)      | VIRTUAL GENERATED | json_unquote(json_extract(`price`,'$.quantity'))            |
+| document                   | document_number                 | varchar(255) | STORED GENERATED  | json_unquote(json_extract(`config`,'$.documentNumber'))     |
++----------------------------+---------------------------------+--------------+-------------------+-------------------------------------------------------------+
+## composite FKs
++-----------------------------------------------------------------+-------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| constraint_name                                                 | table_name                                | cols                                                        | referenced_table_name            |
++-----------------------------------------------------------------+-------------------------------------------+-------------------------------------------------------------+----------------------------------+
+| fk.category.after_category_id                                   | category                                  | after_category_id,after_category_version_id                 | category                         |
+| fk.category.cms_page_id                                         | category                                  | cms_page_id,cms_page_version_id                             | cms_page                         |
+| fk.category.parent_id                                           | category                                  | parent_id,parent_version_id                                 | category                         |
+| fk.category_tag.category_tag__category_version_id               | category_tag                              | category_id,category_version_id                             | category                         |
+| fk.category_translation.category_id                             | category_translation                      | category_id,category_version_id                             | category                         |
+| fk.cms_block.cms_section_id                                     | cms_block                                 | cms_section_id,cms_section_version_id                       | cms_section                      |
+| fk.cms_page_translation.cms_page_id                             | cms_page_translation                      | cms_page_id,cms_page_version_id                             | cms_page                         |
+| fk.cms_section.cms_page_id                                      | cms_section                               | cms_page_id,cms_page_version_id                             | cms_page                         |
+| fk.cms_slot.cms_block_id                                        | cms_slot                                  | cms_block_id,cms_block_version_id                           | cms_block                        |
+| fk.cms_slot_translation.cms_slot_id                             | cms_slot_translation                      | cms_slot_id,cms_slot_version_id                             | cms_slot                         |
+| fk.customer_wishlist_product.product_id                         | customer_wishlist_product                 | product_id,product_version_id                               | product                          |
+| fk.document.order_id                                            | document                                  | order_id,order_version_id                                   | order                            |
+| fk.landing_page.cms_page_id                                     | landing_page                              | cms_page_id,cms_page_version_id                             | cms_page                         |
+| fk.landing_page_sales_channel.product_id                        | landing_page_sales_channel                | landing_page_id,landing_page_version_id                     | landing_page                     |
+| fk.landing_page_tag.landing_page_version_id__landing_page_id    | landing_page_tag                          | landing_page_id,landing_page_version_id                     | landing_page                     |
+| fk.landing_page_translation.landing_page_id                     | landing_page_translation                  | landing_page_id,landing_page_version_id                     | landing_page                     |
+| fk.main_category.category_id                                    | main_category                             | category_id,category_version_id                             | category                         |
+| fk.main_category.product_id                                     | main_category                             | product_id,product_version_id                               | product                          |
+| fk.order_address.order_id                                       | order_address                             | order_id,order_version_id                                   | order                            |
+| fk.order_customer.order_id                                      | order_customer                            | order_id,order_version_id                                   | order                            |
+| fk.order_delivery.order_id                                      | order_delivery                            | order_id,order_version_id                                   | order                            |
+| fk.order_delivery.shipping_order_address_id                     | order_delivery                            | shipping_order_address_id,shipping_order_address_version_id | order_address                    |
+| fk.order_delivery_position.order_delivery_id                    | order_delivery_position                   | order_delivery_id,order_delivery_version_id                 | order_delivery                   |
+| fk.order_delivery_position.order_line_item_id                   | order_delivery_position                   | order_line_item_id,order_line_item_version_id               | order_line_item                  |
+| fk.order_line_item.order_id                                     | order_line_item                           | order_id,order_version_id                                   | order                            |
+| fk.order_line_item.parent_id                                    | order_line_item                           | parent_id,parent_version_id                                 | order_line_item                  |
+| fk.order_line_item.product                                      | order_line_item                           | product_id,product_version_id                               | product                          |
+| fk.order_line_item_download.order_line_item_id                  | order_line_item_download                  | order_line_item_id,order_line_item_version_id               | order_line_item                  |
+| fk.order_tag.order_tag__order_version_id                        | order_tag                                 | order_id,order_version_id                                   | order                            |
+| fk.order_transaction.order_id                                   | order_transaction                         | order_id,order_version_id                                   | order                            |
+| fk.order_transaction_capture.order_transaction_id               | order_transaction_capture                 | order_transaction_id,order_transaction_version_id           | order_transaction                |
+| fk.order_transaction_capture_refund.capture_id                  | order_transaction_capture_refund          | capture_id,capture_version_id                               | order_transaction_capture        |
+| fk.order_transaction_capture_refund_position.order_line_item_id | order_transaction_capture_refund_position | order_line_item_id,order_line_item_version_id               | order_line_item                  |
+| fk.order_transaction_capture_refund_position.refund_id          | order_transaction_capture_refund_position | refund_id,refund_version_id                                 | order_transaction_capture_refund |
+| fk.product.canonical_product_id                                 | product                                   | canonical_product_id,canonical_product_version_id           | product                          |
+| fk.product.cms_page_id                                          | product                                   | cms_page_id,cms_page_version_id                             | cms_page                         |
+| fk.product.parent_id                                            | product                                   | parent_id,parent_version_id                                 | product                          |
+| fk.product.product_manufacturer                                 | product                                   | product_manufacturer_id,product_manufacturer_version_id     | product_manufacturer             |
+| fk.product_category.category_id                                 | product_category                          | category_id,category_version_id                             | category                         |
+| fk.product_category.product_id                                  | product_category                          | product_id,product_version_id                               | product                          |
+| fk.product_category_tree.category_id                            | product_category_tree                     | category_id,category_version_id                             | category                         |
+| fk.product_category_tree.product_id                             | product_category_tree                     | product_id,product_version_id                               | product                          |
+| fk.product_configurator_setting.product_id                      | product_configurator_setting              | product_id,product_version_id                               | product                          |
+| fk.product_cross_selling.product_id                             | product_cross_selling                     | product_id,product_version_id                               | product                          |
+| product_cross_selling_assigned_products_ibfk_2                  | product_cross_selling_assigned_products   | product_id,product_version_id                               | product                          |
+| fk.product_custom_field_set.product_id                          | product_custom_field_set                  | product_id,product_version_id                               | product                          |
+| fk.product_download.product_id                                  | product_download                          | product_id,product_version_id                               | product                          |
+| fk.product_manufacturer_translation.product_manufacturer_id     | product_manufacturer_translation          | product_manufacturer_id,product_manufacturer_version_id     | product_manufacturer             |
+| fk.product_media.product_id                                     | product_media                             | product_id,product_version_id                               | product                          |
+| fk.product_option.product_id                                    | product_option                            | product_id,product_version_id                               | product                          |
+| fk.product_price.product_id                                     | product_price                             | product_id,product_version_id                               | product                          |
+| fk.product_property.product_id                                  | product_property                          | product_id,product_version_id                               | product                          |
+| fk.product_review.product_id                                    | product_review                            | product_id,product_version_id                               | product                          |
+| fk.product_search_keyword.product_id                            | product_search_keyword                    | product_id,product_version_id                               | product                          |
+| fk.product_stream_mapping.product_id                            | product_stream_mapping                    | product_id,product_version_id                               | product                          |
+| fk.product_tag.product_version_id__product_id                   | product_tag                               | product_id,product_version_id                               | product                          |
+| fk.product_translation.product_id                               | product_translation                       | product_id,product_version_id                               | product                          |
+| fk.product_visibility.product_id                                | product_visibility                        | product_id,product_version_id                               | product                          |
+| fk.sales_channel.footer_category_id                             | sales_channel                             | footer_category_id,footer_category_version_id               | category                         |
+| fk.sales_channel.home_cms_page                                  | sales_channel                             | home_cms_page_id,home_cms_page_version_id                   | cms_page                         |
+| fk.sales_channel.navigation_category_id                         | sales_channel                             | navigation_category_id,navigation_category_version_id       | category                         |
+| fk.sales_channel.service_category_id                            | sales_channel                             | service_category_id,service_category_version_id             | category                         |
+| fk.sc_tracking_order.order_id                                   | sales_channel_tracking_order              | order_id,order_version_id                                   | order                            |
++-----------------------------------------------------------------+-------------------------------------------+-------------------------------------------------------------+----------------------------------+
+## unsigned / int types
++---------------------+----------+
+| column_type         | count(*) |
++---------------------+----------+
+| tinyint(1)          |      124 |
+| int(11)             |       69 |
+| tinyint(1) unsigned |       12 |
+| bigint(20) unsigned |        7 |
+| int(11) unsigned    |        7 |
+| int(10) unsigned    |        6 |
+| bigint(20)          |        4 |
+| int(8)              |        3 |
+| tinyint(4)          |        3 |
+| int(3)              |        2 |
+| smallint(6)         |        2 |
+| int(5)              |        1 |
+| tinyint(3) unsigned |        1 |
+| int(1) unsigned     |        1 |
++---------------------+----------+
+## DATETIME/TIMESTAMP
++--------------+----------+
+| column_type  | count(*) |
++--------------+----------+
+| date         |        4 |
+| datetime     |        8 |
+| datetime(3)  |      431 |
+| timestamp(6) |        2 |
++--------------+----------+
+## DOUBLE/DECIMAL/FLOAT
++------------------------+----------+
+| column_type            | count(*) |
++------------------------+----------+
+| decimal(10,3)          |        1 |
+| decimal(10,3) unsigned |        4 |
+| decimal(11,4) unsigned |        1 |
+| decimal(15,6) unsigned |        1 |
+| double                 |       19 |
+| double(10,3)           |        1 |
+| float                  |        3 |
++------------------------+----------+
+## JSON-checked columns, distinct (column-level and table-level checks both appear in check_constraints, so count distinct columns)
++-------------+--------------------+------+
+| column_type | collation_name     | cols |
++-------------+--------------------+------+
+| longtext    | utf8mb4_bin        |  218 |
+| longtext    | utf8mb4_unicode_ci |    2 |
++-------------+--------------------+------+
+## JSON-checked columns not utf8mb4_bin
++-----------------------+--------------------+
+| table_name            | column_name        |
++-----------------------+--------------------+
+| mail_template_type    | available_entities |
+| product_stream_filter | parameters         |
++-----------------------+--------------------+
+## named json.* check constraints
++----------+
+| count(*) |
++----------+
+|      156 |
++----------+
+## non-JSON checks
++----------------+-----------------------------------+------------------------------------+
+| table_name     | constraint_name                   | check_clause                       |
++----------------+-----------------------------------+------------------------------------+
+| order          | char_length.order.deep_link_code  | char_length(`deep_link_code`) = 32 |
+| scheduled_task | check.scheduled_task.run_interval | `run_interval` >= 1                |
++----------------+-----------------------------------+------------------------------------+
+## product camelCase binary(16) columns
++----------+
+| count(*) |
++----------+
+|       20 |
++----------+
+## composite FKs involving version_id / all FKs
++----------+
+| count(*) |
++----------+
+|       63 |
++----------+
++----------+
+| count(*) |
++----------+
+|      355 |
++----------+
+## FKs referencing a column other than id/version_id
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+## composite FKs by delete rule
++-------------+----------+
+| delete_rule | count(*) |
++-------------+----------+
+| CASCADE     |       51 |
+| RESTRICT    |        8 |
+| SET NULL    |        4 |
++-------------+----------+
+## SET NULL FKs that include a NOT NULL *version_id column
++----------+
+| count(*) |
++----------+
+|        0 |
++----------+
+## binary(16) columns with a default (all are *version_id)
++------------------------+----------+
+| column_name            | count(*) |
++------------------------+----------+
+| capture_version_id     |        1 |
+| cms_block_version_id   |        1 |
+| cms_page_version_id    |        5 |
+| cms_section_version_id |        1 |
+| refund_version_id      |        1 |
+| version_id             |        6 |
++------------------------+----------+

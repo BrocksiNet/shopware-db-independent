@@ -1,0 +1,66 @@
+tables
+ count 
+-------
+   250
+(1 row)
+
+columns
+ count 
+-------
+  2168
+(1 row)
+
+indexes total (incl. PK) / primary / unique-nonpk
+ count 
+-------
+   726
+(1 row)
+
+ pk  | fk  | chk | uq 
+-----+-----+-----+----
+ 250 | 418 |   2 |  0
+(1 row)
+
+column types
+          data_type          | count 
+-----------------------------+-------
+ uuid                        |   715
+ timestamp without time zone |   441
+ character varying           |   438
+ jsonb                       |   220
+ boolean                     |   136
+ integer                     |    75
+ text                        |    65
+ bigint                      |    25
+ double precision            |    20
+ bytea                       |    11
+ numeric                     |     7
+ smallint                    |     6
+ date                        |     4
+ real                        |     3
+ character                   |     2
+(15 rows)
+
+generated / identity / triggers
+ count 
+-------
+    15
+(1 row)
+
+ count 
+-------
+    11
+(1 row)
+
+ count 
+-------
+     1
+(1 row)
+
+case-insensitive unique smoke test
+SET
+BEGIN
+INSERT 0 1
+ERROR:  duplicate key value violates unique constraint "currency.uniq.currency.iso_code"
+DETAIL:  Key (iso_code)=(eur) already exists.
+ROLLBACK
