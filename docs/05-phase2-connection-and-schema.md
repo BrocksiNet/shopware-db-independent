@@ -47,10 +47,34 @@ State: branch `poc/postgresql` in `instance/` (uncommitted working tree on top o
 6. **Not ported:** read replicas (`DATABASE_REPLICA_n_URL`) and the `DATABASE_SSL_*` variables.
    PostgreSQL TLS goes through the `sslmode` / `sslrootcert` / `sslcert` / `sslkey` DSN parameters.
 
-## Blocker for switching the lane
+## Base data
 
 The translator creates the schema only.
-The base data of an installation comes from the migrations: 130 of the 910 core migration files contain inserts, and the fresh MariaDB install holds 2 languages, 250 countries, 9 currencies and 910 `migration` rows.
-With an empty `public` schema the storefront and the installer cannot work, so the lane still points at MariaDB.
+The base data of an installation comes from the migrations: 130 of the 910 core migration files contain inserts.
+Instead of porting them, `docs/phase2/copy-data.php` copies every row from the installed MariaDB.
+The PostgreSQL catalog drives the conversion: `BINARY(16)` to `uuid`, `TINYINT(1)` to `boolean`, JSON text to `jsonb`, other binary columns to `bytea`.
+Generated columns are skipped and the 11 identity sequences are moved behind the copied maximum.
+The copy runs in one transaction with `session_replication_role = replica` and compares row counts before it commits.
 
-Next step: a data copy script MariaDB to PostgreSQL (binary ids to `uuid`, `tinyint(1)` to `boolean`, JSON text to `jsonb`), then set `DATABASE_URL` in `~/shopware-dev/instances/pg.yaml` to the PostgreSQL URL.
+Result: 4,927 rows in 101 of 250 tables, no conversion error.
+Spot check: the two `language` ids and the 72 `system_config` rows match the source.
+
+```bash
+podman cp docs/phase2/copy-data.php instance-web-1:/tmp/copy-data.php
+podman exec instance-web-1 php /tmp/copy-data.php
+```
+
+## Lane on PostgreSQL
+
+`~/shopware-dev/instances/pg.yaml` now sets `DATABASE_URL` to the PostgreSQL URL and keeps MariaDB reachable as `MYSQL_URL`.
+The web container was recreated with `sw-dev compose recreate-web pg`.
+
+First requests after `bin/console cache:clear` (which itself succeeds):
+
+| Request | Result |
+|---|---|
+| `GET /` | 500, `syntax error at or near ","` in the sales channel domain query (backtick alias `` `key` ``) |
+| `GET /admin` | 500, `invalid byte sequence for encoding "UTF8": 0xb7` in a bound parameter, a binary id sent to PostgreSQL |
+| `GET /api/_info/version`, `GET /store-api/context` | 401, as expected without credentials |
+
+These two errors are the two main topics of phase 3: SQL dialect and id codec.
