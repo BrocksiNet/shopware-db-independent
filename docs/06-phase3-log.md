@@ -249,3 +249,23 @@ No tests were written for the new classes.
 - `Maintenance/System/Service/DatabaseConnectionFactory` and `DatabaseConnectionInformation::toDBALParameters()` hard code `pdo_mysql` and a MySQL / MariaDB version check.
   `system:install`, and with it the PHPUnit bootstrap, therefore can not run against a PostgreSQL `DATABASE_URL`.
   Unit tests were run with `DATABASE_URL=$MYSQL_URL`.
+
+## Step 5: administration UI and scheduled tasks
+
+All 27 runnable scheduled tasks were run with `scheduled-task:run-single`, `messenger:consume async` ran without errors.
+The two tasks with status `skipped` (`telemetry.collect_periodic_metrics`, `shopware.elasticsearch.create.alias`) are skipped by the framework itself, they were not run.
+In the administration the dashboard, product list and detail, order list and detail, customer list and detail and the settings start page load without a PostgreSQL error.
+
+| Area | Error | Fix | Platforms |
+| --- | --- | --- | --- |
+| Scheduled tasks (version, webhook log, cart, customer recovery, MCP cache, keyword dictionary) | `DELETE FROM t WHERE ... LIMIT n` is a syntax error | `DeleteRewriter` rewrites it to `DELETE FROM t WHERE ctid IN (SELECT ctid FROM t WHERE ... LIMIT n)` | PostgreSQL only |
+| Scheduled task `log_entry.cleanup` | `DELETE ld FROM t ld LEFT JOIN ...` (multi table delete) | `DeleteRewriter` rewrites it to `DELETE FROM t ld WHERE ld.ctid IN (SELECT ld.ctid FROM t ld LEFT JOIN ...)`, only for a single target | PostgreSQL only |
+| Scheduled task `shopware.sitemap_generate` | `COALESCE(bool, bool, 0)` mixes boolean and integer | `ProductUrlProvider` uses `COALESCE(..., FALSE) = TRUE` | both |
+| Admin `/api/app-system/modules` | `json_contains(jsonb, json)` missing | shim in `mysql-compat.sql` (two argument form) | PostgreSQL only |
+| Admin dashboard `order-amount` | `date_format(timestamp, text)` missing | shim in `mysql-compat.sql`, translates MySQL specifiers to `to_char` patterns | PostgreSQL only |
+| Admin product list (natural sorting) | `length(timestamp)` and `length(integer)` missing | shims in `mysql-compat.sql` | PostgreSQL only |
+| Admin product detail, `property-group-option` search | natural sorting `ORDER BY LENGTH(col)` in a grouped query, column not aggregated | `CriteriaQueryBuilder` uses `LENGTH(MIN(col))` / `LENGTH(MAX(col))` when the query has a group by | both (the MySQL result was an arbitrary row value before, now the min / max) |
+| Admin order detail | `json_type(jsonb)` missing | shim in `mysql-compat.sql`, returns the MySQL type names | PostgreSQL only |
+
+Not covered: other administration modules (rules, flows, media, themes, import / export) and a full click through of every tab.
+`json_contains` ignores the optional path argument.
