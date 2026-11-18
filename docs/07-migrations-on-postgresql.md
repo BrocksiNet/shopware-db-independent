@@ -16,7 +16,9 @@ It expects SQL that `MySQLToPostgreSQLTranslator` has already translated, which 
 Code changes are limited to places where SQL cannot be translated (`information_schema`, `SHOW`, triggers, default comparisons).
 
 Each migration runs in one PostgreSQL transaction.
-Every DDL statement is wrapped in a savepoint, so migrations that catch a failing DDL statement keep working.
+Every DDL statement is wrapped in a savepoint, whether it reaches the driver through `exec()` or through a prepared statement, so migrations that catch a failing DDL statement keep working.
+The writes of `0` and `1` to boolean columns in old migrations are converted by the `BooleanAssignmentRewriter` (see `docs/06-phase3-log.md`, step 7).
+An unnamed foreign key in `CREATE TABLE` is named `<table>_ibfk_<n>` like MySQL does, in `ALTER TABLE` the column names replace the number.
 
 ## How to run the check
 
@@ -74,7 +76,7 @@ The lane database `shopware` is only read, never changed.
 
 - `MakeVersionableMigrationHelper`: the foreign key query and the drop-key name (it now also matches the PostgreSQL index name).
 - `TableHelper::indexExists` fallback.
-- `Column::normalizeDefault` maps boolean defaults to `'1'` and `'0'`.
+- `Column::normalizeDefault` maps boolean defaults to `'1'` and `'0'`, only for columns of the DBAL boolean type (MySQL reports `TINYINT(1)` as smallint, so MySQL is not affected).
   This fixes `Migration1782906166RepairUserActiveDefault`, which compared the default with `'0'` and skipped itself.
 - IdCodec nil-uuid handling, `dropForeignKeyIfExists` and the savepoint around DDL.
 - `system:install` and the setup classes accept a PostgreSQL connection.

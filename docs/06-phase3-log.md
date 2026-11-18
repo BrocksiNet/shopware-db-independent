@@ -228,6 +228,7 @@ No such value was found in the lane data, whether the core produces one is not v
 | `integer` to `boolean` cast made an assignment cast | `UPDATE seo_url SET is_deleted = 0`. |
 
 The last one changes `pg_cast` directly, because a second cast for the same type pair can not be created.
+This was later replaced, see "The `pg_cast` shortcut is gone" in step 7.
 That needs a superuser and is not possible on most managed services.
 It is a proof of concept shortcut, the real fix is to bind booleans or write `false`.
 
@@ -301,27 +302,24 @@ All code changes are in `instance/` on `poc/postgresql`, in four commits: `09022
 
 ### The `pg_cast` shortcut is gone
 
-The `UPDATE pg_cast SET castcontext='a'` block is removed from `mysql-compat.sql`.
-Writes of `0` and `1` to boolean columns now fail on PostgreSQL, so the call sites were changed to PHP booleans or `TRUE` and `FALSE` literals (commit `09022c2ea0e`).
+The `UPDATE pg_cast SET castcontext='a'` block is removed from `mysql-compat.sql`, a database that is installed from scratch keeps the built in explicit cast from integer to boolean.
 
-Fixed call sites:
+The first attempt changed the call sites to PHP booleans (commit `09022c2ea0e`).
+The review of wave 1 showed that this breaks MySQL: PDO binds PHP `false` as `''`, and MySQL in strict mode rejects it with `1366 Incorrect integer value`.
+Reproduced with `Connection::insert()` and `update()`, and with `SeoUrlUpdaterTest` (7 of 8 tests failed on `seo_url.is_modified`).
+It also left about 100 legacy migrations that write `0` and `1` to boolean columns, so the migration check of step A failed in `Migration1536233560BasicData`.
 
-- `RetryWebhookMessageFailedSubscriber` and `WebhookHealthService`: `active => false`.
-- `WebhookLifecycleHandler`: `active => true`, and `only_live_version` is cast to bool.
-- `ProductExportGenerateTaskHandler`: `is_running => false`.
-- `PaymentTokenLifecycle` and `JWTFactoryV2`: `consumed => true`.
-- `AppSeoUrlLifecycleHandler`, `RepairLinkCategorySeoUrlTakeoverCommand`, `RuleIndexerSubscriber`: `is_deleted`, `is_modified` and `invalid` as literals.
-- `ProductStreamIndexer`: `invalid => true`.
-- `SeoUrlPersister`: `is_canonical`, `is_modified`, `is_deleted` in the UPDATE, the insert values and the query builder.
-- Test helpers `TestUser` and `ElasticsearchTestTestBehaviour`.
-- Unit tests `RuleIndexerSubscriberTest` and `SeoUrlPersisterTest` follow the new SQL.
+The call site changes were reverted (commit `18e69c35f88`), the conversion moved into the PostgreSQL layer (commit `6f8dda09200`):
 
-The `product` PATCH first still failed with `column "is_deleted" is of type boolean but expression is of type integer`.
-The cause was `SeoUrlPersister`, which a first search had missed, and after the fix the request returned 204.
-The storefront, the checkout (`/tmp/pg-store.sh`) and a product write (`/tmp/pg-w.sh`) work without the cast.
+- `BooleanAssignmentRewriter` rewrites `INSERT ... VALUES`, the `DO UPDATE SET` of upserts and `UPDATE ... SET` for boolean columns.
+  The columns come from `pg_attribute` and are cached per table, the cache is cleared when a DDL statement runs.
+- The literals `0` and `1` become `FALSE` and `TRUE`, every other value is wrapped in `mysql_compat_to_bool(...)`.
+- `mysql_compat_to_bool` has overloads for boolean, integer, bigint, numeric and text (`''` is false, `'1'` is true).
+- Trunk code, migrations and plugins stay unchanged, and the MySQL behaviour is the same as before.
 
 Comparisons such as `is_deleted = 0` still work, because the `boolean = integer` operators stay in the shims.
-Only the assignment of an integer to a boolean column needed the code changes.
+Verified: `scripts/check-migrations-on-postgresql.sh` is green again (910 migrations, 0 schema differences), product PATCH with a new SEO URL (`is_modified = false`) returns 204, a variant order through `/store-api/checkout/order` returns 200, and the PostgreSQL log has no error after the migration run.
+The unit test class `BooleanAssignmentRewriterTest` has 12 cases.
 
 ### Upsert conflict targets
 
