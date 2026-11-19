@@ -407,3 +407,39 @@ Verified by a run: PHPStan on `src/Core/Framework/Adapter/` and `src/Core/Conten
 New `ExceptionConverterMiddleware` maps SQLSTATE 55P03 (`lock_timeout`) to `LockWaitTimeoutException`, registered in `PostgreSQLFactory`, with a unit test.
 
 Verified by a run: 7 of the new tests fail against the old `DdlRewriter` and `UpdateRewriter`, all 121 unit tests of the directory pass now, PHPStan on the PostgreSQL directory, the factory and the tests reports 0 errors, php-cs-fixer reports no changes, the migration check reports 910 migrations (910 update, 910 destructive) and 0 differences.
+
+## Wave 2, runtime gaps
+
+### Context persister race
+
+`SalesChannelContextPersister::save()` falls back to `DELETE` + `INSERT` when the upsert hits the second unique key.
+Two requests with the same token can both pass the `DELETE` and then collide on the `INSERT`; MySQL's gap locks hide that, PostgreSQL raises `UniqueConstraintViolationException`.
+Chosen fix: retry the `DELETE` + `INSERT` transaction up to 10 times with a small random back-off (`d72dfbe5ede`).
+An upsert through the translation layer is not possible here, PostgreSQL's `ON CONFLICT` can only target one of the two unique keys (the reason the fallback exists).
+On MySQL the first attempt succeeds as before, so the behaviour is identical.
+Verified: a new unit test for the retry (`SalesChannelContextPersisterTest`); 30 parallel `PATCH /store-api/context` requests with one token on lane `pg` all returned 200.
+
+### `orders_per_customer_count` as a JSON number
+
+The integer bound to `JSON_SET` reached PostgreSQL as an untyped parameter and was stored as a JSON string (`{"<customerId>": "2"}`).
+`PromotionRedemptionUpdater` now writes `CAST(? AS SIGNED)`, the translator maps it to `CAST(? AS bigint)`, MySQL ignores the cast (`d7d9adf3522`).
+The same commit adds `json_length(jsonb)` to `mysql-compat.sql`.
+Verified: translator unit test case; the statement run through DBAL on both databases returns `{"abc": 2}`; `PromotionRedemptionUpdaterTest` 8 tests, 94 assertions green on MariaDB.
+Not verified: a real customer order through the checkout.
+The row that existed before the fix still holds the string `"2"`.
+
+### Opt-in SQL adapter for the newsletter routes
+
+`SHOPWARE_NEWSLETTER_RECIPIENT_STORAGE=sql` points the `NewsletterRecipientStorage` alias at `SqlNewsletterRecipientStorage`, the default stays the DAL adapter.
+The variable is read when the container is compiled, so `cache:clear` must run with it set.
+`scripts/dto-slice-smoke.sh dal|sql` passes it with `podman exec -e` instead of editing the DI file.
+Verified: `bin/console debug:container` shows the SQL adapter with the variable and the DAL adapter without; the smoke outputs of `sql` and `dal` on lane `pg` are identical (12 steps plus the final row, only the generated email differs).
+
+### `docs/08-dto-slice.md` check
+
+The statement about the salutation was stale: the SQL adapter follows the full language chain (`getLanguageIdChain()`), the document said it did not.
+Fixed, and a line about `createdAt` and `updatedAt` added (SQL adapter: `created_at` on insert only, `updated_at` on every write, injected clock in UTC; DAL adapter: filled by the DAL).
+
+### Verification
+
+PHPStan on the touched files reports 0 errors, php-cs-fixer finds nothing, `tests/unit/Core/Checkout/Promotion` 163 tests green, the persister test and the PostgreSQL directory unit tests 128 tests green (MariaDB URL override).

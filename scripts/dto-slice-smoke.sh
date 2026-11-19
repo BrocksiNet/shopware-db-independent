@@ -1,12 +1,10 @@
 #!/bin/sh
 # Newsletter slice smoke test against the PostgreSQL lane (http://pg.localhost:8088).
 # usage: scripts/dto-slice-smoke.sh dal|sql
-# Switches the DI alias NewsletterRecipientStorage to the chosen adapter, clears the cache, runs the cycle and prints "step -> http code error-code".
+# Selects the adapter with SHOPWARE_NEWSLETTER_RECIPIENT_STORAGE (read when the container is compiled), clears the cache, runs the cycle and prints "step -> http code error-code".
 set -e
-case "$1" in dal) A=DalNewsletterRecipientStorage ;; sql) A=SqlNewsletterRecipientStorage ;; *) echo "usage: $0 dal|sql"; exit 1 ;; esac
-F=instance/src/Core/Content/DependencyInjection/newsletter_recipient.php
-sed -i '' "s/\(NewsletterRecipientStorage::class, \)[A-Za-z]*NewsletterRecipientStorage::class/\1$A::class/" "$F"
-podman exec instance-web-1 bin/console cache:clear -q
+case "$1" in dal|sql) ;; *) echo "usage: $0 dal|sql"; exit 1 ;; esac
+podman exec -e SHOPWARE_NEWSLETTER_RECIPIENT_STORAGE="$1" instance-web-1 bin/console cache:clear -q
 PSQL="podman exec instance-postgres-1 psql -U shopware -At -c"
 E="smoke-$1-$(date +%s)@example.com"
 call() { # label method path json

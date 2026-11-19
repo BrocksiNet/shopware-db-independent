@@ -54,6 +54,11 @@ The three routes keep their public signatures (`RequestDataBag`, extension point
 Constructor change: the recipient and customer repositories are replaced by `NewsletterRecipientStorage` (DI in `newsletter_recipient.php`, alias `NewsletterRecipientStorage` to the DAL adapter).
 The SQL adapter is not the default because it skips written events and indexers (for example the customer's newsletter sales channel ids), so it is not a drop-in replacement.
 
+Opt-in switch: the environment variable `SHOPWARE_NEWSLETTER_RECIPIENT_STORAGE=sql` points the alias at the SQL adapter, any other value or none keeps the DAL adapter.
+It is read when the container is compiled (`EnvironmentHelper` in `newsletter_recipient.php`), so run `bin/console cache:clear` with the variable set, for example `podman exec -e SHOPWARE_NEWSLETTER_RECIPIENT_STORAGE=sql instance-web-1 bin/console cache:clear`.
+`scripts/dto-slice-smoke.sh dal|sql` does exactly that and no longer edits the DI file.
+Verified with `bin/console debug:container` (alias resolves to the SQL adapter with the variable, to the DAL adapter without).
+
 How the SQL adapter stays portable:
 
 - `INSERT ... ON DUPLICATE KEY UPDATE ... VALUES(col)`, ids as `Uuid::fromHexToBytes`, `LOWER(HEX(id))` for reads: the PostgreSQL layer (upsert rewriter, id codec, compat functions) translates them, no `instanceof`.
@@ -65,7 +70,8 @@ Behaviour differences found while building it:
 - The old subscribe flow loaded the recipient twice (ids, then entity); the new one loads it once before the write and once after.
 - Optional profile fields are `null` = keep (an explicit `null` in the payload no longer clears a stored value).
 - The unsubscribe update no longer re-writes the unchanged email; the unit test's expected payload lost that key.
-- The salutation is resolved with the context language and the system language, not the full language chain (SQL adapter).
+- The SQL adapter resolves the salutation translation along the full language chain of the context (context language, parents, system language), the first language with a value wins per field, like the DAL inheritance.
+- `createdAt` is set by the SQL adapter on insert and kept on a conflict, `updatedAt` is set on every upsert, confirm and opt-out, both from the injected clock in UTC; the DAL adapter lets the DAL fill them.
 - Events receive an entity rebuilt from the DTO; fields outside the DTO (tags, associations) are not loaded.
 
 ## Proof
