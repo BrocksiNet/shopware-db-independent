@@ -1,5 +1,8 @@
 # Plan
 
+Update 2026-11-19: the project is now "Shopware database independent".
+The target architecture (dialect layer per database, translator as compatibility shim) and the next steps are in `docs/10-architecture.md`, the database comparison and benchmark plan in `docs/11-database-comparison.md`.
+
 ## Two tracks
 
 1. **Dialect track** (gets Shopware running): a platform abstraction under the

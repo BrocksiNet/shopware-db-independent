@@ -1,12 +1,15 @@
-# Shopware on PostgreSQL: research and proof of concept
+# Shopware database independent: research and proof of concept
 
-Experiment: what has to change in the Shopware open source core so the database
-is exchangeable, with PostgreSQL as the first target. The goal is a running
-Shopware on PostgreSQL plus documentation of every finding on the way.
+Experiment: what has to change in the Shopware open source core so the database is exchangeable.
+Targets: MySQL and MariaDB (supported today), PostgreSQL (first new target) and SQLite (third target, to prove the abstraction).
+The goal is a Shopware that installs and runs on each of them from the same code, a measured comparison, and documentation of every finding on the way.
+
+The project started as "Shopware on PostgreSQL" (repository `shopware-postgresql`, branch `poc/postgresql`), see `docs/02-decisions.md` for the rename.
 
 ## Scope
 
-- Open source core only (`shopware/shopware`, trunk). No plugins, no commercial.
+- Open source core only (`shopware/shopware`, trunk).
+  No plugins, no commercial.
 - Ids are stored as native `uuid` on PostgreSQL, not as `bytea`.
 - Modern PHP: typed DTOs and a storage port between the API and the database.
 
@@ -16,16 +19,19 @@ Shopware on PostgreSQL plus documentation of every finding on the way.
 |---|---|
 | `README.md` | This file |
 | `docs/` | Plan, findings and decisions, numbered in the order they were written |
-| `instance/` | The Shopware checkout (separate git repository, ignored here) |
+| `scripts/` | Checks and smoke tests (migrations on PostgreSQL, DTO slice) |
+| `handoffs/` | Work packages for parallel sessions (not versioned) |
+| `instance/` | The Shopware checkout, branch `poc/db-independent` (separate git repository, ignored here) |
 | `review/` | Git worktrees of `instance/` for comparing branches and pull requests |
 
 ## Environment
 
-The instance is the `sw-dev` lane `pg`: http://pg.localhost:8088
-(admin: http://pg.localhost:8088/admin).
+The instance is the `sw-dev` lane `pg`: http://pg.localhost:8088 (admin: http://pg.localhost:8088/admin).
 
 ## Start reading
 
 1. [docs/00-plan.md](docs/00-plan.md)
-2. [docs/01-initial-findings.md](docs/01-initial-findings.md)
-3. [docs/02-decisions.md](docs/02-decisions.md)
+2. [docs/02-decisions.md](docs/02-decisions.md)
+3. [docs/10-architecture.md](docs/10-architecture.md): current state, target architecture and the change list
+4. [docs/11-database-comparison.md](docs/11-database-comparison.md): differences between the databases, benchmark plan
+5. [docs/09-test-run-on-postgresql.md](docs/09-test-run-on-postgresql.md): where the PostgreSQL port stands
