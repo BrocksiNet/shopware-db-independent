@@ -424,7 +424,7 @@ Ratios of the median latency, same harness; the demo data column is taken from t
 - The PostgreSQL gap on the storefront scenarios roughly doubled with the catalog data (for example filtered listing 1.56x to 3.29x); on store API listing, admin search and bulk write it stayed within 0.1x to 0.2x.
 - In absolute numbers the MariaDB storefront medians are lower on the catalog (home 97.4 ms against 207.2 ms) while the PostgreSQL ones are about equal (home 253.5 ms against 294.4 ms, filtered listing 200.4 against 199.9) or higher (product detail 290.1 against 215.2).
 - The two runs differ in more than the data: the catalog run has 6 sales channels with rotating Host headers, 4 pages per channel instead of 20 for the store API listing, SEO urls of the channel language, and different settings (below), so absolute numbers are not directly comparable and I did not find out which difference causes the gap on the storefront.
-- Persistent connections still help PostgreSQL on every scenario, by 1.13x to 1.93x without pooling against with.
+- PostgreSQL with persistent connections is faster than without on every scenario (ratio of the medians 1.13x to 1.93x).
 
 ### Settings and deviations of the catalog run
 
