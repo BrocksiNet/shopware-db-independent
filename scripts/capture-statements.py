@@ -71,6 +71,9 @@ if rec:
 entries = []
 last_params = {}
 for ts, pid, lvl, msg in pg:
+    if lvl == 'DETAIL' and msg.startswith('Parameters: ') and entries and entries[-1][1] == pid:
+        entries[-1] = entries[-1][:5] + (msg[len('Parameters: '):],)
+        continue
     m = re.match(r'duration: ([\d.]+) ms\s+(statement|parse|bind|execute)\s*(\S*?):\s?(.*)$', msg, flags=re.S)
     if m:
         kind = m.group(2)
