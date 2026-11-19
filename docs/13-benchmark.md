@@ -452,3 +452,124 @@ Ratios of the median latency, same harness; the demo data column is taken from t
 - PostgreSQL translator finding 2 (text times numeric on the price extract) is not fixed; USD sales channels cannot be served on PostgreSQL until it is.
 - The storefront gap on PostgreSQL (2.6x to 3.6x of MariaDB) and the low bulk write throughput were not analysed; the probe pass shows the time inside the PDO calls, not why the statements are slow.
 - The theme of the template sales channels is not compiled because the storefront is not built; storefront pages are served without it.
+
+## Rerun after wave 5
+
+Same harness, same catalog data in `bench_mariadb`, `bench_mysql` and `bench_pg`, same 7 setups and same settings as the catalog run above, measured on the instance snapshot f6a37fd183f (the catalog run used 21fc93eedd8).
+Raw data in `docs/benchmark-results/wave5-catalog/` (`results.json`, `report.md`, `snapshot-sha.txt`, `host-load-at-start.txt`, `parallel-writes.txt`, `usd-http-check.txt`, `usd-run/`, `deadlock-100ms/`).
+All 7 setups served all requests of all 7 scenarios without an error (0 non-200 responses in the latency, throughput and probe passes).
+
+### Result in short
+
+- PostgreSQL without pooling is 1.77x to 2.01x the MariaDB median latency on the 4 storefront scenarios (before 2.60x to 3.56x) and 1.69x to 1.86x on store API listing, admin search and bulk write (before 1.63x to 1.96x).
+- With persistent connections the storefront gap is 1.35x to 1.64x (before 2.23x to 3.05x), the other three are 1.06x, 1.20x and 1.60x (before 1.07x, 1.23x, 1.63x).
+- PostgreSQL storefront throughput with 4 parallel connections rose from 11.7 to 16.6 requests per second to 20.6 to 28.3, the MariaDB values are 35.0 to 52.9.
+- The PostgreSQL median latency fell on all 7 scenarios (storefront home 253.5 to 181.3 ms, filtered listing 200.4 to 118.4 ms, search 258.5 to 149.0 ms, product detail 290.1 to 155.2 ms); the MariaDB medians also moved (home 97.4 to 102.5 ms, product detail 84.2 to 77.3 ms, store API listing 33.2 to 22.6 ms), so the ratio is the figure to compare, not the milliseconds.
+- MySQL 8.4 is 0.91x to 1.21x of MariaDB.
+- The bulk write is unchanged in ratio (1.72x before and after); its parallel throughput on PostgreSQL is 1.6 requests per second (before 1.1), MariaDB 12.1, see the deadlock rows below.
+- USD (one channel, Beauty, set to USD on all three databases): HTTP 200 on all storefront pages, prices equal across the three databases, see below.
+
+### Ratios before and after
+
+Ratio of the median latency; "before" is the catalog run (`wave4-catalog/report.md`), "after" this run (`wave5-catalog/report.md`).
+
+| Scenario | PG/MariaDB before | PG/MariaDB after | PG pers./MariaDB pers. before | after | MySQL/MariaDB before | after | PG ms before | PG ms after |
+|---|---|---|---|---|---|---|---|---|
+| storefront home | 2.60 | 1.77 | 2.23 | 1.35 | 1.06 | 1.04 | 253.5 | 181.3 |
+| storefront listing with filter | 3.29 | 1.86 | 2.72 | 1.38 | 1.01 | 1.00 | 200.4 | 118.4 |
+| storefront search | 3.56 | 1.92 | 2.92 | 1.44 | 1.11 | 1.01 | 258.5 | 149.0 |
+| storefront product detail | 3.45 | 2.01 | 3.05 | 1.64 | 1.02 | 0.99 | 290.1 | 155.2 |
+| store API product listing with aggregations | 1.63 | 1.69 | 1.07 | 1.06 | 1.09 | 0.91 | 54.2 | 38.3 |
+| admin API product search with aggregations | 1.96 | 1.86 | 1.23 | 1.20 | 1.17 | 1.02 | 53.6 | 39.7 |
+| admin API bulk sync write (50 products) | 1.72 | 1.72 | 1.63 | 1.60 | 1.17 | 1.21 | 571.8 | 427.1 |
+
+### Throughput, 4 parallel connections, median of 5 runs (requests per second)
+
+| Scenario | MariaDB rps before | after | PG rps before | after | PG persistent rps before | after |
+|---|---|---|---|---|---|---|
+| storefront home | 35.6 | 35.0 | 13.5 | 20.6 | 16.0 | 25.3 |
+| storefront listing with filter | 56.5 | 52.0 | 16.6 | 28.3 | 19.2 | 39.4 |
+| storefront search | 45.8 | 52.9 | 12.8 | 26.0 | 15.9 | 34.5 |
+| storefront product detail | 39.8 | 47.3 | 11.7 | 21.9 | 13.7 | 28.8 |
+| store API product listing with aggregations | 98.0 | 119.5 | 56.3 | 68.1 | 95.9 | 111.4 |
+| admin API product search with aggregations | 131.8 | 150.4 | 68.3 | 79.6 | 120.8 | 137.9 |
+| admin API bulk sync write (50 products) | 9.9 | 12.1 | 1.1 | 1.6 | 3.2 | 1.0 |
+
+The PostgreSQL persistent bulk write throughput fell from 3.2 to 1.0 although its sequential latency fell (529.4 to 398.3 ms); the per-run ranges of the parallel runs are in `report.md`, and the cause is the row deadlock of docs/19 (see the deadlock rows), not a change in the statements.
+
+### Which wave 5 fix explains which change
+
+- Storefront scenarios: the `category.path` collation migration and the keyword `lower()` fix of [docs/18](18-postgresql-performance.md) remove the ICU comparison of `LIKE '%|id|%'` on the nondeterministic collation, which was the largest share of the storefront gap (docs/18 reports 2.35x to 3.12x falling to 1.66x to 1.98x; this run measures 1.77x to 2.01x).
+- Store API listing, admin search: no wave 5 change targets them, the ratios stay at 1.69x to 1.86x (before 1.63x to 1.96x), which is inside the spread I saw between runs.
+- Bulk write: [docs/19](19-postgresql-parallel-writes.md) explains the low parallel throughput by product row deadlocks multiplied by `deadlock_timeout` of 1 s; there is no code fix, so the ratio of the sequential latency is unchanged.
+- [docs/20](20-currency-seo-codec.md) (currency numeric extract, SEO ids, codec), [docs/21](21-dal-failures-postgresql.md) (DAL failures, empty many-to-many id fields NULL on PostgreSQL) and the remaining id sites of docs/15 section 8 are correctness and cleanup changes; I did not isolate their speed effect, the codec share of the wall time in the probe pass is 0.3 % to 4.4 %.
+
+### Parallel bulk write and deadlocks (separate rows)
+
+`scripts/parallel-writes.py` (docs/19), payload of the benchmark bulk write, 10 sequential and 20 parallel requests with 4 workers, 3 repeats, DB containers limited to 4 CPUs / 4 GiB, all responses 200 (93 per row).
+
+| Row | Setting | Sequential median ms (3 repeats) | Parallel requests per second (3 repeats, median) |
+|---|---|---|---|
+| MariaDB | product list as the benchmark builds it | 245.9, 237.0, 239.9 | 11.49, 12.17, 13.12 (12.17) |
+| MariaDB | `--dedupe` | 238.6, 234.3, 234.6 | 11.51, 13.4, 13.84 (13.4) |
+| PostgreSQL | product list as the benchmark builds it, `deadlock_timeout` 1 s | 432.8, 433.0, 422.9 | 3.5, 1.36, 1.02 (1.36) |
+| PostgreSQL | `--dedupe`, `deadlock_timeout` 1 s | 427.0, 403.7, 413.5 | 7.73, 7.33, 7.27 (7.33) |
+
+Benchmark scenario "admin API bulk sync write (50 products)", PostgreSQL and MariaDB only, 5 runs each, `deadlock_timeout` 100 ms (`ALTER SYSTEM` plus reload, reset afterwards; `deadlock-100ms/`):
+
+| Row | Latency median ms | Parallel requests per second median (range) |
+|---|---|---|
+| PostgreSQL, `deadlock_timeout` 100 ms | 434.5 | 5.9 (5.7 to 6.1) |
+| PostgreSQL, `deadlock_timeout` 1 s (main run above) | 427.1 | 1.6 |
+| MariaDB (same run as the 100 ms row) | 249.4 | 12.2 (11.7 to 12.8) |
+
+With `deadlock_timeout` at 100 ms the parallel throughput on PostgreSQL is 3.7 times the 1 s value and the sequential latency does not change; removing the products that are visible in several channels gives 5.4 times the throughput of the original list at 1 s.
+Both measurements agree with the cause named in docs/19.
+
+### Catalog data in USD (docs/20 currency fix over HTTP)
+
+The sales channel Beauty and its two domains were set to USD on all three databases (the other 5 channels stayed EUR), the benchmark stack caches were removed and the stacks restarted.
+Without removing `var/cache/prod_h*` of the benchmark stacks the first requests still showed EUR prices.
+HTTP status and the prices of the page text are in `usd-http-check.txt`; the host header was `beauty.localhost:18101`.
+
+| Page | Status MariaDB / MySQL / PostgreSQL | First prices (identical on all three) |
+|---|---|---|
+| home | 200 / 200 / 200 | $16.38, $7.01 |
+| category Makeup-Bags | 200 / 200 / 200 | $32.77, $19.89, $42.14 |
+| product Angled-Brow-Brush | 200 / 200 / 200 | $16.38, $7.01, $7.48, $10.29 |
+| product Blending-Sponge | 200 / 200 / 200 | $9.36, $16.38, $7.01, $7.48 |
+| search "brush" | 200 / 200 / 200 | $12.87, $17.55, $17.55, then the sixth price differs: $52.68 (MariaDB, PostgreSQL), $18.72 (MySQL) |
+
+- $16.38 is the EUR price 13.99 times the factor 1.17085 of USD; the price calculation that failed on PostgreSQL in finding 2 of the catalog run now works.
+- The search result order of the sixth hit differs on MySQL; I did not look into why, the page was 200 and the first five prices matched.
+
+Storefront scenarios with Beauty in USD, median latency in ms (3 databases, 5 runs; `usd-run/report.md`) and the ratio PostgreSQL / MariaDB:
+
+| Scenario | MariaDB | MySQL 8.4 | PostgreSQL | PostgreSQL / MariaDB | Throughput MariaDB / MySQL / PostgreSQL (rps) |
+|---|---|---|---|---|---|
+| storefront home | 83.2 | 85.2 | 149.1 | 1.79 | 39.9 / 37.9 / 22.3 |
+| storefront listing with filter | 51.2 | 50.4 | 97.7 | 1.91 | 63.0 / 62.8 / 33.4 |
+| storefront search | 60.6 | 62.2 | 119.3 | 1.97 | 53.2 / 51.8 / 26.9 |
+| storefront product detail | 71.0 | 70.9 | 142.9 | 2.01 | 47.4 / 47.8 / 22.3 |
+
+0 errors on all three databases.
+The absolute numbers are lower than in the main run for all three databases, which I attribute to a lower host load at that time (the main run started at load average 7.45, this run later at about 3 to 5); I did not measure that further.
+The channel was set back to EUR afterwards.
+
+### Settings and deviations of the wave 5 run
+
+- Host load at the start of the main run: `18:59 up 2 days, 10:53, 8 users, load averages: 7.45 7.06 7.91`.
+  The machine was running other lanes' containers (idle) and nothing of mine apart from the benchmark; the load was already about 9 before I started any command, and I did not find its source.
+- Settings as in the catalog run, verified before the run: PostgreSQL `shared_buffers` 1GB, `effective_cache_size` 3GB, `work_mem` 16MB, `maintenance_work_mem` 256MB; MariaDB and MySQL `innodb_buffer_pool_size` 1 GiB, `sort_buffer_size`, `tmp_table_size` and `max_heap_table_size` 16 MiB; container limit 4 CPUs / 4 GiB during the runs; PgBouncer 1.26.1 transaction mode, pool 20.
+- The MySQL container was stopped (exit 137) when I started and was started again; its command line sets `join_buffer_size=1024M`, which I set to 262144 with `SET GLOBAL` on MySQL and MariaDB before the run (MariaDB was at 262144 already).
+- `database:migrate --all` runs only the identifier `core`; the wave 5 migrations (`Migration1795000000`, `Migration1795000100`) belong to `core.V6_8` and were applied with `database:migrate core.V6_8 --all` on all three databases (19 migrations each, the other 17 were older pending V6_8 migrations, so MariaDB and MySQL differ from the catalog run in those too).
+  PostgreSQL already had `category.path` on `ucs_basic`; three `lower(...)` expression indexes exist on `bench_pg`.
+- `dal:refresh:index` took 10 s (MariaDB), 13 s (MySQL), 13 s (PostgreSQL); `VACUUM (FULL, ANALYZE)` reduced `bench_pg` from 280 MB to 71 MB; `ANALYZE TABLE` ran on all tables of both MySQL engines.
+- The first `run` call failed immediately because I had not set `DATASET=catalog` ("no category with products found"); it measured nothing, the second call is the result.
+- `install-times.txt` does not exist for this run, the report script was fed an empty one.
+- The Symfony caches of the three benchmark php-fpm stacks are the `var/cache/prod_h*` directories of the web container; removing the three that were created by the stacks and restarting them made the USD currency visible (see the USD section).
+
+### Still open
+
+- The storefront gap on PostgreSQL is 1.77x to 2.01x of MariaDB, 1.35x to 1.64x with persistent connections; I did not analyse the remaining part.
+- The bulk write on PostgreSQL is serialised by product row deadlocks (docs/19), not fixed in code.
