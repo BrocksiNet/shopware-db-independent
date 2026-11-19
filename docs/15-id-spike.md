@@ -68,7 +68,7 @@ Coverage (`scripts/id-rector-coverage.sh`, applied to a copy of all 309 affected
 | `UNHEX()` | 14 hits | 14 hits | 0 % |
 | all hits | 1,284 | 254 | 80 % |
 
-Files: 309 before, 250 changed, 105 still contain at least one pattern (59 files are done completely).
+Files: 309 before, 250 changed, 105 still contain at least one pattern (204 files are done completely).
 Not covered: `LOWER(HEX())` inside heredocs, nowdocs, interpolated strings and non-column expressions (210 hits in 83 files), `UNHEX()` (8 files), `ArrayParameterType::BINARY` in methods that receive already converted bytes from the caller (29 hits in 21 files).
 
 ## 4. Converted request path
@@ -118,11 +118,11 @@ Per conversion (`scripts/id-codec-microbench.php`, PHP 8.4, 500,000 iterations):
 
 On the converted path 85 conversions save about 10 microseconds per flow, not measurable against a request of tens of milliseconds.
 The gain of the conversion is architectural: no hidden per-value rewrite, no PostgreSQL special case in the call sites, the same code binds MySQL bytes and PostgreSQL hex.
-The performance gain only shows once the DAL (about 550 conversions per request here) is converted, at roughly 0.1 to 0.2 ms per request.
+The performance gain only shows once the DAL (about 550 conversions per request in the noisy log, an upper bound) is converted, at roughly 0.1 to 0.2 ms per request.
 
 ## 6. Estimate for the remaining files
 
-- 250 of 309 files can be rewritten mechanically with the rule, 59 completely.
+- 250 of 309 files can be rewritten mechanically with the rule, 204 of the 309 files completely.
   Applying it to the DAL core, `MultiInsertQueryQueue` and the write gateway needs the dialect handoff finished (same files) and a PostgreSQL run of the DAL integration suite: about one day for the run, review and fixes.
 - Remaining by hand: 83 files with `LOWER(HEX())` in heredocs and expressions (extending the rule to heredocs would cut most of them, about half a day), 8 files with `UNHEX()`, 21 files whose callers pass bytes (needs a signature decision per class, about one day).
 - Estimate in total: 3 to 4 working days for core plus review of a roughly 300 file diff, extensions are out of scope (they keep bytes on MySQL and go through the compatibility codec elsewhere).
