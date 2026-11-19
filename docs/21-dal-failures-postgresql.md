@@ -115,3 +115,14 @@ The fix belongs to handoff B (keyword indexer): skip products that are not in th
   That property became unused with the id migration commit 21fc93eedd8, not with a handoff E commit.
 - Database changes for this handoff: created `shopware_e` and `shopware_e_test` on both servers (copy of `shopware_test`), inserted the admin user into the PostgreSQL `shopware_test`.
   No `ALTER SYSTEM`, `SET GLOBAL`, restart or extension change.
+
+## Recheck by the coordinator
+
+- Rerun at instance HEAD `b6ae634e8e0` (after handoff D's Content and System commits), default order, `shopware_e`: PostgreSQL 30, MariaDB 0.
+  The extra six are the stale id group (`RepositoryFacadeTest` 6 instead of 1, `ManyToOneAssociationFieldResolverTest` 2, which pass alone) plus `SqlQueryParserTest::testFindProductsWithoutCategory`, which also failed alone.
+- Cause of `testFindProductsWithoutCategory` and `ManyToManyIdFieldIndexerTest::testResetRelation`: `ManyToManyIdFieldUpdater` writes `CONCAT('[', GROUP_CONCAT(...), ']')`.
+  For an empty set MySQL returns `NULL`, PostgreSQL's `CONCAT` ignores the `NULL` aggregate and stores `[]`, so `EqualsFilter('categoryIds', null)` finds nothing.
+- Fix `f1b5f0db8f0`: `CASE WHEN COUNT(*) = 0 THEN NULL ELSE ... END`, the same result on both databases.
+  Both tests pass on PostgreSQL and MariaDB; existing rows with `[]` are corrected by `dal:refresh:index`.
+- Rerun at `f1b5f0db8f0`, default order: PostgreSQL 801 tests, 24 failures (5 errors, 19 failures), MariaDB 801 tests, 0 failures.
+  The 24 contain the stale id group with 6 `RepositoryFacadeTest` failures, so the count moves by a few between runs.
