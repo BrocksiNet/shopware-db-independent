@@ -49,12 +49,16 @@ podman exec $WEB rm -rf "$CACHE"
 
 T_ALL=$(now)
 run "system:install" console system:install --basic-setup --drop-database --create-database --force --no-interaction || exit 1
+if [ "$DB" = postgresql ]; then
+  # the MySQL compatibility functions are not loaded by the core yet (known gap), apply them to the fresh database
+  run "pg mysql-compat.sql" sh -c "podman exec -i instance-postgres-1 psql -U shopware -d shopware_switch -v ON_ERROR_STOP=1 -q < '$HERE/../instance/src/Core/Framework/Adapter/Database/PostgreSQL/mysql-compat.sql'" || exit 1
+fi
 run "framework:demodata" console framework:demodata --reset-defaults --products 200 --categories 20 --manufacturers 10 --properties 10 --customers 10 --orders 10 --tags 20 --rules 10 --promotions 3 --newsletter-recipients 5 --reviews 10 --media 100 --no-interaction || exit 1
 run "dal:refresh:index" console dal:refresh:index --no-interaction || exit 1
 run "cache:clear" console cache:clear --no-interaction
 
 t0=$(now)
-podman exec -d "${ENVS[@]}" -e PHP_CLI_SERVER_WORKERS=4 $WEB php -d variables_order=EGPCS -S "127.0.0.1:$PORT" -t public public/index.php
+podman exec -d "${ENVS[@]}" -e PHP_CLI_SERVER_WORKERS=4 $WEB php -d variables_order=EGPCS -S "127.0.0.1:$PORT" -t public public/index.php >/dev/null
 for _ in $(seq 1 30); do
   podman exec $WEB curl -s -o /dev/null "$APP_URL/store-api/context" && break; sleep 1
 done

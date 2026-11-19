@@ -1,0 +1,42 @@
+20261119-110703	system:install	PASS	27.7	
+20261119-110703	framework:demodata	PASS	10.0	
+20261119-110703	dal:refresh:index	PASS	5.1	
+20261119-110703	cache:clear	PASS	1.9	
+20261119-110703	web process start	PASS	0.4	php -S 127.0.0.1:8092
+20261119-110703	smoke: storefront home	PASS	0.6	http 200, 1561777 bytes
+20261119-110703	smoke: storefront listing	PASS	0.2	http 200, 1561866 bytes
+20261119-110703	smoke: storefront search	PASS	0.1	http 200, 948476 bytes
+20261119-110703	smoke: admin token	PASS	0.6	http 200
+20261119-110703	smoke: admin product search	PASS	0.0	total 266 products
+20261119-110703	smoke: admin product write	PASS	0.1	create 204, update 204, read back ok
+20261119-110703	smoke: admin sync api	PASS	0.0	http 200 
+20261119-110703	smoke: store api checkout	PASS	0.4	order 10010, total 15088.05
+20261119-110703	total (install to smoke)	PASS	48.0	0 failed steps
+20261119-110917	system:install	PASS	42.7	
+20261119-110917	framework:demodata	PASS	10.7	
+20261119-110917	dal:refresh:index	PASS	5.6	
+20261119-110917	cache:clear	PASS	2.8	
+20261119-110917	web process start	PASS	0.6	php -S 127.0.0.1:8092
+20261119-110917	smoke: storefront home	PASS	0.6	http 200, 1810752 bytes
+20261119-110917	smoke: storefront listing	PASS	0.2	http 200, 1810839 bytes
+20261119-110917	smoke: storefront search	PASS	0.1	http 200, 1184608 bytes
+20261119-110917	smoke: admin token	PASS	0.6	http 200
+20261119-110917	smoke: admin product search	PASS	0.0	total 353 products
+20261119-110917	smoke: admin product write	PASS	0.3	create 204, update 204, read back ok
+20261119-110917	smoke: admin sync api	PASS	0.0	http 200 
+20261119-110917	smoke: store api checkout	PASS	0.5	order 10010, total 9701.76
+20261119-110917	total (install to smoke)	PASS	66.0	0 failed steps
+20261119-111142	system:install	PASS	31.8	
+20261119-111142	framework:demodata	PASS	8.4	
+20261119-111142	dal:refresh:index	PASS	4.2	
+20261119-111142	cache:clear	PASS	1.9	
+20261119-111142	web process start	PASS	0.3	php -S 127.0.0.1:8092
+20261119-111142	smoke: storefront home	PASS	0.6	http 200, 1584645 bytes
+20261119-111142	smoke: storefront listing	PASS	0.2	http 200, 1584738 bytes
+20261119-111142	smoke: storefront search	PASS	0.1	http 200, 957106 bytes
+20261119-111142	smoke: admin token	PASS	0.6	http 200
+20261119-111142	smoke: admin product search	PASS	0.0	total 508 products
+20261119-111142	smoke: admin product write	PASS	0.2	create 204, update 204, read back ok
+20261119-111142	smoke: admin sync api	PASS	0.0	http 200 
+20261119-111142	smoke: store api checkout	PASS	0.4	order 10010, total 1206.77
+20261119-111142	total (install to smoke)	PASS	49.6	0 failed steps
