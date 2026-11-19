@@ -1,0 +1,676 @@
+{
+ "pg": {
+  "set names ?": {
+   "label": "SET NAMES 'utf8'",
+   "calls": 1,
+   "ms": 0.049,
+   "sql": "SET NAMES 'utf8'",
+   "params": null
+  },
+  "set time zone ?": {
+   "label": "SET TIME ZONE 'UTC'",
+   "calls": 1,
+   "ms": 0.016,
+   "sql": "SET TIME ZONE 'UTC'",
+   "params": null
+  },
+  "select name, base_class, case when active and installed_at is not null then ? else ? end as is_active, path, version, autoload, managed_by_composer, composer_name from plugin order by installed_at;": {
+   "label": "dbal-plugin-loader SELECT name, base_class, CASE WHEN active AND installed_at IS NOT NULL THEN 1 ELSE 0 END AS",
+   "calls": 1,
+   "ms": 1.384,
+   "sql": "        /* dbal-plugin-loader */\n\t        SELECT\n\t               name,\n\t               base_class,\n\t               CASE WHEN active AND installed_at IS NOT NULL THEN 1 ELSE 0 END AS is_active,\n\t               path,\n\t               version,\n\t               autoload,\n\t               managed_by_composer,\n\t               composer_name\n\t        FROM plugin\n\t        ORDER BY installed_at;",
+   "params": null
+  },
+  "select key, value from app_config": {
+   "label": "SELECT key, value FROM app_config",
+   "calls": 1,
+   "ms": 0.28900000000000003,
+   "sql": "SELECT \"key\", \"value\" FROM \"app_config\"",
+   "params": null
+  },
+  "select custom_entity.name, custom_entity.fields, custom_entity.flags from custom_entity left join app on app.id = custom_entity.app_id where (custom_entity.app_id is null or app.active = ?) and custom_entity.deleted_at is null;": {
+   "label": "SELECT custom_entity.name, custom_entity.fields, custom_entity.flags FROM custom_entity LEFT JOIN app ON app.i",
+   "calls": 1,
+   "ms": 1.7749999999999997,
+   "sql": "\n\t                SELECT custom_entity.name, custom_entity.fields, custom_entity.flags\n\t                FROM custom_entity\n\t                    LEFT JOIN app ON app.id = custom_entity.app_id\n\t                WHERE (custom_entity.app_id IS NULL OR app.active = 1) AND custom_entity.deleted_at IS NULL;\n\t            ",
+   "params": null
+  },
+  "seo-url::resolve": {
+   "label": "-- seo-url::resolve SELECT id, path_info pathInfo, seo_path_info seoPathInfo, is_canonical isCanonical, sales_",
+   "calls": 3,
+   "ms": 11.285,
+   "sql": "-- seo-url::resolve\n\tSELECT id, path_info pathInfo, seo_path_info seoPathInfo, is_canonical isCanonical, sales_channel_id salesChannelId FROM seo_url WHERE (language_id = $1) AND ((sales_channel_id = $2 OR sales_channel_id IS NULL)) AND (seo_url.is_deleted = 0) AND ((seo_path_info = $3 OR seo_path_info = $4 OR seo_path_info = $5 OR seo_path_info = $6 OR seo_path_info = $7 OR seo_path_info = $8))",
+   "params": null
+  },
+  "select token, payload, updated_at, sales_channel_id as sales_channel_id, customer_id as customer_id from sales_channel_api_context where (sales_channel_id = ?) and (token = ?) limit ?": {
+   "label": "SELECT token, payload, updated_at, REPLACE(sales_channel_id::text, '-', '') AS sales_channel_id, REPLACE(custo",
+   "calls": 3,
+   "ms": 1.0610000000000002,
+   "sql": "SELECT token, payload, updated_at, REPLACE(sales_channel_id::text, '-', '') AS sales_channel_id, REPLACE(customer_id::text, '-', '') AS customer_id FROM sales_channel_api_context WHERE (sales_channel_id = $1) AND (token = $2) LIMIT 1",
+   "params": null
+  },
+  "select cart.payload, cart.rule_ids, cart.compressed from cart where token = ?": {
+   "label": "SELECT cart.payload, cart.rule_ids, cart.compressed FROM cart WHERE token = $1",
+   "calls": 3,
+   "ms": 0.5820000000000001,
+   "sql": "\n\t            SELECT \"cart\".\"payload\", \"cart\".\"rule_ids\", \"cart\".\"compressed\" FROM cart WHERE \"token\" = $1",
+   "params": null
+  },
+  "select replace(sales_channel_country.sales_channel_id, ?, ?) as sales_channel_id, replace(sales_channel_country.country_id, ?, ?) as country_id from sales_channel_country where (sales_channel_country.sales_channel_id = ? and sales_channel_country.country_id = ?)": {
+   "label": "SELECT REPLACE(sales_channel_country.sales_channel_id::text, '-', '') as sales_channel_id, REPLACE(sales_chann",
+   "calls": 1,
+   "ms": 0.373,
+   "sql": "SELECT REPLACE(\"sales_channel_country\".\"sales_channel_id\"::text, '-', '') as \"sales_channel_id\", REPLACE(\"sales_channel_country\".\"country_id\"::text, '-', '') as \"country_id\" FROM \"sales_channel_country\" WHERE (\"sales_channel_country\".\"sales_channel_id\" = $1 AND \"sales_channel_country\".\"country_id\" = $2)",
+   "params": null
+  },
+  "category::data::read": {
+   "label": "-- category::data::read SELECT REPLACE(category.id::text, '-', '') as category.id, REPLACE(category.version_id",
+   "calls": 1,
+   "ms": 3.382,
+   "sql": "-- category::data::read\n\tSELECT REPLACE(\"category\".\"id\"::text, '-', '') as \"category.id\", REPLACE(\"category\".\"version_id\"::text, '-', '') as \"category.versionId\", REPLACE(\"category\".\"parent_id\"::text, '-', '') as \"category.parentId\", REPLACE(\"category\".\"parent_version_id\"::text, '-', '') as \"category.parentVersionId\", REPLACE(\"category\".\"after_category_id\"::text, '-', '') as \"category.afterCategoryId\", REPLACE(\"category\".\"after_category_version_id\"::text, '-', '') as \"category.afterCategoryVersionId\", REPLACE(\"category\".\"media_id\"::text, '-', '') as \"category.mediaId\", \"category\".\"display_nested_products\" as \"category.displayNestedProducts\", \"category\".\"auto_increment\" as \"category.autoIncrement\", \"category\".\"level\" as \"category.level\", \"category\".\"path\" as \"category.path\", \"category\".\"child_count\" as \"category.childCount\", \"category\".\"type\" as \"category.type\", \"category\".\"product_assignment_type\" as \"category.productAssignmentType\", \"category\".\"visible\" as \"category.visible\", \"category\".\"active\" as \"category.active\", REPLACE(\"category\".\"cms_page_id\"::text, '-', '') as \"category.cmsPageId\", REPLACE(\"category\".\"cms_page_version_id\"::text, '-', '') as \"category.cmsPageVersionId\", REPLACE(\"category\".\"product_stream_id\"::text, '-', '') as \"category.productStreamId\", REPLACE(\"category\".\"custom_entity_type_id\"::text, '-', '') as \"category.customEntityTypeId\", \"category\".\"created_at\" as \"category.createdAt\", \"category\".\"updated_at\" as \"category.updatedAt\", REPLACE(\"category.media\".\"id\"::text, '-', '') as \"category.media.id\", REPLACE(\"category.media\".\"user_id\"::text, '-', '') as \"category.media.userId\", REPLACE(\"category.media\".\"media_folder_id\"::text, '-', '') as \"category.media.mediaFolderId\", \"category.media\".\"mime_type\" as \"category.media.mimeType\", \"category.media\".\"file_extension\" as \"category.media.fileExtension\", \"category.media\".\"uploaded_at\" as \"category.media.uploadedAt\", \"category.media\".\"file_name\" as \"category.media.fileName\", \"category.media\".\"file_size\" as \"category.media.fileSize\", \"category.media\".\"media_type\" as \"category.media.mediaTypeRaw\", \"category.media\".\"meta_data\" as \"category.media.metaData\", \"category.media\".\"config\" as \"category.media.config\", \"category.media\".\"path\" as \"category.media.path\", \"category.media\".\"private\" as \"category.media.private\", \"category.media\".\"thumbnails_ro\" as \"category.media.thumbnailsRo\", \"category.media\".\"file_hash\" as \"category.media.fileHash\", \"category.media\".\"created_at\" as \"category.media.createdAt\", \"category.media\".\"updated_at\" as \"category.media.updatedAt\", \"category.media.translation.title\", \"category.media.translation.title\" as \"category.media.title\", \"category.media.translation.alt\", \"category.media.translation.alt\" as \"category.media.alt\", \"category.media.translation.customFields\", \"category.media.translation.customFields\" as \"category.media.customFields\", \"category.translation.name\", \"category.translation.name\" as \"category.name\", \"category.translation.breadcrumb\", \"category.translation.breadcrumb\" as \"category.breadcrumb\", \"category.translation.slotConfig\", \"category.translation.slotConfig\" as \"category.slotConfig\", \"category.translation.linkType\", \"category.translation.linkType\" as \"category.linkType\", \"category.translation.internalLink\", \"category.translation.internalLink\" as \"category.internalLink\", \"category.translation.externalLink\", \"category.translation.externalLink\" as \"category.externalLink\", \"category.translation.linkNewTab\", \"category.translation.linkNewTab\" as \"category.linkNewTab\", \"category.translation.description\", \"category.translation.description\" as \"category.description\", \"category.translation.metaTitle\", \"category.translation.metaTitle\" as \"category.metaTitle\", \"category.translation.metaDescription\", \"category.translation.metaDescription\" as \"category.metaDescription\", \"category.translation.keywords\", \"category.translation.keywords\" as \"category.keywords\", \"category.translation.customFields\", \"category.translation.customFields\" as \"category.customFields\" FROM \"category\" LEFT JOIN \"media\" \"category.media\" ON \"category\".\"media_id\" = \"category.media\".\"id\" LEFT JOIN (SELECT \"category.translation\".\"category_id\", \"category.translation\".\"category_version_id\", \"category.translation\".\"breadcrumb\" as \"category.translation.breadcrumb\", \"category.translation\".\"name\" as \"category.translation.name\", \"category.translation\".\"custom_fields\" as \"category.translation.customFields\", \"category.translation\".\"slot_config\" as \"category.translation.slotConfig\", \"category.translation\".\"link_type\" as \"category.translation.linkType\", \"category.translation\".\"internal_link\" as \"category.translation.internalLink\", \"category.translation\".\"external_link\" as \"category.translation.externalLink\", \"category.translation\".\"link_new_tab\" as \"category.translation.linkNewTab\", \"category.translation\".\"description\" as \"category.translation.description\", \"category.translation\".\"meta_title\" as \"category.translation.metaTitle\", \"category.translation\".\"meta_description\" as \"category.translation.metaDescription\", \"category.translation\".\"keywords\" as \"category.translation.keywords\" FROM \"category_translation\" \"category.translation\" WHERE \"category.translation\".\"language_id\" = $1) \"category.category_translation\" ON \"category.category_translation\".\"category_id\" = \"category\".\"id\" AND \"category.category_translation\".\"category_version_id\" = \"category\".\"version_id\" LEFT JOIN (SELECT \"category.media.translation\".\"media_id\", \"category.media.translation\".\"alt\" as \"category.media.translation.alt\", \"category.media.translation\".\"title\" as \"category.media.translation.title\", \"category.media.translation\".\"custom_fields\" as \"category.media.translation.customFields\" FROM \"media_translation\" \"category.media.translation\" WHERE \"category.media.translation\".\"language_id\" = $2) \"category.media.media_translation\" ON \"category.media.media_translation\".\"media_id\" = \"category.media\".\"id\" WHERE (\"category\".\"version_id\" = $3) AND (\"category\".\"id\" IN ($4))",
+   "params": null
+  },
+  "category::data::association::translations::read": {
+   "label": "-- category::data::association::translations::read SELECT category_translation.name as category_translation.na",
+   "calls": 1,
+   "ms": 0.494,
+   "sql": "-- category::data::association::translations::read\n\tSELECT \"category_translation\".\"name\" as \"category_translation.name\", \"category_translation\".\"breadcrumb\" as \"category_translation.breadcrumb\", \"category_translation\".\"slot_config\" as \"category_translation.slotConfig\", \"category_translation\".\"link_type\" as \"category_translation.linkType\", REPLACE(\"category_translation\".\"internal_link\"::text, '-', '') as \"category_translation.internalLink\", \"category_translation\".\"external_link\" as \"category_translation.externalLink\", \"category_translation\".\"link_new_tab\" as \"category_translation.linkNewTab\", \"category_translation\".\"description\" as \"category_translation.description\", \"category_translation\".\"meta_title\" as \"category_translation.metaTitle\", \"category_translation\".\"meta_description\" as \"category_translation.metaDescription\", \"category_translation\".\"keywords\" as \"category_translation.keywords\", \"category_translation\".\"custom_fields\" as \"category_translation.customFields\", \"category_translation\".\"created_at\" as \"category_translation.createdAt\", \"category_translation\".\"updated_at\" as \"category_translation.updatedAt\", REPLACE(\"category_translation\".\"category_id\"::text, '-', '') as \"category_translation.categoryId\", REPLACE(\"category_translation\".\"language_id\"::text, '-', '') as \"category_translation.languageId\", REPLACE(\"category_translation\".\"category_version_id\"::text, '-', '') as \"category_translation.categoryVersionId\" FROM \"category_translation\" WHERE (\"category_translation\".\"category_version_id\" = $1) AND (((\"category_translation\".\"category_id\" IN ($2))))",
+   "params": null
+  },
+  "select lower(hex(app_feature.app_id)) as app_id, app.name as app_name, app.active as app_active, app.version as app_version, app.app_secret is not null as app_has_secret, app_feature.created_at as created_at, app_feature.payload as payload from app_feature inner join app on app.id = app_feature.app_id where app_feature.type = ? and app.active = ? order by app.name, app_feature.name": {
+   "label": "SELECT LOWER(HEX(app_feature.app_id)) AS app_id, app.name AS app_name, app.active AS app_active, app.version A",
+   "calls": 1,
+   "ms": 0.8240000000000001,
+   "sql": "SELECT LOWER(HEX(\"app_feature\".\"app_id\")) AS \"app_id\",\n\t                    \"app\".\"name\" AS \"app_name\",\n\t                    \"app\".\"active\" AS \"app_active\",\n\t                    \"app\".\"version\" AS \"app_version\",\n\t                    \"app\".\"app_secret\" IS NOT NULL AS \"app_has_secret\",\n\t                    \"app_feature\".\"created_at\" AS \"created_at\",\n\t                    \"app_feature\".\"payload\" AS \"payload\"\n\t             FROM \"app_feature\"\n\t             INNER JOIN \"app\" ON \"app\".\"id\" = \"app_feature\".\"app_id\"\n\t             WHERE \"app_feature\".\"type\" = $1 AND \"app\".\"active\" = 1\n\t             ORDER BY \"app\".\"name\", \"app_feature\".\"name\"",
+   "params": null
+  },
+  "select language.parent_id from language where language.id = ?": {
+   "label": "SELECT LOWER(HEX(language.parent_id)) FROM language WHERE language.id = $1",
+   "calls": 1,
+   "ms": 0.43200000000000005,
+   "sql": "SELECT LOWER(HEX(language.parent_id)) FROM language WHERE language.id = $1",
+   "params": null
+  },
+  "category::cms-page::read": {
+   "label": "-- category::cms-page::read SELECT REPLACE(cms_page.id::text, '-', '') as cms_page.id, REPLACE(cms_page.versio",
+   "calls": 1,
+   "ms": 0.759,
+   "sql": "-- category::cms-page::read\n\tSELECT REPLACE(\"cms_page\".\"id\"::text, '-', '') as \"cms_page.id\", REPLACE(\"cms_page\".\"version_id\"::text, '-', '') as \"cms_page.versionId\", \"cms_page\".\"type\" as \"cms_page.type\", \"cms_page\".\"entity\" as \"cms_page.entity\", \"cms_page\".\"css_class\" as \"cms_page.cssClass\", \"cms_page\".\"config\" as \"cms_page.config\", REPLACE(\"cms_page\".\"preview_media_id\"::text, '-', '') as \"cms_page.previewMediaId\", \"cms_page\".\"locked\" as \"cms_page.locked\", \"cms_page\".\"created_at\" as \"cms_page.createdAt\", \"cms_page\".\"updated_at\" as \"cms_page.updatedAt\", \"cms_page.translation.name\", \"cms_page.translation.name\" as \"cms_page.name\", \"cms_page.translation.customFields\", \"cms_page.translation.customFields\" as \"cms_page.customFields\" FROM \"cms_page\" LEFT JOIN (SELECT \"cms_page.translation\".\"cms_page_id\", \"cms_page.translation\".\"cms_page_version_id\", \"cms_page.translation\".\"name\" as \"cms_page.translation.name\", \"cms_page.translation\".\"custom_fields\" as \"cms_page.translation.customFields\" FROM \"cms_page_translation\" \"cms_page.translation\" WHERE \"cms_page.translation\".\"language_id\" = $1) \"cms_page.cms_page_translation\" ON \"cms_page.cms_page_translation\".\"cms_page_id\" = \"cms_page\".\"id\" AND \"cms_page.cms_page_translation\".\"cms_page_version_id\" = \"cms_page\".\"version_id\" WHERE (\"cms_page\".\"version_id\" = $2) AND (\"cms_page\".\"id\" IN ($3))",
+   "params": null
+  },
+  "category::cms-page::association::sections::read": {
+   "label": "-- category::cms-page::association::sections::read SELECT REPLACE(cms_section.id::text, '-', '') as cms_sectio",
+   "calls": 1,
+   "ms": 1.03,
+   "sql": "-- category::cms-page::association::sections::read\n\tSELECT REPLACE(\"cms_section\".\"id\"::text, '-', '') as \"cms_section.id\", REPLACE(\"cms_section\".\"version_id\"::text, '-', '') as \"cms_section.versionId\", REPLACE(\"cms_section\".\"cms_page_version_id\"::text, '-', '') as \"cms_section.cmsPageVersionId\", \"cms_section\".\"position\" as \"cms_section.position\", \"cms_section\".\"type\" as \"cms_section.type\", \"cms_section\".\"locked\" as \"cms_section.locked\", \"cms_section\".\"name\" as \"cms_section.name\", \"cms_section\".\"sizing_mode\" as \"cms_section.sizingMode\", \"cms_section\".\"mobile_behavior\" as \"cms_section.mobileBehavior\", \"cms_section\".\"background_color\" as \"cms_section.backgroundColor\", REPLACE(\"cms_section\".\"background_media_id\"::text, '-', '') as \"cms_section.backgroundMediaId\", \"cms_section\".\"background_media_mode\" as \"cms_section.backgroundMediaMode\", \"cms_section\".\"css_class\" as \"cms_section.cssClass\", REPLACE(\"cms_section\".\"cms_page_id\"::text, '-', '') as \"cms_section.pageId\", \"cms_section\".\"visibility\" as \"cms_section.visibility\", \"cms_section\".\"custom_fields\" as \"cms_section.customFields\", \"cms_section\".\"created_at\" as \"cms_section.createdAt\", \"cms_section\".\"updated_at\" as \"cms_section.updatedAt\", REPLACE(\"cms_section.backgroundMedia\".\"id\"::text, '-', '') as \"cms_section.backgroundMedia.id\", REPLACE(\"cms_section.backgroundMedia\".\"user_id\"::text, '-', '') as \"cms_section.backgroundMedia.userId\", REPLACE(\"cms_section.backgroundMedia\".\"media_folder_id\"::text, '-', '') as \"cms_section.backgroundMedia.mediaFolderId\", \"cms_section.backgroundMedia\".\"mime_type\" as \"cms_section.backgroundMedia.mimeType\", \"cms_section.backgroundMedia\".\"file_extension\" as \"cms_section.backgroundMedia.fileExtension\", \"cms_section.backgroundMedia\".\"uploaded_at\" as \"cms_section.backgroundMedia.uploadedAt\", \"cms_section.backgroundMedia\".\"file_name\" as \"cms_section.backgroundMedia.fileName\", \"cms_section.backgroundMedia\".\"file_size\" as \"cms_section.backgroundMedia.fileSize\", \"cms_section.backgroundMedia\".\"media_type\" as \"cms_section.backgroundMedia.mediaTypeRaw\", \"cms_section.backgroundMedia\".\"meta_data\" as \"cms_section.backgroundMedia.metaData\", \"cms_section.backgroundMedia\".\"config\" as \"cms_section.backgroundMedia.config\", \"cms_section.backgroundMedia\".\"path\" as \"cms_section.backgroundMedia.path\", \"cms_section.backgroundMedia\".\"private\" as \"cms_section.backgroundMedia.private\", \"cms_section.backgroundMedia\".\"thumbnails_ro\" as \"cms_section.backgroundMedia.thumbnailsRo\", \"cms_section.backgroundMedia\".\"file_hash\" as \"cms_section.backgroundMedia.fileHash\", \"cms_section.backgroundMedia\".\"created_at\" as \"cms_section.backgroundMedia.createdAt\", \"cms_section.backgroundMedia\".\"updated_at\" as \"cms_section.backgroundMedia.updatedAt\", \"cms_section.backgroundMedia.translation.title\", \"cms_section.backgroundMedia.translation.title\" as \"cms_section.backgroundMedia.title\", \"cms_section.backgroundMedia.translation.alt\", \"cms_section.backgroundMedia.translation.alt\" as \"cms_section.backgroundMedia.alt\", \"cms_section.backgroundMedia.translation.customFields\", \"cms_section.backgroundMedia.translation.customFields\" as \"cms_section.backgroundMedia.customFields\" FROM \"cms_section\" LEFT JOIN \"media\" \"cms_section.backgroundMedia\" ON \"cms_section\".\"background_media_id\" = \"cms_section.backgroundMedia\".\"id\" LEFT JOIN (SELECT \"cms_section.backgroundMedia.translation\".\"media_id\", \"cms_section.backgroundMedia.translation\".\"alt\" as \"cms_section.backgroundMedia.translation.alt\", \"cms_section.backgroundMedia.translation\".\"title\" as \"cms_section.backgroundMedia.translation.title\", \"cms_section.backgroundMedia.translation\".\"custom_fields\" as \"cms_section.backgroundMedia.translation.customFields\" FROM \"media_translation\" \"cms_section.backgroundMedia.translation\" WHERE \"cms_section.backgroundMedia.translation\".\"language_id\" = $1) \"cms_section.backgroundMedia.media_translation\" ON \"cms_section.backgroundMedia.media_translation\".\"media_id\" = \"cms_section.backgroundMedia\".\"id\" WHERE (\"cms_section\".\"version_id\" = $2) AND (((\"cms_section\".\"cms_page_id\" IN ($3))))",
+   "params": null
+  },
+  "category::cms-page::association::sections::association::blocks::read": {
+   "label": "-- category::cms-page::association::sections::association::blocks::read SELECT REPLACE(cms_block.id::text, '-'",
+   "calls": 1,
+   "ms": 1.015,
+   "sql": "-- category::cms-page::association::sections::association::blocks::read\n\tSELECT REPLACE(\"cms_block\".\"id\"::text, '-', '') as \"cms_block.id\", REPLACE(\"cms_block\".\"version_id\"::text, '-', '') as \"cms_block.versionId\", REPLACE(\"cms_block\".\"cms_section_version_id\"::text, '-', '') as \"cms_block.cmsSectionVersionId\", \"cms_block\".\"position\" as \"cms_block.position\", \"cms_block\".\"type\" as \"cms_block.type\", \"cms_block\".\"locked\" as \"cms_block.locked\", \"cms_block\".\"name\" as \"cms_block.name\", \"cms_block\".\"section_position\" as \"cms_block.sectionPosition\", \"cms_block\".\"margin_top\" as \"cms_block.marginTop\", \"cms_block\".\"margin_bottom\" as \"cms_block.marginBottom\", \"cms_block\".\"margin_left\" as \"cms_block.marginLeft\", \"cms_block\".\"margin_right\" as \"cms_block.marginRight\", \"cms_block\".\"background_color\" as \"cms_block.backgroundColor\", REPLACE(\"cms_block\".\"background_media_id\"::text, '-', '') as \"cms_block.backgroundMediaId\", \"cms_block\".\"background_media_mode\" as \"cms_block.backgroundMediaMode\", \"cms_block\".\"css_class\" as \"cms_block.cssClass\", \"cms_block\".\"visibility\" as \"cms_block.visibility\", REPLACE(\"cms_block\".\"cms_section_id\"::text, '-', '') as \"cms_block.sectionId\", \"cms_block\".\"custom_fields\" as \"cms_block.customFields\", \"cms_block\".\"created_at\" as \"cms_block.createdAt\", \"cms_block\".\"updated_at\" as \"cms_block.updatedAt\", REPLACE(\"cms_block.backgroundMedia\".\"id\"::text, '-', '') as \"cms_block.backgroundMedia.id\", REPLACE(\"cms_block.backgroundMedia\".\"user_id\"::text, '-', '') as \"cms_block.backgroundMedia.userId\", REPLACE(\"cms_block.backgroundMedia\".\"media_folder_id\"::text, '-', '') as \"cms_block.backgroundMedia.mediaFolderId\", \"cms_block.backgroundMedia\".\"mime_type\" as \"cms_block.backgroundMedia.mimeType\", \"cms_block.backgroundMedia\".\"file_extension\" as \"cms_block.backgroundMedia.fileExtension\", \"cms_block.backgroundMedia\".\"uploaded_at\" as \"cms_block.backgroundMedia.uploadedAt\", \"cms_block.backgroundMedia\".\"file_name\" as \"cms_block.backgroundMedia.fileName\", \"cms_block.backgroundMedia\".\"file_size\" as \"cms_block.backgroundMedia.fileSize\", \"cms_block.backgroundMedia\".\"media_type\" as \"cms_block.backgroundMedia.mediaTypeRaw\", \"cms_block.backgroundMedia\".\"meta_data\" as \"cms_block.backgroundMedia.metaData\", \"cms_block.backgroundMedia\".\"config\" as \"cms_block.backgroundMedia.config\", \"cms_block.backgroundMedia\".\"path\" as \"cms_block.backgroundMedia.path\", \"cms_block.backgroundMedia\".\"private\" as \"cms_block.backgroundMedia.private\", \"cms_block.backgroundMedia\".\"thumbnails_ro\" as \"cms_block.backgroundMedia.thumbnailsRo\", \"cms_block.backgroundMedia\".\"file_hash\" as \"cms_block.backgroundMedia.fileHash\", \"cms_block.backgroundMedia\".\"created_at\" as \"cms_block.backgroundMedia.createdAt\", \"cms_block.backgroundMedia\".\"updated_at\" as \"cms_block.backgroundMedia.updatedAt\", \"cms_block.backgroundMedia.translation.title\", \"cms_block.backgroundMedia.translation.title\" as \"cms_block.backgroundMedia.title\", \"cms_block.backgroundMedia.translation.alt\", \"cms_block.backgroundMedia.translation.alt\" as \"cms_block.backgroundMedia.alt\", \"cms_block.backgroundMedia.translation.customFields\", \"cms_block.backgroundMedia.translation.customFields\" as \"cms_block.backgroundMedia.customFields\" FROM \"cms_block\" LEFT JOIN \"media\" \"cms_block.backgroundMedia\" ON \"cms_block\".\"background_media_id\" = \"cms_block.backgroundMedia\".\"id\" LEFT JOIN (SELECT \"cms_block.backgroundMedia.translation\".\"media_id\", \"cms_block.backgroundMedia.translation\".\"alt\" as \"cms_block.backgroundMedia.translation.alt\", \"cms_block.backgroundMedia.translation\".\"title\" as \"cms_block.backgroundMedia.translation.title\", \"cms_block.backgroundMedia.translation\".\"custom_fields\" as \"cms_block.backgroundMedia.translation.customFields\" FROM \"media_translation\" \"cms_block.backgroundMedia.translation\" WHERE \"cms_block.backgroundMedia.translation\".\"language_id\" = $1) \"cms_block.backgroundMedia.media_translation\" ON \"cms_block.backgroundMedia.media_translation\".\"media_id\" = \"cms_block.backgroundMedia\".\"id\" WHERE (\"cms_block\".\"version_id\" = $2) AND (((\"cms_block\".\"cms_section_id\" IN ($3))))",
+   "params": null
+  },
+  "category::cms-page::association::sections::association::blocks::association::slots::read": {
+   "label": "-- category::cms-page::association::sections::association::blocks::association::slots::read SELECT REPLACE(cms",
+   "calls": 1,
+   "ms": 0.9390000000000001,
+   "sql": "-- category::cms-page::association::sections::association::blocks::association::slots::read\n\tSELECT REPLACE(\"cms_slot\".\"id\"::text, '-', '') as \"cms_slot.id\", REPLACE(\"cms_slot\".\"version_id\"::text, '-', '') as \"cms_slot.versionId\", REPLACE(\"cms_slot\".\"cms_block_version_id\"::text, '-', '') as \"cms_slot.cmsBlockVersionId\", \"cms_slot\".\"type\" as \"cms_slot.type\", \"cms_slot\".\"slot\" as \"cms_slot.slot\", \"cms_slot\".\"locked\" as \"cms_slot.locked\", REPLACE(\"cms_slot\".\"cms_block_id\"::text, '-', '') as \"cms_slot.blockId\", \"cms_slot\".\"created_at\" as \"cms_slot.createdAt\", \"cms_slot\".\"updated_at\" as \"cms_slot.updatedAt\", \"cms_slot.translation.config\", \"cms_slot.translation.config\" as \"cms_slot.config\", \"cms_slot.translation.customFields\", \"cms_slot.translation.customFields\" as \"cms_slot.customFields\" FROM \"cms_slot\" LEFT JOIN (SELECT \"cms_slot.translation\".\"cms_slot_id\", \"cms_slot.translation\".\"cms_slot_version_id\", \"cms_slot.translation\".\"config\" as \"cms_slot.translation.config\", \"cms_slot.translation\".\"custom_fields\" as \"cms_slot.translation.customFields\" FROM \"cms_slot_translation\" \"cms_slot.translation\" WHERE \"cms_slot.translation\".\"language_id\" = $1) \"cms_slot.cms_slot_translation\" ON \"cms_slot.cms_slot_translation\".\"cms_slot_id\" = \"cms_slot\".\"id\" AND \"cms_slot.cms_slot_translation\".\"cms_slot_version_id\" = \"cms_slot\".\"version_id\" WHERE (\"cms_slot\".\"version_id\" = $2) AND (((\"cms_slot\".\"cms_block_id\" IN ($3, $4, $5, $6))))",
+   "params": null
+  },
+  "product-listing::load-sortings::search-ids": {
+   "label": "-- product-listing::load-sortings::search-ids SELECT REPLACE(product_sorting.id::text, '-', '') as id FROM pro",
+   "calls": 1,
+   "ms": 0.6910000000000001,
+   "sql": "-- product-listing::load-sortings::search-ids\n\tSELECT REPLACE(\"product_sorting\".\"id\"::text, '-', '') as \"id\" FROM \"product_sorting\" WHERE (\"product_sorting\".\"active\" = $1) ORDER BY \"product_sorting\".\"priority\" DESC",
+   "params": null
+  },
+  "product-listing::load-sortings::read": {
+   "label": "-- product-listing::load-sortings::read SELECT REPLACE(product_sorting.id::text, '-', '') as product_sorting.i",
+   "calls": 1,
+   "ms": 0.56,
+   "sql": "-- product-listing::load-sortings::read\n\tSELECT REPLACE(\"product_sorting\".\"id\"::text, '-', '') as \"product_sorting.id\", \"product_sorting\".\"locked\" as \"product_sorting.locked\", \"product_sorting\".\"url_key\" as \"product_sorting.key\", \"product_sorting\".\"priority\" as \"product_sorting.priority\", \"product_sorting\".\"active\" as \"product_sorting.active\", \"product_sorting\".\"fields\" as \"product_sorting.fields\", \"product_sorting\".\"created_at\" as \"product_sorting.createdAt\", \"product_sorting\".\"updated_at\" as \"product_sorting.updatedAt\", \"product_sorting.translation.label\", \"product_sorting.translation.label\" as \"product_sorting.label\" FROM \"product_sorting\" LEFT JOIN (SELECT \"product_sorting.translation\".\"product_sorting_id\", \"product_sorting.translation\".\"label\" as \"product_sorting.translation.label\" FROM \"product_sorting_translation\" \"product_sorting.translation\" WHERE \"product_sorting.translation\".\"language_id\" = $1) \"product_sorting.product_sorting_translation\" ON \"product_sorting.product_sorting_translation\".\"product_sorting_id\" = \"product_sorting\".\"id\" WHERE \"product_sorting\".\"id\" IN ($2, $3, $4, $5, $6, $7)",
+   "params": null
+  },
+  "product-listing-route::category-loading::search-ids": {
+   "label": "-- product-listing-route::category-loading::search-ids SELECT REPLACE(category.id::text, '-', '') as id, categ",
+   "calls": 1,
+   "ms": 0.138,
+   "sql": "-- product-listing-route::category-loading::search-ids\n\tSELECT REPLACE(\"category\".\"id\"::text, '-', '') as \"id\", \"category\".\"auto_increment\" FROM \"category\" WHERE (\"category\".\"version_id\" = $1) AND (\"category\".\"id\" IN ($2)) LIMIT 1",
+   "params": null
+  },
+  "product-listing-route::category-loading::read": {
+   "label": "-- product-listing-route::category-loading::read SELECT REPLACE(category.id::text, '-', '') as category.id, RE",
+   "calls": 1,
+   "ms": 0.104,
+   "sql": "-- product-listing-route::category-loading::read\n\tSELECT REPLACE(\"category\".\"id\"::text, '-', '') as \"category.id\", REPLACE(\"category\".\"version_id\"::text, '-', '') as \"category.versionId\", \"category\".\"product_assignment_type\" as \"category.productAssignmentType\", REPLACE(\"category\".\"product_stream_id\"::text, '-', '') as \"category.productStreamId\" FROM \"category\" WHERE (\"category\".\"version_id\" = $1) AND (\"category\".\"id\" IN ($2))",
+   "params": null
+  },
+  "product-listing-route::loading::search-ids": {
+   "label": "-- product-listing-route::loading::search-ids SELECT any_value(REPLACE(product.id::text, '-', '')) as id, any_",
+   "calls": 1,
+   "ms": 4.681,
+   "sql": "-- product-listing-route::loading::search-ids\n\tSELECT any_value(REPLACE(\"product\".\"id\"::text, '-', '')) as \"id\", any_value(\"product\".\"product_number\") as \"product_number\", any_value(\"product\".\"auto_increment\") as \"auto_increment\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6) AND (IFNULL(\"product\".\"product_manufacturer_id\", \"product.parent\".\"product_manufacturer_id\") IN ($7)) AND (IFNULL(COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)), COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100))) >= $8))) GROUP BY \"product\".\"display_group\" ORDER BY MIN(IFNULL(COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)), COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)))) ASC, MIN(\"product\".\"id\") ASC LIMIT 24",
+   "params": null
+  },
+  "product-listing-route::loading::aggregation::manufacturer": {
+   "label": "-- product-listing-route::loading::aggregation::manufacturer SELECT REPLACE(IFNULL(product.product_manufacture",
+   "calls": 1,
+   "ms": 1.181,
+   "sql": "-- product-listing-route::loading::aggregation::manufacturer\n\tSELECT REPLACE(IFNULL(\"product\".\"product_manufacturer_id\", \"product.parent\".\"product_manufacturer_id\")::text, '-', '') as \"manufacturer\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6))) GROUP BY IFNULL(\"product\".\"product_manufacturer_id\", \"product.parent\".\"product_manufacturer_id\")",
+   "params": null
+  },
+  "manufacturer-aggregation::read": {
+   "label": "-- manufacturer-aggregation::read SELECT REPLACE(product_manufacturer.id::text, '-', '') as product_manufactur",
+   "calls": 1,
+   "ms": 1.0579999999999998,
+   "sql": "-- manufacturer-aggregation::read\n\tSELECT REPLACE(\"product_manufacturer\".\"id\"::text, '-', '') as \"product_manufacturer.id\", REPLACE(\"product_manufacturer\".\"version_id\"::text, '-', '') as \"product_manufacturer.versionId\", REPLACE(\"product_manufacturer\".\"media_id\"::text, '-', '') as \"product_manufacturer.mediaId\", \"product_manufacturer\".\"created_at\" as \"product_manufacturer.createdAt\", \"product_manufacturer\".\"updated_at\" as \"product_manufacturer.updatedAt\", \"product_manufacturer.translation.name\", \"product_manufacturer.translation.name\" as \"product_manufacturer.name\", \"product_manufacturer.translation.link\", \"product_manufacturer.translation.link\" as \"product_manufacturer.link\", \"product_manufacturer.translation.description\", \"product_manufacturer.translation.description\" as \"product_manufacturer.description\", \"product_manufacturer.translation.customFields\", \"product_manufacturer.translation.customFields\" as \"product_manufacturer.customFields\" FROM \"product_manufacturer\" LEFT JOIN (SELECT \"product_manufacturer.translation\".\"product_manufacturer_id\", \"product_manufacturer.translation\".\"product_manufacturer_version_id\", \"product_manufacturer.translation\".\"link\" as \"product_manufacturer.translation.link\", \"product_manufacturer.translation\".\"name\" as \"product_manufacturer.translation.name\", \"product_manufacturer.translation\".\"description\" as \"product_manufacturer.translation.description\", \"product_manufacturer.translation\".\"custom_fields\" as \"product_manufacturer.translation.customFields\" FROM \"product_manufacturer_translation\" \"product_manufacturer.translation\" WHERE \"product_manufacturer.translation\".\"language_id\" = $1) \"product_manufacturer.product_manufacturer_translation\" ON \"product_manufacturer.product_manufacturer_translation\".\"product_manufacturer_id\" = \"product_manufacturer\".\"id\" AND \"product_manufacturer.product_manufacturer_translation\".\"product_manufacturer_version_id\" = \"product_manufacturer\".\"version_id\" WHERE (\"product_manufacturer\".\"version_id\" = $2) AND (\"product_manufacturer\".\"id\" IN ($3, $4))",
+   "params": null
+  },
+  "product-listing-route::loading::aggregation::price": {
+   "label": "-- product-listing-route::loading::aggregation::price SELECT MIN(IFNULL(COALESCE((ROUND((ROUND(CAST((JSON_UNQU",
+   "calls": 1,
+   "ms": 1.578,
+   "sql": "-- product-listing-route::loading::aggregation::price\n\tSELECT MIN(IFNULL(COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)), COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)))) as \"price.min\", MAX(IFNULL(COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)), COALESCE((ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b110709ba78c882e0ed62337.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.rule01a1f420b2af77e78c6f75ec7bebeecb.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100),(ROUND((ROUND(CAST((JSON_UNQUOTE(JSON_EXTRACT(\"product.parent\".\"cheapest_price_accessor\", '$.ruledefault.currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1) as DECIMAL(30, 20)), 2)) * 100, 0) / 100)))) as \"price.max\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6)))",
+   "params": null
+  },
+  "product-listing-route::loading::aggregation::rating-exists": {
+   "label": "-- product-listing-route::loading::aggregation::rating-exists SELECT MAX(IFNULL(product.rating_average, produc",
+   "calls": 1,
+   "ms": 1.117,
+   "sql": "-- product-listing-route::loading::aggregation::rating-exists\n\tSELECT MAX(IFNULL(\"product\".\"rating_average\", \"product.parent\".\"rating_average\")) as \"rating\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6))) AND (((IFNULL(\"product\".\"rating_average\", \"product.parent\".\"rating_average\") >= $7)))",
+   "params": null
+  },
+  "product-listing-route::loading::aggregation::shipping-free-filter": {
+   "label": "-- product-listing-route::loading::aggregation::shipping-free-filter SELECT MAX(IFNULL(product.shipping_free, ",
+   "calls": 1,
+   "ms": 0.931,
+   "sql": "-- product-listing-route::loading::aggregation::shipping-free-filter\n\tSELECT MAX(IFNULL(\"product\".\"shipping_free\", \"product.parent\".\"shipping_free\")) as \"shipping-free\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6))) AND ((IFNULL(\"product\".\"shipping_free\", \"product.parent\".\"shipping_free\") = $7))",
+   "params": null
+  },
+  "product-listing-route::loading::aggregation::properties": {
+   "label": "-- product-listing-route::loading::aggregation::properties SELECT REPLACE(product.properties.id::text, '-', ''",
+   "calls": 1,
+   "ms": 2.432,
+   "sql": "-- product-listing-route::loading::aggregation::properties\n\tSELECT REPLACE(\"product.properties\".\"id\"::text, '-', '') as \"properties.key\", COUNT(\"product\".\"id\") as \"properties.count\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"product_property\" \"product.properties.mapping\" ON \"product\".\"properties\" = \"product.properties.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.properties.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" LEFT JOIN \"property_group_option\" \"product.properties\" ON \"product.properties.mapping\".\"property_group_option_id\" = \"product.properties\".\"id\"  WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6))) GROUP BY \"product.properties\".\"id\"",
+   "params": null
+  },
+  "product-listing-route::loading::aggregation::options": {
+   "label": "-- product-listing-route::loading::aggregation::options SELECT REPLACE(product.options.id::text, '-', '') as o",
+   "calls": 1,
+   "ms": 2.299,
+   "sql": "-- product-listing-route::loading::aggregation::options\n\tSELECT REPLACE(\"product.options\".\"id\"::text, '-', '') as \"options.key\", COUNT(\"product\".\"id\") as \"options.count\" FROM \"product\" LEFT JOIN \"product\" \"product.parent\" ON \"product\".\"parent_id\" = \"product.parent\".\"id\" AND \"product\".\"parent_version_id\" = \"product.parent\".\"version_id\" LEFT JOIN \"product_visibility\" \"product.visibilities\" ON \"product\".\"visibilities\" = \"product.visibilities\".\"product_id\" AND \"product\".version_id = \"product.visibilities\".product_version_id LEFT JOIN \"product_category_tree\" \"product.categoriesRo.mapping\" ON \"product\".\"id\" = \"product.categoriesRo.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.categoriesRo.mapping\".\"product_version_id\" LEFT JOIN \"product_option\" \"product.options.mapping\" ON \"product\".\"id\" = \"product.options.mapping\".\"product_id\"  AND \"product\".\"version_id\" = \"product.options.mapping\".\"product_version_id\" LEFT JOIN \"category\" \"product.categoriesRo\" ON \"product.categoriesRo.mapping\".\"category_id\" = \"product.categoriesRo\".\"id\"  AND \"product.categoriesRo\".\"version_id\" = \"product.categoriesRo.mapping\".\"category_version_id\" LEFT JOIN \"property_group_option\" \"product.options\" ON \"product.options.mapping\".\"property_group_option_id\" = \"product.options\".\"id\"  WHERE (\"product\".\"version_id\" = $1) AND ((((\"product.visibilities\".\"visibility\" >= $2) AND \"product.visibilities\".\"sales_channel_id\" = $3 AND IFNULL(\"product\".\"active\", \"product.parent\".\"active\") = $4) AND \"product.categoriesRo\".\"id\" = $5 AND NOT (\"product\".\"display_group\"  IS NOT DISTINCT FROM  $6))) GROUP BY \"product.options\".\"id\"",
+   "params": null
+  },
+  "product-listing::property-filter::read": {
+   "label": "-- product-listing::property-filter::read SELECT REPLACE(property_group_option.id::text, '-', '') as property_",
+   "calls": 1,
+   "ms": 1.411,
+   "sql": "-- product-listing::property-filter::read\n\tSELECT REPLACE(\"property_group_option\".\"id\"::text, '-', '') as \"property_group_option.id\", REPLACE(\"property_group_option\".\"property_group_id\"::text, '-', '') as \"property_group_option.groupId\", \"property_group_option\".\"color_hex_code\" as \"property_group_option.colorHexCode\", REPLACE(\"property_group_option\".\"media_id\"::text, '-', '') as \"property_group_option.mediaId\", \"property_group_option\".\"created_at\" as \"property_group_option.createdAt\", \"property_group_option\".\"updated_at\" as \"property_group_option.updatedAt\", REPLACE(\"property_group_option.media\".\"id\"::text, '-', '') as \"property_group_option.media.id\", REPLACE(\"property_group_option.media\".\"user_id\"::text, '-', '') as \"property_group_option.media.userId\", REPLACE(\"property_group_option.media\".\"media_folder_id\"::text, '-', '') as \"property_group_option.media.mediaFolderId\", \"property_group_option.media\".\"mime_type\" as \"property_group_option.media.mimeType\", \"property_group_option.media\".\"file_extension\" as \"property_group_option.media.fileExtension\", \"property_group_option.media\".\"uploaded_at\" as \"property_group_option.media.uploadedAt\", \"property_group_option.media\".\"file_name\" as \"property_group_option.media.fileName\", \"property_group_option.media\".\"file_size\" as \"property_group_option.media.fileSize\", \"property_group_option.media\".\"media_type\" as \"property_group_option.media.mediaTypeRaw\", \"property_group_option.media\".\"meta_data\" as \"property_group_option.media.metaData\", \"property_group_option.media\".\"config\" as \"property_group_option.media.config\", \"property_group_option.media\".\"path\" as \"property_group_option.media.path\", \"property_group_option.media\".\"private\" as \"property_group_option.media.private\", \"property_group_option.media\".\"thumbnails_ro\" as \"property_group_option.media.thumbnailsRo\", \"property_group_option.media\".\"file_hash\" as \"property_group_option.media.fileHash\", \"property_group_option.media\".\"created_at\" as \"property_group_option.media.createdAt\", \"property_group_option.media\".\"updated_at\" as \"property_group_option.media.updatedAt\", \"property_group_option.media.translation.title\", \"property_group_option.media.translation.title\" as \"property_group_option.media.title\", \"property_group_option.media.translation.alt\", \"property_group_option.media.translation.alt\" as \"property_group_option.media.alt\", \"property_group_option.media.translation.customFields\", \"property_group_option.media.translation.customFields\" as \"property_group_option.media.customFields\", \"property_group_option.translation.name\", \"property_group_option.translation.name\" as \"property_group_option.name\", \"property_group_option.translation.position\", \"property_group_option.translation.position\" as \"property_group_option.position\", \"property_group_option.translation.customFields\", \"property_group_option.translation.customFields\" as \"property_group_option.customFields\" FROM \"property_group_option\" LEFT JOIN \"media\" \"property_group_option.media\" ON \"property_group_option\".\"media_id\" = \"property_group_option.media\".\"id\" LEFT JOIN (SELECT \"property_group_option.translation\".\"property_group_option_id\", \"property_group_option.translation\".\"name\" as \"property_group_option.translation.name\", \"property_group_option.translation\".\"position\" as \"property_group_option.translation.position\", \"property_group_option.translation\".\"custom_fields\" as \"property_group_option.translation.customFields\" FROM \"property_group_option_translation\" \"property_group_option.translation\" WHERE \"property_group_option.translation\".\"language_id\" = $1) \"property_group_option.property_group_option_translation\" ON \"property_group_option.property_group_option_translation\".\"property_group_option_id\" = \"property_group_option\".\"id\" LEFT JOIN (SELECT \"property_group_option.media.translation\".\"media_id\", \"property_group_option.media.translation\".\"alt\" as \"property_group_option.media.translation.alt\", \"property_group_option.media.translation\".\"title\" as \"property_group_option.media.translation.title\", \"property_group_option.media.translation\".\"custom_fields\" as \"property_group_option.media.translation.customFields\" FROM \"media_translation\" \"property_group_option.media.translation\" WHERE \"property_group_option.media.translation\".\"language_id\" = $2) \"property_group_option.media.media_translation\" ON \"property_group_option.media.media_translation\".\"media_id\" = \"property_group_option.media\".\"id\" WHERE \"property_group_option\".\"id\" IN ($3, $4, $5, $6, $7, $8, $9, $10, $11, $12)",
+   "params": null
+  },
+  "product-listing::property-group-filter::read": {
+   "label": "-- product-listing::property-group-filter::read SELECT REPLACE(property_group.id::text, '-', '') as property_g",
+   "calls": 1,
+   "ms": 1.355,
+   "sql": "-- product-listing::property-group-filter::read\n\tSELECT REPLACE(\"property_group\".\"id\"::text, '-', '') as \"property_group.id\", \"property_group\".\"display_type\" as \"property_group.displayType\", \"property_group\".\"sorting_type\" as \"property_group.sortingType\", \"property_group\".\"filterable\" as \"property_group.filterable\", \"property_group\".\"visible_on_product_detail_page\" as \"property_group.visibleOnProductDetailPage\", \"property_group\".\"created_at\" as \"property_group.createdAt\", \"property_group\".\"updated_at\" as \"property_group.updatedAt\", \"property_group.translation.name\", \"property_group.translation.name\" as \"property_group.name\", \"property_group.translation.description\", \"property_group.translation.description\" as \"property_group.description\", \"property_group.translation.position\", \"property_group.translation.position\" as \"property_group.position\", \"property_group.translation.customFields\", \"property_group.translation.customFields\" as \"property_group.customFields\" FROM \"property_group\" LEFT JOIN (SELECT \"property_group.translation\".\"property_group_id\", \"property_group.translation\".\"name\" as \"property_group.translation.name\", \"property_group.translation\".\"description\" as \"property_group.translation.description\", \"property_group.translation\".\"position\" as \"property_group.translation.position\", \"property_group.translation\".\"custom_fields\" as \"property_group.translation.customFields\" FROM \"property_group_translation\" \"property_group.translation\" WHERE \"property_group.translation\".\"language_id\" = $1) \"property_group.property_group_translation\" ON \"property_group.property_group_translation\".\"property_group_id\" = \"property_group\".\"id\" WHERE ((\"property_group\".\"filterable\" = $2)) AND (\"property_group\".\"id\" IN ($3, $4, $5, $6, $7))",
+   "params": null
+  },
+  "select name, path, author, self_managed, version from app where active = ?": {
+   "label": "SELECT name, path, author, self_managed, version FROM app WHERE active = 1",
+   "calls": 1,
+   "ms": 0.114,
+   "sql": "\n\t                SELECT \"name\", \"path\", \"author\", \"self_managed\", \"version\"\n\t                FROM \"app\"\n\t                WHERE \"active\" = 1\n\t            ",
+   "params": null
+  },
+  "select app.name, app.version, app.template_load_priority from app inner join app_template on app_template.app_id = app.id where app.active = ? and app_template.active = ?": {
+   "label": "SELECT app.name, app.version, app.template_load_priority FROM app INNER JOIN app_template ON app_template.app_",
+   "calls": 1,
+   "ms": 0.663,
+   "sql": "SELECT \"app\".\"name\", \"app\".\"version\", \"app\".\"template_load_priority\"\n\t             FROM \"app\"\n\t             INNER JOIN \"app_template\" ON \"app_template\".\"app_id\" = \"app\".\"id\"\n\t             WHERE \"app\".\"active\" = 1 AND \"app_template\".\"active\" = 1",
+   "params": null
+  },
+  "select app_template.path as path, app_template.template as template, app_template.hash as hash, app_template.updated_at as updatedat, app.name as namespace from app_template inner join app on app_template.app_id = app.id where app_template.active = ? and app.active = ?": {
+   "label": "SELECT app_template.path AS path, app_template.template AS template, app_template.hash AS hash, app_template.u",
+   "calls": 1,
+   "ms": 0.173,
+   "sql": "\n\t                SELECT\n\t                    \"app_template\".\"path\" AS \"path\",\n\t                    \"app_template\".\"template\" AS \"template\",\n\t                    \"app_template\".\"hash\" AS \"hash\",\n\t                    \"app_template\".\"updated_at\" AS \"updatedAt\",\n\t                    \"app\".\"name\" AS \"namespace\"\n\t                FROM \"app_template\"\n\t                INNER JOIN \"app\" ON \"app_template\".\"app_id\" = \"app\".\"id\"\n\t                WHERE \"app_template\".\"active\" = 1 AND \"app\".\"active\" = 1\n\t            ",
+   "params": null
+  },
+  "select path from category where id = ?": {
+   "label": "SELECT path FROM category WHERE id = $1",
+   "calls": 1,
+   "ms": 0.067,
+   "sql": "SELECT path FROM category WHERE id = $1",
+   "params": null
+  },
+  "select min_search_length from product_search_config where language_id = ?": {
+   "label": "SELECT min_search_length FROM product_search_config WHERE language_id = $1",
+   "calls": 1,
+   "ms": 0.325,
+   "sql": "SELECT \"min_search_length\" FROM \"product_search_config\" WHERE \"language_id\" = $1",
+   "params": null
+  },
+  "select id from snippet_set where iso = ?": {
+   "label": "SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = $1",
+   "calls": 1,
+   "ms": 0.602,
+   "sql": "SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = $1",
+   "params": null
+  },
+  "select replace(category.id, ?, ?) as category.id, replace(category.version_id, ?, ?) as category.versionid, replace(category.parent_id, ?, ?) as category.parentid, replace(category.parent_version_id, ?, ?) as category.parentversionid, replace(category.after_category_id, ?, ?) as category.aftercategoryid, replace(category.after_category_version_id, ?, ?) as category.aftercategoryversionid, replace(category.media_id, ?, ?) as category.mediaid, category.display_nested_products as category.displaynestedproducts, category.auto_increment as category.autoincrement, category.level as category.level, category.path as category.path, category.child_count as category.childcount, category.type as category.type, category.product_assignment_type as category.productassignmenttype, category.visible as category.visible, category.active as category.active, replace(category.cms_page_id, ?, ?) as category.cmspageid, replace(category.cms_page_version_id, ?, ?) as category.cmspageversionid, replace(category.product_stream_id, ?, ?) as category.productstreamid, replace(category.custom_entity_type_id, ?, ?) as category.customentitytypeid, category.created_at as category.createdat, category.updated_at as category.updatedat, category.translation.name, category.translation.name as category.name, category.translation.breadcrumb, category.translation.breadcrumb as category.breadcrumb, category.translation.slotconfig, category.translation.slotconfig as category.slotconfig, category.translation.linktype, category.translation.linktype as category.linktype, category.translation.internallink, category.translation.internallink as category.internallink, category.translation.externallink, category.translation.externallink as category.externallink, category.translation.linknewtab, category.translation.linknewtab as category.linknewtab, category.translation.description, category.translation.description as category.description, category.translation.metatitle, category.translation.metatitle as category.metatitle, category.translation.metadescription, category.translation.metadescription as category.metadescription, category.translation.keywords, category.translation.keywords as category.keywords, category.translation.customfields, category.translation.customfields as category.customfields from category left join (select category.translation.category_id, category.translation.category_version_id, category.translation.breadcrumb as category.translation.breadcrumb, category.translation.name as category.translation.name, category.translation.custom_fields as category.translation.customfields, category.translation.slot_config as category.translation.slotconfig, category.translation.link_type as category.translation.linktype, category.translation.internal_link as category.translation.internallink, category.translation.external_link as category.translation.externallink, category.translation.link_new_tab as category.translation.linknewtab, category.translation.description as category.translation.description, category.translation.meta_title as category.translation.metatitle, category.translation.meta_description as category.translation.metadescription, category.translation.keywords as category.translation.keywords from category_translation category.translation where category.translation.language_id = ?) category.category_translation on category.category_translation.category_id = category.id and category.category_translation.category_version_id = category.version_id where (category.version_id = ?) and (category.id in (?))": {
+   "label": "SELECT REPLACE(category.id::text, '-', '') as category.id, REPLACE(category.version_id::text, '-', '') as cate",
+   "calls": 1,
+   "ms": 0.438,
+   "sql": "SELECT REPLACE(\"category\".\"id\"::text, '-', '') as \"category.id\", REPLACE(\"category\".\"version_id\"::text, '-', '') as \"category.versionId\", REPLACE(\"category\".\"parent_id\"::text, '-', '') as \"category.parentId\", REPLACE(\"category\".\"parent_version_id\"::text, '-', '') as \"category.parentVersionId\", REPLACE(\"category\".\"after_category_id\"::text, '-', '') as \"category.afterCategoryId\", REPLACE(\"category\".\"after_category_version_id\"::text, '-', '') as \"category.afterCategoryVersionId\", REPLACE(\"category\".\"media_id\"::text, '-', '') as \"category.mediaId\", \"category\".\"display_nested_products\" as \"category.displayNestedProducts\", \"category\".\"auto_increment\" as \"category.autoIncrement\", \"category\".\"level\" as \"category.level\", \"category\".\"path\" as \"category.path\", \"category\".\"child_count\" as \"category.childCount\", \"category\".\"type\" as \"category.type\", \"category\".\"product_assignment_type\" as \"category.productAssignmentType\", \"category\".\"visible\" as \"category.visible\", \"category\".\"active\" as \"category.active\", REPLACE(\"category\".\"cms_page_id\"::text, '-', '') as \"category.cmsPageId\", REPLACE(\"category\".\"cms_page_version_id\"::text, '-', '') as \"category.cmsPageVersionId\", REPLACE(\"category\".\"product_stream_id\"::text, '-', '') as \"category.productStreamId\", REPLACE(\"category\".\"custom_entity_type_id\"::text, '-', '') as \"category.customEntityTypeId\", \"category\".\"created_at\" as \"category.createdAt\", \"category\".\"updated_at\" as \"category.updatedAt\", \"category.translation.name\", \"category.translation.name\" as \"category.name\", \"category.translation.breadcrumb\", \"category.translation.breadcrumb\" as \"category.breadcrumb\", \"category.translation.slotConfig\", \"category.translation.slotConfig\" as \"category.slotConfig\", \"category.translation.linkType\", \"category.translation.linkType\" as \"category.linkType\", \"category.translation.internalLink\", \"category.translation.internalLink\" as \"category.internalLink\", \"category.translation.externalLink\", \"category.translation.externalLink\" as \"category.externalLink\", \"category.translation.linkNewTab\", \"category.translation.linkNewTab\" as \"category.linkNewTab\", \"category.translation.description\", \"category.translation.description\" as \"category.description\", \"category.translation.metaTitle\", \"category.translation.metaTitle\" as \"category.metaTitle\", \"category.translation.metaDescription\", \"category.translation.metaDescription\" as \"category.metaDescription\", \"category.translation.keywords\", \"category.translation.keywords\" as \"category.keywords\", \"category.translation.customFields\", \"category.translation.customFields\" as \"category.customFields\" FROM \"category\" LEFT JOIN (SELECT \"category.translation\".\"category_id\", \"category.translation\".\"category_version_id\", \"category.translation\".\"breadcrumb\" as \"category.translation.breadcrumb\", \"category.translation\".\"name\" as \"category.translation.name\", \"category.translation\".\"custom_fields\" as \"category.translation.customFields\", \"category.translation\".\"slot_config\" as \"category.translation.slotConfig\", \"category.translation\".\"link_type\" as \"category.translation.linkType\", \"category.translation\".\"internal_link\" as \"category.translation.internalLink\", \"category.translation\".\"external_link\" as \"category.translation.externalLink\", \"category.translation\".\"link_new_tab\" as \"category.translation.linkNewTab\", \"category.translation\".\"description\" as \"category.translation.description\", \"category.translation\".\"meta_title\" as \"category.translation.metaTitle\", \"category.translation\".\"meta_description\" as \"category.translation.metaDescription\", \"category.translation\".\"keywords\" as \"category.translation.keywords\" FROM \"category_translation\" \"category.translation\" WHERE \"category.translation\".\"language_id\" = $1) \"category.category_translation\" ON \"category.category_translation\".\"category_id\" = \"category\".\"id\" AND \"category.category_translation\".\"category_version_id\" = \"category\".\"version_id\" WHERE (\"category\".\"version_id\" = $2) AND (\"category\".\"id\" IN ($3))",
+   "params": null
+  },
+  "breadcrumb-extension::read": {
+   "label": "-- breadcrumb-extension::read SELECT REPLACE(category.id::text, '-', '') as category.id, REPLACE(category.vers",
+   "calls": 1,
+   "ms": 0.5329999999999999,
+   "sql": "-- breadcrumb-extension::read\n\tSELECT REPLACE(\"category\".\"id\"::text, '-', '') as \"category.id\", REPLACE(\"category\".\"version_id\"::text, '-', '') as \"category.versionId\", REPLACE(\"category\".\"parent_id\"::text, '-', '') as \"category.parentId\", REPLACE(\"category\".\"parent_version_id\"::text, '-', '') as \"category.parentVersionId\", REPLACE(\"category\".\"after_category_id\"::text, '-', '') as \"category.afterCategoryId\", REPLACE(\"category\".\"after_category_version_id\"::text, '-', '') as \"category.afterCategoryVersionId\", REPLACE(\"category\".\"media_id\"::text, '-', '') as \"category.mediaId\", \"category\".\"display_nested_products\" as \"category.displayNestedProducts\", \"category\".\"auto_increment\" as \"category.autoIncrement\", \"category\".\"level\" as \"category.level\", \"category\".\"path\" as \"category.path\", \"category\".\"child_count\" as \"category.childCount\", \"category\".\"type\" as \"category.type\", \"category\".\"product_assignment_type\" as \"category.productAssignmentType\", \"category\".\"visible\" as \"category.visible\", \"category\".\"active\" as \"category.active\", REPLACE(\"category\".\"cms_page_id\"::text, '-', '') as \"category.cmsPageId\", REPLACE(\"category\".\"cms_page_version_id\"::text, '-', '') as \"category.cmsPageVersionId\", REPLACE(\"category\".\"product_stream_id\"::text, '-', '') as \"category.productStreamId\", REPLACE(\"category\".\"custom_entity_type_id\"::text, '-', '') as \"category.customEntityTypeId\", \"category\".\"created_at\" as \"category.createdAt\", \"category\".\"updated_at\" as \"category.updatedAt\", \"category.translation.name\", \"category.translation.name\" as \"category.name\", \"category.translation.breadcrumb\", \"category.translation.breadcrumb\" as \"category.breadcrumb\", \"category.translation.slotConfig\", \"category.translation.slotConfig\" as \"category.slotConfig\", \"category.translation.linkType\", \"category.translation.linkType\" as \"category.linkType\", \"category.translation.internalLink\", \"category.translation.internalLink\" as \"category.internalLink\", \"category.translation.externalLink\", \"category.translation.externalLink\" as \"category.externalLink\", \"category.translation.linkNewTab\", \"category.translation.linkNewTab\" as \"category.linkNewTab\", \"category.translation.description\", \"category.translation.description\" as \"category.description\", \"category.translation.metaTitle\", \"category.translation.metaTitle\" as \"category.metaTitle\", \"category.translation.metaDescription\", \"category.translation.metaDescription\" as \"category.metaDescription\", \"category.translation.keywords\", \"category.translation.keywords\" as \"category.keywords\", \"category.translation.customFields\", \"category.translation.customFields\" as \"category.customFields\" FROM \"category\" LEFT JOIN (SELECT \"category.translation\".\"category_id\", \"category.translation\".\"category_version_id\", \"category.translation\".\"breadcrumb\" as \"category.translation.breadcrumb\", \"category.translation\".\"name\" as \"category.translation.name\", \"category.translation\".\"custom_fields\" as \"category.translation.customFields\", \"category.translation\".\"slot_config\" as \"category.translation.slotConfig\", \"category.translation\".\"link_type\" as \"category.translation.linkType\", \"category.translation\".\"internal_link\" as \"category.translation.internalLink\", \"category.translation\".\"external_link\" as \"category.translation.externalLink\", \"category.translation\".\"link_new_tab\" as \"category.translation.linkNewTab\", \"category.translation\".\"description\" as \"category.translation.description\", \"category.translation\".\"meta_title\" as \"category.translation.metaTitle\", \"category.translation\".\"meta_description\" as \"category.translation.metaDescription\", \"category.translation\".\"keywords\" as \"category.translation.keywords\" FROM \"category_translation\" \"category.translation\" WHERE \"category.translation\".\"language_id\" = $1) \"category.category_translation\" ON \"category.category_translation\".\"category_id\" = \"category\".\"id\" AND \"category.category_translation\".\"category_version_id\" = \"category\".\"version_id\" WHERE (\"category\".\"version_id\" = $2) AND (\"category\".\"id\" IN ($3, $4, $5))",
+   "params": null
+  },
+  "seo_url::replacement": {
+   "label": "-- seo_url::replacement SELECT seo_path_info, path_info, sales_channel_id FROM seo_url WHERE (seo_url.is_canon",
+   "calls": 3,
+   "ms": 2.035,
+   "sql": "-- seo_url::replacement\n\tSELECT seo_path_info, path_info, sales_channel_id FROM seo_url WHERE (seo_url.is_canonical = 1) AND (lower(seo_url.path_info) COLLATE ucs_basic IN ($1, $2, $3)) AND (seo_url.language_id = $4) AND (seo_url.sales_channel_id = $5 OR seo_url.sales_channel_id IS NULL) AND (seo_url.is_deleted = 0)",
+   "params": null
+  },
+  "seo-url::resolve-fallback": {
+   "label": "-- seo-url::resolve-fallback SELECT path_info pathInfo, seo_path_info seoPathInfo FROM seo_url WHERE (language",
+   "calls": 2,
+   "ms": 0.43700000000000006,
+   "sql": "-- seo-url::resolve-fallback\n\tSELECT path_info pathInfo, seo_path_info seoPathInfo FROM seo_url WHERE (language_id = $1) AND (sales_channel_id = $2) AND (path_info = $3) AND (is_canonical = 1) AND (is_deleted = 0) LIMIT 1",
+   "params": null
+  },
+  "select lower(hex(id)), path, level from category where id = ? or id = ?": {
+   "label": "SELECT LOWER(HEX(id)), path, level FROM category WHERE id = $1 OR id = $2",
+   "calls": 3,
+   "ms": 0.5800000000000001,
+   "sql": "\n\t            \n\t            SELECT LOWER(HEX(\"id\")), \"path\", \"level\"\n\t            FROM \"category\"\n\t            WHERE \"id\" = $1 OR \"id\" = $2\n\t        ",
+   "params": null
+  },
+  "header::languages::search-ids": {
+   "label": "-- header::languages::search-ids SELECT any_value(REPLACE(language.id::text, '-', '')) as id FROM language LEF",
+   "calls": 1,
+   "ms": 2.2600000000000002,
+   "sql": "-- header::languages::search-ids\n\tSELECT any_value(REPLACE(\"language\".\"id\"::text, '-', '')) as \"id\" FROM \"language\" LEFT JOIN \"sales_channel_domain\" \"language.salesChannelDomains\" ON \"language\".\"id\" = \"language.salesChannelDomains\".\"language_id\" LEFT JOIN \"sales_channel_language\" \"language.salesChannels.mapping\" ON \"language\".\"id\" = \"language.salesChannels.mapping\".\"language_id\"  LEFT JOIN \"sales_channel\" \"language.salesChannels\" ON \"language.salesChannels.mapping\".\"sales_channel_id\" = \"language.salesChannels\".\"id\"  WHERE (\"language.salesChannelDomains\".\"sales_channel_id\" = $1 AND \"language.salesChannels\".\"id\" = $2) GROUP BY \"language\".\"id\" ORDER BY MIN(\"language\".\"name\") ASC",
+   "params": null
+  },
+  "header::languages::read": {
+   "label": "-- header::languages::read SELECT REPLACE(language.id::text, '-', '') as language.id, REPLACE(language.parent_",
+   "calls": 1,
+   "ms": 1.117,
+   "sql": "-- header::languages::read\n\tSELECT REPLACE(\"language\".\"id\"::text, '-', '') as \"language.id\", REPLACE(\"language\".\"parent_id\"::text, '-', '') as \"language.parentId\", REPLACE(\"language\".\"locale_id\"::text, '-', '') as \"language.localeId\", REPLACE(\"language\".\"translation_code_id\"::text, '-', '') as \"language.translationCodeId\", \"language\".\"name\" as \"language.name\", \"language\".\"active\" as \"language.active\", \"language\".\"translation_auto_update\" as \"language.translationAutoUpdate\", \"language\".\"custom_fields\" as \"language.customFields\", \"language\".\"created_at\" as \"language.createdAt\", \"language\".\"updated_at\" as \"language.updatedAt\", REPLACE(\"language.translationCode\".\"id\"::text, '-', '') as \"language.translationCode.id\", \"language.translationCode\".\"code\" as \"language.translationCode.code\", \"language.translationCode\".\"created_at\" as \"language.translationCode.createdAt\", \"language.translationCode\".\"updated_at\" as \"language.translationCode.updatedAt\", \"language.translationCode.translation.name\", \"language.translationCode.translation.name\" as \"language.translationCode.name\", \"language.translationCode.translation.territory\", \"language.translationCode.translation.territory\" as \"language.translationCode.territory\", \"language.translationCode.translation.customFields\", \"language.translationCode.translation.customFields\" as \"language.translationCode.customFields\" FROM \"language\" LEFT JOIN \"locale\" \"language.translationCode\" ON \"language\".\"translation_code_id\" = \"language.translationCode\".\"id\" LEFT JOIN (SELECT \"language.translationCode.translation\".\"locale_id\", \"language.translationCode.translation\".\"name\" as \"language.translationCode.translation.name\", \"language.translationCode.translation\".\"territory\" as \"language.translationCode.translation.territory\", \"language.translationCode.translation\".\"custom_fields\" as \"language.translationCode.translation.customFields\" FROM \"locale_translation\" \"language.translationCode.translation\" WHERE \"language.translationCode.translation\".\"language_id\" = $1) \"language.translationCode.locale_translation\" ON \"language.translationCode.locale_translation\".\"locale_id\" = \"language.translationCode\".\"id\" WHERE \"language\".\"id\" IN ($2, $3)",
+   "params": null
+  },
+  "header::currencies::search-ids": {
+   "label": "-- header::currencies::search-ids SELECT any_value(REPLACE(currency.id::text, '-', '')) as id FROM currency LE",
+   "calls": 1,
+   "ms": 0.919,
+   "sql": "-- header::currencies::search-ids\n\tSELECT any_value(REPLACE(\"currency\".\"id\"::text, '-', '')) as \"id\" FROM \"currency\" LEFT JOIN \"sales_channel_currency\" \"currency.salesChannels.mapping\" ON \"currency\".\"id\" = \"currency.salesChannels.mapping\".\"currency_id\"  LEFT JOIN \"sales_channel\" \"currency.salesChannels\" ON \"currency.salesChannels.mapping\".\"sales_channel_id\" = \"currency.salesChannels\".\"id\"  WHERE (\"currency.salesChannels\".\"id\" = $1) GROUP BY \"currency\".\"id\"",
+   "params": null
+  },
+  "header::currencies::read": {
+   "label": "-- header::currencies::read SELECT REPLACE(currency.id::text, '-', '') as currency.id, currency.factor as curr",
+   "calls": 1,
+   "ms": 0.5770000000000001,
+   "sql": "-- header::currencies::read\n\tSELECT REPLACE(\"currency\".\"id\"::text, '-', '') as \"currency.id\", \"currency\".\"factor\" as \"currency.factor\", \"currency\".\"symbol\" as \"currency.symbol\", \"currency\".\"iso_code\" as \"currency.isoCode\", \"currency\".\"position\" as \"currency.position\", \"currency\".\"tax_free_from\" as \"currency.taxFreeFrom\", \"currency\".\"item_rounding\" as \"currency.itemRounding\", \"currency\".\"total_rounding\" as \"currency.totalRounding\", \"currency\".\"created_at\" as \"currency.createdAt\", \"currency\".\"updated_at\" as \"currency.updatedAt\", \"currency.translation.shortName\", \"currency.translation.shortName\" as \"currency.shortName\", \"currency.translation.name\", \"currency.translation.name\" as \"currency.name\", \"currency.translation.customFields\", \"currency.translation.customFields\" as \"currency.customFields\" FROM \"currency\" LEFT JOIN (SELECT \"currency.translation\".\"currency_id\", \"currency.translation\".\"short_name\" as \"currency.translation.shortName\", \"currency.translation\".\"name\" as \"currency.translation.name\", \"currency.translation\".\"custom_fields\" as \"currency.translation.customFields\" FROM \"currency_translation\" \"currency.translation\" WHERE \"currency.translation\".\"language_id\" = $1) \"currency.currency_translation\" ON \"currency.currency_translation\".\"currency_id\" = \"currency\".\"id\" WHERE \"currency\".\"id\" IN ($2, $3)",
+   "params": null
+  },
+  "header::navigation::read": {
+   "label": "-- header::navigation::read SELECT REPLACE(category.id::text, '-', '') as category.id, REPLACE(category.versio",
+   "calls": 2,
+   "ms": 81.37700000000001,
+   "sql": "-- header::navigation::read\n\tSELECT REPLACE(\"category\".\"id\"::text, '-', '') as \"category.id\", REPLACE(\"category\".\"version_id\"::text, '-', '') as \"category.versionId\", REPLACE(\"category\".\"parent_id\"::text, '-', '') as \"category.parentId\", REPLACE(\"category\".\"parent_version_id\"::text, '-', '') as \"category.parentVersionId\", REPLACE(\"category\".\"after_category_id\"::text, '-', '') as \"category.afterCategoryId\", REPLACE(\"category\".\"after_category_version_id\"::text, '-', '') as \"category.afterCategoryVersionId\", REPLACE(\"category\".\"media_id\"::text, '-', '') as \"category.mediaId\", \"category\".\"display_nested_products\" as \"category.displayNestedProducts\", \"category\".\"auto_increment\" as \"category.autoIncrement\", \"category\".\"level\" as \"category.level\", \"category\".\"path\" as \"category.path\", \"category\".\"child_count\" as \"category.childCount\", \"category\".\"type\" as \"category.type\", \"category\".\"product_assignment_type\" as \"category.productAssignmentType\", \"category\".\"visible\" as \"category.visible\", \"category\".\"active\" as \"category.active\", REPLACE(\"category\".\"cms_page_id\"::text, '-', '') as \"category.cmsPageId\", REPLACE(\"category\".\"cms_page_version_id\"::text, '-', '') as \"category.cmsPageVersionId\", REPLACE(\"category\".\"product_stream_id\"::text, '-', '') as \"category.productStreamId\", REPLACE(\"category\".\"custom_entity_type_id\"::text, '-', '') as \"category.customEntityTypeId\", \"category\".\"created_at\" as \"category.createdAt\", \"category\".\"updated_at\" as \"category.updatedAt\", REPLACE(\"category.media\".\"id\"::text, '-', '') as \"category.media.id\", REPLACE(\"category.media\".\"user_id\"::text, '-', '') as \"category.media.userId\", REPLACE(\"category.media\".\"media_folder_id\"::text, '-', '') as \"category.media.mediaFolderId\", \"category.media\".\"mime_type\" as \"category.media.mimeType\", \"category.media\".\"file_extension\" as \"category.media.fileExtension\", \"category.media\".\"uploaded_at\" as \"category.media.uploadedAt\", \"category.media\".\"file_name\" as \"category.media.fileName\", \"category.media\".\"file_size\" as \"category.media.fileSize\", \"category.media\".\"media_type\" as \"category.media.mediaTypeRaw\", \"category.media\".\"meta_data\" as \"category.media.metaData\", \"category.media\".\"config\" as \"category.media.config\", \"category.media\".\"path\" as \"category.media.path\", \"category.media\".\"private\" as \"category.media.private\", \"category.media\".\"thumbnails_ro\" as \"category.media.thumbnailsRo\", \"category.media\".\"file_hash\" as \"category.media.fileHash\", \"category.media\".\"created_at\" as \"category.media.createdAt\", \"category.media\".\"updated_at\" as \"category.media.updatedAt\", \"category.media.translation.title\", \"category.media.translation.title\" as \"category.media.title\", \"category.media.translation.alt\", \"category.media.translation.alt\" as \"category.media.alt\", \"category.media.translation.customFields\", \"category.media.translation.customFields\" as \"category.media.customFields\", \"category.translation.name\", \"category.translation.name\" as \"category.name\", \"category.translation.breadcrumb\", \"category.translation.breadcrumb\" as \"category.breadcrumb\", \"category.translation.slotConfig\", \"category.translation.slotConfig\" as \"category.slotConfig\", \"category.translation.linkType\", \"category.translation.linkType\" as \"category.linkType\", \"category.translation.internalLink\", \"category.translation.internalLink\" as \"category.internalLink\", \"category.translation.externalLink\", \"category.translation.externalLink\" as \"category.externalLink\", \"category.translation.linkNewTab\", \"category.translation.linkNewTab\" as \"category.linkNewTab\", \"category.translation.description\", \"category.translation.description\" as \"category.description\", \"category.translation.metaTitle\", \"category.translation.metaTitle\" as \"category.metaTitle\", \"category.translation.metaDescription\", \"category.translation.metaDescription\" as \"category.metaDescription\", \"category.translation.keywords\", \"category.translation.keywords\" as \"category.keywords\", \"category.translation.customFields\", \"category.translation.customFields\" as \"category.customFields\" FROM \"category\" LEFT JOIN \"media\" \"category.media\" ON \"category\".\"media_id\" = \"category.media\".\"id\" LEFT JOIN (SELECT \"category.translation\".\"category_id\", \"category.translation\".\"category_version_id\", \"category.translation\".\"breadcrumb\" as \"category.translation.breadcrumb\", \"category.translation\".\"name\" as \"category.translation.name\", \"category.translation\".\"custom_fields\" as \"category.translation.customFields\", \"category.translation\".\"slot_config\" as \"category.translation.slotConfig\", \"category.translation\".\"link_type\" as \"category.translation.linkType\", \"category.translation\".\"internal_link\" as \"category.translation.internalLink\", \"category.translation\".\"external_link\" as \"category.translation.externalLink\", \"category.translation\".\"link_new_tab\" as \"category.translation.linkNewTab\", \"category.translation\".\"description\" as \"category.translation.description\", \"category.translation\".\"meta_title\" as \"category.translation.metaTitle\", \"category.translation\".\"meta_description\" as \"category.translation.metaDescription\", \"category.translation\".\"keywords\" as \"category.translation.keywords\" FROM \"category_translation\" \"category.translation\" WHERE \"category.translation\".\"language_id\" = $1) \"category.category_translation\" ON \"category.category_translation\".\"category_id\" = \"category\".\"id\" AND \"category.category_translation\".\"category_version_id\" = \"category\".\"version_id\" LEFT JOIN (SELECT \"category.media.translation\".\"media_id\", \"category.media.translation\".\"alt\" as \"category.media.translation.alt\", \"category.media.translation\".\"title\" as \"category.media.translation.title\", \"category.media.translation\".\"custom_fields\" as \"category.media.translation.customFields\" FROM \"media_translation\" \"category.media.translation\" WHERE \"category.media.translation\".\"language_id\" = $2) \"category.media.media_translation\" ON \"category.media.media_translation\".\"media_id\" = \"category.media\".\"id\" WHERE (\"category\".\"version_id\" = $3) AND (((\"category\".\"id\" = $4 OR (\"category\".\"path\" LIKE $5 AND (\"category\".\"level\" > $6 AND \"category\".\"level\" <= $7)))))",
+   "params": null
+  },
+  "select replace(category.parent_id, ?, ?) as category-ids.key, count(category.id) as category-ids.count, count(distinct category.id) as visible-children-count from category where (category.version_id = ?) and ((category.path like ? and category.level = ? and category.active = ? and category.visible = ?)) group by category.parent_id": {
+   "label": "SELECT REPLACE(category.parent_id::text, '-', '') as category-ids.key, COUNT(category.id) as category-ids.coun",
+   "calls": 2,
+   "ms": 46.093,
+   "sql": "SELECT REPLACE(\"category\".\"parent_id\"::text, '-', '') as \"category-ids.key\", COUNT(\"category\".\"id\") as \"category-ids.count\", COUNT(DISTINCT \"category\".\"id\") as \"visible-children-count\" FROM \"category\" WHERE (\"category\".\"version_id\" = $1) AND ((\"category\".\"path\" LIKE $2 AND \"category\".\"level\" = $3 AND \"category\".\"active\" = $4 AND \"category\".\"visible\" = $5)) GROUP BY \"category\".\"parent_id\"",
+   "params": null
+  },
+  "footer-pagelet::payment-methods::search-ids": {
+   "label": "-- footer-pagelet::payment-methods::search-ids SELECT any_value(REPLACE(payment_method.id::text, '-', '')) as ",
+   "calls": 1,
+   "ms": 1.2670000000000001,
+   "sql": "-- footer-pagelet::payment-methods::search-ids\n\tSELECT any_value(REPLACE(\"payment_method\".\"id\"::text, '-', '')) as \"id\" FROM \"payment_method\" LEFT JOIN \"sales_channel_payment_method\" \"payment_method.salesChannels.mapping\" ON \"payment_method\".\"id\" = \"payment_method.salesChannels.mapping\".\"payment_method_id\"  LEFT JOIN \"sales_channel\" \"payment_method.salesChannels\" ON \"payment_method.salesChannels.mapping\".\"sales_channel_id\" = \"payment_method.salesChannels\".\"id\"  WHERE (\"payment_method\".\"active\" = $1 AND \"payment_method.salesChannels\".\"id\" = $2) GROUP BY \"payment_method\".\"id\" ORDER BY MIN(\"payment_method\".\"position\") ASC",
+   "params": null
+  },
+  "footer-pagelet::payment-methods::read": {
+   "label": "-- footer-pagelet::payment-methods::read SELECT REPLACE(payment_method.id::text, '-', '') as payment_method.id",
+   "calls": 1,
+   "ms": 1.105,
+   "sql": "-- footer-pagelet::payment-methods::read\n\tSELECT REPLACE(\"payment_method\".\"id\"::text, '-', '') as \"payment_method.id\", REPLACE(\"payment_method\".\"plugin_id\"::text, '-', '') as \"payment_method.pluginId\", \"payment_method\".\"handler_identifier\" as \"payment_method.handlerIdentifier\", \"payment_method\".\"position\" as \"payment_method.position\", \"payment_method\".\"active\" as \"payment_method.active\", \"payment_method\".\"after_order_enabled\" as \"payment_method.afterOrderEnabled\", REPLACE(\"payment_method\".\"availability_rule_id\"::text, '-', '') as \"payment_method.availabilityRuleId\", REPLACE(\"payment_method\".\"media_id\"::text, '-', '') as \"payment_method.mediaId\", \"payment_method\".\"technical_name\" as \"payment_method.technicalName\", \"payment_method\".\"created_at\" as \"payment_method.createdAt\", \"payment_method\".\"updated_at\" as \"payment_method.updatedAt\", REPLACE(\"payment_method.media\".\"id\"::text, '-', '') as \"payment_method.media.id\", REPLACE(\"payment_method.media\".\"user_id\"::text, '-', '') as \"payment_method.media.userId\", REPLACE(\"payment_method.media\".\"media_folder_id\"::text, '-', '') as \"payment_method.media.mediaFolderId\", \"payment_method.media\".\"mime_type\" as \"payment_method.media.mimeType\", \"payment_method.media\".\"file_extension\" as \"payment_method.media.fileExtension\", \"payment_method.media\".\"uploaded_at\" as \"payment_method.media.uploadedAt\", \"payment_method.media\".\"file_name\" as \"payment_method.media.fileName\", \"payment_method.media\".\"file_size\" as \"payment_method.media.fileSize\", \"payment_method.media\".\"media_type\" as \"payment_method.media.mediaTypeRaw\", \"payment_method.media\".\"meta_data\" as \"payment_method.media.metaData\", \"payment_method.media\".\"config\" as \"payment_method.media.config\", \"payment_method.media\".\"path\" as \"payment_method.media.path\", \"payment_method.media\".\"private\" as \"payment_method.media.private\", \"payment_method.media\".\"thumbnails_ro\" as \"payment_method.media.thumbnailsRo\", \"payment_method.media\".\"file_hash\" as \"payment_method.media.fileHash\", \"payment_method.media\".\"created_at\" as \"payment_method.media.createdAt\", \"payment_method.media\".\"updated_at\" as \"payment_method.media.updatedAt\", \"payment_method.media.translation.title\", \"payment_method.media.translation.title\" as \"payment_method.media.title\", \"payment_method.media.translation.alt\", \"payment_method.media.translation.alt\" as \"payment_method.media.alt\", \"payment_method.media.translation.customFields\", \"payment_method.media.translation.customFields\" as \"payment_method.media.customFields\", \"payment_method.translation.name\", \"payment_method.translation.name\" as \"payment_method.name\", \"payment_method.translation.distinguishableName\", \"payment_method.translation.distinguishableName\" as \"payment_method.distinguishableName\", \"payment_method.translation.description\", \"payment_method.translation.description\" as \"payment_method.description\", \"payment_method.translation.customFields\", \"payment_method.translation.customFields\" as \"payment_method.customFields\" FROM \"payment_method\" LEFT JOIN \"media\" \"payment_method.media\" ON \"payment_method\".\"media_id\" = \"payment_method.media\".\"id\" LEFT JOIN (SELECT \"payment_method.translation\".\"payment_method_id\", \"payment_method.translation\".\"name\" as \"payment_method.translation.name\", \"payment_method.translation\".\"distinguishable_name\" as \"payment_method.translation.distinguishableName\", \"payment_method.translation\".\"description\" as \"payment_method.translation.description\", \"payment_method.translation\".\"custom_fields\" as \"payment_method.translation.customFields\" FROM \"payment_method_translation\" \"payment_method.translation\" WHERE \"payment_method.translation\".\"language_id\" = $1) \"payment_method.payment_method_translation\" ON \"payment_method.payment_method_translation\".\"payment_method_id\" = \"payment_method\".\"id\" LEFT JOIN (SELECT \"payment_method.media.translation\".\"media_id\", \"payment_method.media.translation\".\"alt\" as \"payment_method.media.translation.alt\", \"payment_method.media.translation\".\"title\" as \"payment_method.media.translation.title\", \"payment_method.media.translation\".\"custom_fields\" as \"payment_method.media.translation.customFields\" FROM \"media_translation\" \"payment_method.media.translation\" WHERE \"payment_method.media.translation\".\"language_id\" = $2) \"payment_method.media.media_translation\" ON \"payment_method.media.media_translation\".\"media_id\" = \"payment_method.media\".\"id\" WHERE \"payment_method\".\"id\" IN ($3)",
+   "params": null
+  },
+  "footer-pagelet::shipping-methods::search-ids": {
+   "label": "-- footer-pagelet::shipping-methods::search-ids SELECT any_value(REPLACE(shipping_method.id::text, '-', '')) a",
+   "calls": 1,
+   "ms": 1.7269999999999999,
+   "sql": "-- footer-pagelet::shipping-methods::search-ids\n\tSELECT any_value(REPLACE(\"shipping_method\".\"id\"::text, '-', '')) as \"id\" FROM \"shipping_method\" LEFT JOIN \"sales_channel_shipping_method\" \"shipping_method.salesChannels.mapping\" ON \"shipping_method\".\"id\" = \"shipping_method.salesChannels.mapping\".\"shipping_method_id\"  LEFT JOIN (SELECT \"shipping_method.translation\".\"shipping_method_id\", \"shipping_method.translation\".\"name\" as \"shipping_method.translation.name\" FROM \"shipping_method_translation\" \"shipping_method.translation\" WHERE \"shipping_method.translation\".\"language_id\" = $1) \"shipping_method.shipping_method_translation\" ON \"shipping_method.shipping_method_translation\".\"shipping_method_id\" = \"shipping_method\".\"id\" LEFT JOIN \"sales_channel\" \"shipping_method.salesChannels\" ON \"shipping_method.salesChannels.mapping\".\"sales_channel_id\" = \"shipping_method.salesChannels\".\"id\"  WHERE (\"shipping_method\".\"active\" = $2 AND \"shipping_method.salesChannels\".\"id\" = $3) GROUP BY \"shipping_method\".\"id\" ORDER BY MIN(\"shipping_method\".\"position\") ASC, MIN(COALESCE(\"shipping_method.translation.name\")) ASC",
+   "params": null
+  },
+  "footer-pagelet::shipping-methods::read": {
+   "label": "-- footer-pagelet::shipping-methods::read SELECT REPLACE(shipping_method.id::text, '-', '') as shipping_method",
+   "calls": 1,
+   "ms": 0.826,
+   "sql": "-- footer-pagelet::shipping-methods::read\n\tSELECT REPLACE(\"shipping_method\".\"id\"::text, '-', '') as \"shipping_method.id\", \"shipping_method\".\"technical_name\" as \"shipping_method.technicalName\", \"shipping_method\".\"active\" as \"shipping_method.active\", \"shipping_method\".\"position\" as \"shipping_method.position\", REPLACE(\"shipping_method\".\"availability_rule_id\"::text, '-', '') as \"shipping_method.availabilityRuleId\", REPLACE(\"shipping_method\".\"media_id\"::text, '-', '') as \"shipping_method.mediaId\", REPLACE(\"shipping_method\".\"delivery_time_id\"::text, '-', '') as \"shipping_method.deliveryTimeId\", \"shipping_method\".\"tax_type\" as \"shipping_method.taxType\", REPLACE(\"shipping_method\".\"tax_id\"::text, '-', '') as \"shipping_method.taxId\", \"shipping_method\".\"created_at\" as \"shipping_method.createdAt\", \"shipping_method\".\"updated_at\" as \"shipping_method.updatedAt\", REPLACE(\"shipping_method.media\".\"id\"::text, '-', '') as \"shipping_method.media.id\", REPLACE(\"shipping_method.media\".\"user_id\"::text, '-', '') as \"shipping_method.media.userId\", REPLACE(\"shipping_method.media\".\"media_folder_id\"::text, '-', '') as \"shipping_method.media.mediaFolderId\", \"shipping_method.media\".\"mime_type\" as \"shipping_method.media.mimeType\", \"shipping_method.media\".\"file_extension\" as \"shipping_method.media.fileExtension\", \"shipping_method.media\".\"uploaded_at\" as \"shipping_method.media.uploadedAt\", \"shipping_method.media\".\"file_name\" as \"shipping_method.media.fileName\", \"shipping_method.media\".\"file_size\" as \"shipping_method.media.fileSize\", \"shipping_method.media\".\"media_type\" as \"shipping_method.media.mediaTypeRaw\", \"shipping_method.media\".\"meta_data\" as \"shipping_method.media.metaData\", \"shipping_method.media\".\"config\" as \"shipping_method.media.config\", \"shipping_method.media\".\"path\" as \"shipping_method.media.path\", \"shipping_method.media\".\"private\" as \"shipping_method.media.private\", \"shipping_method.media\".\"thumbnails_ro\" as \"shipping_method.media.thumbnailsRo\", \"shipping_method.media\".\"file_hash\" as \"shipping_method.media.fileHash\", \"shipping_method.media\".\"created_at\" as \"shipping_method.media.createdAt\", \"shipping_method.media\".\"updated_at\" as \"shipping_method.media.updatedAt\", \"shipping_method.media.translation.title\", \"shipping_method.media.translation.title\" as \"shipping_method.media.title\", \"shipping_method.media.translation.alt\", \"shipping_method.media.translation.alt\" as \"shipping_method.media.alt\", \"shipping_method.media.translation.customFields\", \"shipping_method.media.translation.customFields\" as \"shipping_method.media.customFields\", \"shipping_method.translation.name\", \"shipping_method.translation.name\" as \"shipping_method.name\", \"shipping_method.translation.description\", \"shipping_method.translation.description\" as \"shipping_method.description\", \"shipping_method.translation.trackingUrl\", \"shipping_method.translation.trackingUrl\" as \"shipping_method.trackingUrl\", \"shipping_method.translation.customFields\", \"shipping_method.translation.customFields\" as \"shipping_method.customFields\" FROM \"shipping_method\" LEFT JOIN \"media\" \"shipping_method.media\" ON \"shipping_method\".\"media_id\" = \"shipping_method.media\".\"id\" LEFT JOIN (SELECT \"shipping_method.translation\".\"shipping_method_id\", \"shipping_method.translation\".\"name\" as \"shipping_method.translation.name\", \"shipping_method.translation\".\"custom_fields\" as \"shipping_method.translation.customFields\", \"shipping_method.translation\".\"description\" as \"shipping_method.translation.description\", \"shipping_method.translation\".\"tracking_url\" as \"shipping_method.translation.trackingUrl\" FROM \"shipping_method_translation\" \"shipping_method.translation\" WHERE \"shipping_method.translation\".\"language_id\" = $1) \"shipping_method.shipping_method_translation\" ON \"shipping_method.shipping_method_translation\".\"shipping_method_id\" = \"shipping_method\".\"id\" LEFT JOIN (SELECT \"shipping_method.media.translation\".\"media_id\", \"shipping_method.media.translation\".\"alt\" as \"shipping_method.media.translation.alt\", \"shipping_method.media.translation\".\"title\" as \"shipping_method.media.translation.title\", \"shipping_method.media.translation\".\"custom_fields\" as \"shipping_method.media.translation.customFields\" FROM \"media_translation\" \"shipping_method.media.translation\" WHERE \"shipping_method.media.translation\".\"language_id\" = $2) \"shipping_method.media.media_translation\" ON \"shipping_method.media.media_translation\".\"media_id\" = \"shipping_method.media\".\"id\" WHERE \"shipping_method\".\"id\" IN ($3)",
+   "params": null
+  }
+ },
+ "maria": {
+  "set @@session.time_zone = ?, @@session.group_concat_max_len = cast(if(@@group_concat_max_len > ?, @@group_concat_max_len, ?) as unsigned), @@session.sql_mode = (select replace(@@sql_mode, ?, ?))": {
+   "label": "SET @@session.time_zone = '+00:00', @@session.group_concat_max_len = CAST(IF(@@group_concat_max_len > 320000, ",
+   "calls": 1,
+   "ms": 0.17200000000000001,
+   "rows": 0
+  },
+  "select name, base_class, case when active and installed_at is not null then ? else ? end as is_active, path, version, autoload, managed_by_composer, composer_name from plugin order by installed_at": {
+   "label": "dbal-plugin-loader SELECT name, base_class, CASE WHEN active AND installed_at IS NOT NULL THEN 1 ELSE 0 END AS",
+   "calls": 1,
+   "ms": 0.182,
+   "rows": 0
+  },
+  "select key, value from app_config": {
+   "label": "SELECT key, value FROM app_config",
+   "calls": 1,
+   "ms": 0.258,
+   "rows": 2
+  },
+  "select custom_entity.name, custom_entity.fields, custom_entity.flags from custom_entity left join app on app.id = custom_entity.app_id where (custom_entity.app_id is null or app.active = ?) and custom_entity.deleted_at is null": {
+   "label": "SELECT custom_entity.name, custom_entity.fields, custom_entity.flags FROM custom_entity LEFT JOIN app ON app.i",
+   "calls": 1,
+   "ms": 0.204,
+   "rows": 0
+  },
+  "seo-url::resolve": {
+   "label": "-- seo-url::resolve SELECT id, path_info pathInfo, seo_path_info seoPathInfo, is_canonical isCanonical, sales_",
+   "calls": 3,
+   "ms": 1.528,
+   "rows": 1
+  },
+  "select token, payload, updated_at, sales_channel_id as sales_channel_id, customer_id as customer_id from sales_channel_api_context where (sales_channel_id = ?) and (token = ?) limit ?": {
+   "label": "SELECT token, payload, updated_at, LOWER(HEX(sales_channel_id)) AS sales_channel_id, LOWER(HEX(customer_id)) A",
+   "calls": 3,
+   "ms": 0.74,
+   "rows": 0
+  },
+  "#cart-persister cart.payload, cart.rule_ids, cart.compressed from cart where token = ?": {
+   "label": "#cart-persister::load SELECT cart.payload, cart.rule_ids, cart.compressed FROM cart WHERE token = 'OJ4bMpzBQH1",
+   "calls": 3,
+   "ms": 0.49000000000000005,
+   "rows": 0
+  },
+  "select sales_channel_country.sales_channel_id as sales_channel_id, sales_channel_country.country_id as country_id from sales_channel_country where (sales_channel_country.sales_channel_id = ? and sales_channel_country.country_id = ?)": {
+   "label": "SELECT sales_channel_country.sales_channel_id as sales_channel_id, sales_channel_country.country_id as country",
+   "calls": 1,
+   "ms": 0.272,
+   "rows": 1
+  },
+  "category::data::read": {
+   "label": "-- category::data::read SELECT category.id as category.id, category.version_id as category.versionId, category",
+   "calls": 1,
+   "ms": 0.736,
+   "rows": 1
+  },
+  "category::data::association::translations::read": {
+   "label": "-- category::data::association::translations::read SELECT category_translation.name as category_translation.na",
+   "calls": 1,
+   "ms": 0.28200000000000003,
+   "rows": 2
+  },
+  "select lower(hex(app_feature.app_id)) as app_id, app.name as app_name, app.active as app_active, app.version as app_version, app.app_secret is not null as app_has_secret, app_feature.created_at as created_at, app_feature.payload as payload from app_feature inner join app on app.id = app_feature.app_id where app_feature.type = ? and app.active = ? order by app.name, app_feature.name": {
+   "label": "SELECT LOWER(HEX(app_feature.app_id)) AS app_id, app.name AS app_name, app.active AS app_active, app.version A",
+   "calls": 1,
+   "ms": 0.684,
+   "rows": 0
+  },
+  "select language.parent_id from language where language.id = ?": {
+   "label": "SELECT LOWER(HEX(language.parent_id)) FROM language WHERE language.id = '/?_\\\\\\\\?\\\\\\\\??Mp?XT\\\\\\\\?|\\\\\\\\?\\\\\\\\? '",
+   "calls": 1,
+   "ms": 0.17200000000000001,
+   "rows": 1
+  },
+  "category::cms-page::read": {
+   "label": "-- category::cms-page::read SELECT cms_page.id as cms_page.id, cms_page.version_id as cms_page.versionId, cms_",
+   "calls": 1,
+   "ms": 0.5599999999999999,
+   "rows": 1
+  },
+  "category::cms-page::association::sections::read": {
+   "label": "-- category::cms-page::association::sections::read SELECT cms_section.id as cms_section.id, cms_section.versio",
+   "calls": 1,
+   "ms": 0.408,
+   "rows": 1
+  },
+  "category::cms-page::association::sections::association::blocks::read": {
+   "label": "-- category::cms-page::association::sections::association::blocks::read SELECT cms_block.id as cms_block.id, c",
+   "calls": 1,
+   "ms": 0.928,
+   "rows": 4
+  },
+  "category::cms-page::association::sections::association::blocks::association::slots::read": {
+   "label": "-- category::cms-page::association::sections::association::blocks::association::slots::read SELECT cms_slot.id",
+   "calls": 1,
+   "ms": 0.598,
+   "rows": 10
+  },
+  "product-listing::load-sortings::search-ids": {
+   "label": "-- product-listing::load-sortings::search-ids SELECT product_sorting.id as id FROM product_sorting WHERE (prod",
+   "calls": 1,
+   "ms": 0.108,
+   "rows": 12
+  },
+  "product-listing::load-sortings::read": {
+   "label": "-- product-listing::load-sortings::read SELECT product_sorting.id as product_sorting.id, product_sorting.locke",
+   "calls": 1,
+   "ms": 0.39399999999999996,
+   "rows": 12
+  },
+  "product-listing-route::category-loading::search-ids": {
+   "label": "-- product-listing-route::category-loading::search-ids SELECT category.id as id, category.auto_increment FROM ",
+   "calls": 1,
+   "ms": 0.108,
+   "rows": 1
+  },
+  "product-listing-route::category-loading::read": {
+   "label": "-- product-listing-route::category-loading::read SELECT category.id as category.id, category.version_id as cat",
+   "calls": 1,
+   "ms": 0.082,
+   "rows": 1
+  },
+  "product-listing-route::loading::search-ids": {
+   "label": "-- product-listing-route::loading::search-ids SELECT product.id as id, product.product_number, product.auto_in",
+   "calls": 1,
+   "ms": 1.964,
+   "rows": 13
+  },
+  "product-listing-route::loading::aggregation::manufacturer": {
+   "label": "-- product-listing-route::loading::aggregation::manufacturer SELECT LOWER(HEX(IFNULL(product.product_manufactu",
+   "calls": 1,
+   "ms": 0.46799999999999997,
+   "rows": 17
+  },
+  "manufacturer-aggregation::read": {
+   "label": "-- manufacturer-aggregation::read SELECT product_manufacturer.id as product_manufacturer.id, product_manufactu",
+   "calls": 1,
+   "ms": 0.32,
+   "rows": 4
+  },
+  "product-listing-route::loading::aggregation::price": {
+   "label": "-- product-listing-route::loading::aggregation::price SELECT MIN(IFNULL(COALESCE((ROUND((ROUND(CAST((JSON_UNQU",
+   "calls": 1,
+   "ms": 0.674,
+   "rows": 13
+  },
+  "product-listing-route::loading::aggregation::rating-exists": {
+   "label": "-- product-listing-route::loading::aggregation::rating-exists SELECT MAX(IFNULL(product.rating_average, produc",
+   "calls": 1,
+   "ms": 0.85,
+   "rows": 13
+  },
+  "product-listing-route::loading::aggregation::shipping-free-filter": {
+   "label": "-- product-listing-route::loading::aggregation::shipping-free-filter SELECT MAX(IFNULL(product.shipping_free, ",
+   "calls": 1,
+   "ms": 0.448,
+   "rows": 13
+  },
+  "product-listing-route::loading::aggregation::properties": {
+   "label": "-- product-listing-route::loading::aggregation::properties SELECT LOWER(HEX(product.properties.id)) as propert",
+   "calls": 1,
+   "ms": 0.58,
+   "rows": 65
+  },
+  "product-listing-route::loading::aggregation::options": {
+   "label": "-- product-listing-route::loading::aggregation::options SELECT LOWER(HEX(product.options.id)) as options.key, ",
+   "calls": 1,
+   "ms": 0.402,
+   "rows": 15
+  },
+  "product-listing::property-filter::read": {
+   "label": "-- product-listing::property-filter::read SELECT property_group_option.id as property_group_option.id, propert",
+   "calls": 1,
+   "ms": 0.45,
+   "rows": 20
+  },
+  "product-listing::property-group-filter::read": {
+   "label": "-- product-listing::property-group-filter::read SELECT property_group.id as property_group.id, property_group.",
+   "calls": 1,
+   "ms": 0.312,
+   "rows": 9
+  },
+  "select name, path, author, self_managed, version from app where active = ?": {
+   "label": "SELECT name, path, author, self_managed, version FROM app WHERE active = 1",
+   "calls": 1,
+   "ms": 0.104,
+   "rows": 0
+  },
+  "select app.name, app.version, app.template_load_priority from app inner join app_template on app_template.app_id = app.id where app.active = ? and app_template.active = ?": {
+   "label": "SELECT app.name, app.version, app.template_load_priority FROM app INNER JOIN app_template ON app_template.app_",
+   "calls": 1,
+   "ms": 0.106,
+   "rows": 0
+  },
+  "select app_template.path as path, app_template.template as template, app_template.hash as hash, app_template.updated_at as updatedat, app.name as namespace from app_template inner join app on app_template.app_id = app.id where app_template.active = ? and app.active = ?": {
+   "label": "SELECT app_template.path AS path, app_template.template AS template, app_template.hash AS hash, app_template.u",
+   "calls": 1,
+   "ms": 0.08399999999999999,
+   "rows": 0
+  },
+  "select path from category where id = ?": {
+   "label": "SELECT path FROM category WHERE id = '?????sH ??\u001b\\\\\\\\??yD\\\\\\\\?'",
+   "calls": 1,
+   "ms": 0.088,
+   "rows": 1
+  },
+  "select min_search_length from product_search_config where language_id = ?": {
+   "label": "SELECT min_search_length FROM product_search_config WHERE language_id = '/?_\\\\\\\\?\\\\\\\\??Mp?XT\\\\\\\\?|\\\\\\\\?\\\\\\\\? '",
+   "calls": 1,
+   "ms": 0.206,
+   "rows": 1
+  },
+  "select id from snippet_set where iso = ?": {
+   "label": "SELECT LOWER(HEX(id)) FROM snippet_set WHERE iso = 'en-GB'",
+   "calls": 1,
+   "ms": 0.294,
+   "rows": 2
+  },
+  "select category.id as category.id, category.version_id as category.versionid, category.parent_id as category.parentid, category.parent_version_id as category.parentversionid, category.after_category_id as category.aftercategoryid, category.after_category_version_id as category.aftercategoryversionid, category.media_id as category.mediaid, category.display_nested_products as category.displaynestedproducts, category.auto_increment as category.autoincrement, category.level as category.level, category.path as category.path, category.child_count as category.childcount, category.type as category.type, category.product_assignment_type as category.productassignmenttype, category.visible as category.visible, category.active as category.active, category.cms_page_id as category.cmspageid, category.cms_page_version_id as category.cmspageversionid, category.product_stream_id as category.productstreamid, category.custom_entity_type_id as category.customentitytypeid, category.created_at as category.createdat, category.updated_at as category.updatedat, category.translation.name, category.translation.name as category.name, category.translation.breadcrumb, category.translation.breadcrumb as category.breadcrumb, category.translation.slotconfig, category.translation.slotconfig as category.slotconfig, category.translation.linktype, category.translation.linktype as category.linktype, category.translation.internallink, category.translation.internallink as category.internallink, category.translation.externallink, category.translation.externallink as category.externallink, category.translation.linknewtab, category.translation.linknewtab as category.linknewtab, category.translation.description, category.translation.description as category.description, category.translation.metatitle, category.translation.metatitle as category.metatitle, category.translation.metadescription, category.translation.metadescription as category.metadescription, category.translation.keywords, category.translation.keywords as category.keywords, category.translation.customfields, category.translation.customfields as category.customfields from category left join (select category.translation.category_id, category.translation.category_version_id, category.translation.breadcrumb as category.translation.breadcrumb, category.translation.name as category.translation.name, category.translation.custom_fields as category.translation.customfields, category.translation.slot_config as category.translation.slotconfig, category.translation.link_type as category.translation.linktype, category.translation.internal_link as category.translation.internallink, category.translation.external_link as category.translation.externallink, category.translation.link_new_tab as category.translation.linknewtab, category.translation.description as category.translation.description, category.translation.meta_title as category.translation.metatitle, category.translation.meta_description as category.translation.metadescription, category.translation.keywords as category.translation.keywords from category_translation category.translation where category.translation.language_id = ?) category.category_translation on category.category_translation.category_id = category.id and category.category_translation.category_version_id = category.version_id where (category.version_id = ?) and (category.id in (_binary?))": {
+   "label": "SELECT category.id as category.id, category.version_id as category.versionId, category.parent_id as category.p",
+   "calls": 1,
+   "ms": 0.5820000000000001,
+   "rows": 1
+  },
+  "breadcrumb-extension::read": {
+   "label": "-- breadcrumb-extension::read SELECT category.id as category.id, category.version_id as category.versionId, ca",
+   "calls": 1,
+   "ms": 0.39,
+   "rows": 6
+  },
+  "seo_url::replacement": {
+   "label": "-- seo_url::replacement SELECT seo_path_info, path_info, sales_channel_id FROM seo_url WHERE (seo_url.is_canon",
+   "calls": 3,
+   "ms": 2.4280000000000004,
+   "rows": 65
+  },
+  "seo-url::resolve-fallback": {
+   "label": "-- seo-url::resolve-fallback SELECT path_info pathInfo, seo_path_info seoPathInfo FROM seo_url WHERE (language",
+   "calls": 2,
+   "ms": 0.272,
+   "rows": 0
+  },
+  "# navigation-route-information select lower(hex(id)), path, level from category where id = ? or id = ?": {
+   "label": "# navigation-route::meta-information SELECT LOWER(HEX(id)), path, level FROM category WHERE id = '?\\\\\\\\?y?8?I?",
+   "calls": 3,
+   "ms": 0.502,
+   "rows": 3
+  },
+  "header::languages::search-ids": {
+   "label": "-- header::languages::search-ids SELECT language.id as id FROM language LEFT JOIN sales_channel_domain languag",
+   "calls": 1,
+   "ms": 0.42000000000000004,
+   "rows": 8
+  },
+  "header::languages::read": {
+   "label": "-- header::languages::read SELECT language.id as language.id, language.parent_id as language.parentId, languag",
+   "calls": 1,
+   "ms": 0.508,
+   "rows": 6
+  },
+  "header::currencies::search-ids": {
+   "label": "-- header::currencies::search-ids SELECT currency.id as id FROM currency LEFT JOIN sales_channel_currency curr",
+   "calls": 1,
+   "ms": 0.536,
+   "rows": 4
+  },
+  "header::currencies::read": {
+   "label": "-- header::currencies::read SELECT currency.id as currency.id, currency.factor as currency.factor, currency.sy",
+   "calls": 1,
+   "ms": 0.228,
+   "rows": 4
+  },
+  "header::navigation::read": {
+   "label": "-- header::navigation::read SELECT category.id as category.id, category.version_id as category.versionId, cate",
+   "calls": 2,
+   "ms": 2.614,
+   "rows": 1014
+  },
+  "select lower(hex(category.parent_id)) as category-ids.key, count(category.id) as category-ids.count, count(distinct category.id) as visible-children-count from category where (category.version_id = ?) and ((category.path like ? and category.level = ? and category.active = ? and category.visible = ?)) group by category.parent_id": {
+   "label": "SELECT LOWER(HEX(category.parent_id)) as category-ids.key, COUNT(category.id) as category-ids.count, COUNT(DIS",
+   "calls": 2,
+   "ms": 2.218,
+   "rows": 599
+  },
+  "footer-pagelet::payment-methods::search-ids": {
+   "label": "-- footer-pagelet::payment-methods::search-ids SELECT payment_method.id as id FROM payment_method LEFT JOIN sa",
+   "calls": 1,
+   "ms": 0.442,
+   "rows": 4
+  },
+  "footer-pagelet::payment-methods::read": {
+   "label": "-- footer-pagelet::payment-methods::read SELECT payment_method.id as payment_method.id, payment_method.plugin_",
+   "calls": 1,
+   "ms": 0.434,
+   "rows": 1
+  },
+  "footer-pagelet::shipping-methods::search-ids": {
+   "label": "-- footer-pagelet::shipping-methods::search-ids SELECT shipping_method.id as id FROM shipping_method LEFT JOIN",
+   "calls": 1,
+   "ms": 0.524,
+   "rows": 5
+  },
+  "footer-pagelet::shipping-methods::read": {
+   "label": "-- footer-pagelet::shipping-methods::read SELECT shipping_method.id as shipping_method.id, shipping_method.tec",
+   "calls": 1,
+   "ms": 0.408,
+   "rows": 1
+  }
+ }
+}
