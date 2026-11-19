@@ -394,3 +394,16 @@ The analysis cache directory was created with `mkdir -p var/cache/phpstan` insid
 
 No baseline entries and no `@phpstan-ignore`.
 Verified by a run: PHPStan on `src/Core/Framework/Adapter/` and `src/Core/Content/Newsletter/` reports 0 errors, the 92 unit tests of the directory pass, the migration check reports 910 migrations and 0 schema differences, the newsletter integration tests pass (10 tests, 68 assertions).
+
+## Wave 2, parser robustness
+
+`DdlRewriter::splitTopLevel` and the paren matcher now skip `/* */` and `--`/`#` comments and backtick identifiers through one helper (`skipLiteralOrComment`).
+`UpdateRewriter::topLevelWord` and `findWord` skip backtick identifiers and comments and treat a backslash inside a single quoted string as escape character (MySQL semantics), whether or not the string carries the `E` prefix.
+`BooleanAssignmentRewriter` profits from the `splitTopLevel` fix, new cases cover an escaped quote and a comment.
+`InsertSelectRewriter` and `UpsertRewriter` were not changed, they have no scanner of their own that the fix applies to.
+
+`DdlRewriterTest` now has exact `assertSame` cases for CREATE TABLE with keys and foreign key, ALTER ADD/DROP/MODIFY column, ADD/DROP INDEX and DROP FOREIGN KEY.
+`SqlTranslationMiddlewareTest` covers the DDL savepoint logic with a fake driver connection (savepoint and release inside a transaction, rollback to the savepoint and rethrow on failure, no savepoint outside a transaction).
+New `ExceptionConverterMiddleware` maps SQLSTATE 55P03 (`lock_timeout`) to `LockWaitTimeoutException`, registered in `PostgreSQLFactory`, with a unit test.
+
+Verified by a run: 7 of the new tests fail against the old `DdlRewriter` and `UpdateRewriter`, all 121 unit tests of the directory pass now, PHPStan on the PostgreSQL directory, the factory and the tests reports 0 errors, php-cs-fixer reports no changes, the migration check reports 910 migrations (910 update, 910 destructive) and 0 differences.
