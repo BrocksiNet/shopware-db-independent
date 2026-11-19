@@ -1,0 +1,1826 @@
+---- generator failure pg beauty (exit 1), full log:
+$ bun run src/main.ts generate "--name=beauty"
+Text provider: pollinations (sequential: true)
+Image provider: none (sequential: false)
+Shopware 6.7 dev build (6.7.9999999.9999999-dev)
+Created root category: Beauty Demo-Store
+Created SalesChannel "beauty" with domains: http://beauty.127.0.0.1:18101, http://beauty-de.127.0.0.1:18101
+  15 categories without products are hidden from the navigation
+Created 59 categories
+  Created 59 categories
+  Property groups: 22 created, 0 updated, 0 unchanged
+  Uploading images for 1 color options...
+  ✓ Created custom field set "catalog_generator" (3 fields)
+  Synced 90 products
+Running 21 post-processors in 4 batch(es)...
+  Batch 1/4: cms-text, cms-images, cms-video, cms-text-images, cms-form, cms-footer-pages, digital-product, media-product, cross-selling, customers, images, manufacturers, promotions, reviews, theme
+    Uploading 202 cached images to Shopware
+      - 90 products with images
+      - 23 category banners
+    Uploading product images to Shopware...
+    ⚠ Stale digital-product cache detected, rebuilding gift card state
+    Reviews spread across en-GB, de-DE
+    ✓ Created CMS layout "Video Elements"
+    Found Product Media folder
+    ✓ Created CMS layout "Form Elements"
+    Found Product Media folder
+    Found Product Media folder
+    ✓ Created promotion "Welcome Discount" (code: WELCOME10)
+    ✓ Created B2B customer group (net pricing)
+    ✓ Created root category "Footer-Navigation"
+    ✓ Created CMS layout "Text Elements"
+  ✓ Created child theme "Beauty Theme"
+    ✓ Created promotion "Summer Sale" (code: SUMMER20)
+    ✓ Created "Media Showcase" product
+    ✓ Created Landing Page "Form Elements"
+    ✓ Created Landing Page "Video Elements"
+    ✓ Created promotion "Flat $15 Off" (code: SAVE15)
+    ✓ Created Landing Page "Text Elements"
+    ✓ Created promotion "Free Shipping" (code: FREESHIP)
+    ✓ Created gift card product "Digital Gift Card €50"
+  ✓ Uploaded theme logo
+    ✓ Uploaded chair-damask-purplegold.glb
+    ✓ Uploaded glass-vase-flowers.glb
+    ✓ Uploaded pink-candle-burning.mp4
+    ✓ Uploaded blue-candle-burning.mp4
+    ✓ Created root category "Footer-Service-Navigation"
+    ✓ Media showcase gallery: chair-damask-purplegold.glb, glass-vase-flowers.glb, pink-candle-burning.mp4, blue-candle-burning.mp4
+  ✓ Uploaded theme favicon
+    ✓ Uploaded gift card cover image
+      ✓ Lengthening Mascara - Rich Bla...: 1 uploaded
+      ✓ Liquid Eyeliner - Jet Black - ...: 2 uploaded
+  ✓ Uploaded theme share
+    ✓ Added gift card to SalesChannel
+    ✓ Created 4 demo customer accounts
+      ✓ Cream Blush Stick - Dusty Rose...: 1 uploaded
+      ✓ Velvet Matte Lipstick - Full C...: 3 uploaded
+    ✓ Created downloadable voucher
+    ✓ Assigned footer roots for SalesChannel 98432def39fc4624b33213a56b8c944d
+    ✓ Assigned footer roots for SalesChannel 01a1f420c832709b91b9907f5aa2729d
+Failed to assign theme: Error: API POST _action/theme/6e1901d2825d45c0b985e4e67854fccc/assign/d529394d2fe44f2c805632a3ee7c03f0 failed: 400 - {"errors":[{"status":"400","code":"THEME__COMPILING_ERROR","title":"Bad Request","detail":"Unable to compile the theme \u0022Storefront\u0022. Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh","meta":{"parameters":{"themeName":"Storefront","message":"Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh"}}}]}
+  ✓ Theme customized for beauty
+    ✓ Assigned footer roots for SalesChannel d529394d2fe44f2c805632a3ee7c03f0
+    ✓ Created CMS layout "Text & Images" with 8 images
+    ✓ Created Landing Page "Text & Images"
+      ✓ Pressed Powder Foundation - Na...: 3 uploaded
+      ✓ Concealer - Natural Finish: 1 uploaded
+      ✓ Nail Polish - Gloss Finish: 3 uploaded
+    ✓ Created CMS layout "Image Elements" with 11 images
+    ✓ Created Landing Page "Image Elements"
+      ✓ Precision Liquid Eyeliner - Je...: 1 uploaded
+      ✓ Velvet Matte Lipstick - Satin ...: 2 uploaded
+      ✓ Eyeshadow Palette - Soft Neutr...: 3 uploaded
+      ✓ Luminous Liquid Foundation - N...: 1 uploaded
+    Created 3 streams, cross-selling for 90 products
+      ✓ Volumizing Mascara - Defined L...: 2 uploaded
+      ✓ Pressed Blush - Dusty Rose - S...: 3 uploaded
+      ✓ Nail Polish - Glossy Color: 2 uploaded
+      ✓ Eyeshadow Palette - Warm Neutr...: 2 uploaded
+      ✓ Velvet Matte Lipstick - Dusty ...: 3 uploaded
+      ✓ Precision Liquid Eyeliner - Je...: 1 uploaded
+      ✓ Silk Glow Liquid Foundation - ...: 2 uploaded
+      ✓ Pressed Blush Compact - Peach ...: 2 uploaded
+      ✓ Chromatic Eyeshadow Palette - ...: 3 uploaded
+      ✓ Lash Definition Mascara - Midn...: 3 uploaded
+      ✓ Glossy Nail Polish - High Shin...: 1 uploaded
+      ✓ Creamy Lip Liner - Cocoa Rose ...: 2 uploaded
+      ✓ Luminous Liquid Foundation - M...: 2 uploaded
+      ✓ Velvet Matte Lipstick - Softly...: 3 uploaded
+      ✓ Precision Liquid Eyeliner - Sa...: 1 uploaded
+      ✓ Volumizing Mascara - Deep Blac...: 1 uploaded
+      ✓ Pressed Eyeshadow Palette - Su...: 3 uploaded
+      ✓ Nail Polish - Classic Red - Gl...: 2 uploaded
+      ✓ Dewdrop Hydrating Serum - Hyal...: 2 uploaded
+      ✓ Cream Blush Stick - Dewy Finis...: 3 uploaded
+      ✓ Renewal Polish Exfoliating Scr...: 1 uploaded
+      ✓ Velvet Melt Cleansing Balm - O...: 3 uploaded
+      ✓ Cloudveil Daily Moisturizer - ...: 2 uploaded
+      ✓ Calmwater Micellar Cleanser - ...: 1 uploaded
+      ✓ Moonpetal Overnight Cream - La...: 3 uploaded
+      ✓ Sunveil Daily Face Sunscreen -...: 3 uploaded
+      ✓ Nourishing Body Lotion - Shea ...: 2 uploaded
+      ✓ Silkglow Body Lotion - Shea Bu...: 3 uploaded
+      ✓ Hydrating Face Serum - Hyaluro...: 3 uploaded
+      ✓ Gentle Cream Cleanser - Oat Ex...: 1 uploaded
+      ✓ Overnight Renewal Mask - Rose ...: 1 uploaded
+      ✓ Daily Moisturizer - Ceramides ...: 3 uploaded
+      ✓ Daily Mineral Sunscreen - SPF ...: 1 uploaded
+      ✓ Nourishing Facial Oil - Squala...: 1 uploaded
+      ✓ Calming Cleansing Balm - Oat &...: 1 uploaded
+      ✓ Barrier Comfort Cream - Cerami...: 3 uploaded
+      ✓ Dewdrop Hydrating Serum - Clea...: 2 uploaded
+      ✓ Renewal Night Cream - Peptide ...: 2 uploaded
+      ✓ Polishing Body Scrub - Brown S...: 2 uploaded
+      ✓ Daily Moisture Body Lotion: 1 uploaded
+      ✓ Daily Gentle Face Wash - Aloe ...: 1 uploaded
+      ✓ Daily Shield Face Sunscreen - ...: 1 uploaded
+      ✓ Barrier Repair Night Cream - C...: 2 uploaded
+      ✓ Gentle Daily Face Cleanser - O...: 2 uploaded
+      ✓ Rosewater Hydrating Serum - Hy...: 1 uploaded
+      ✓ Daily Dew Moisturizer - Lightw...: 1 uploaded
+      ✓ Calming Clay Face Mask - Kaoli...: 3 uploaded
+      ✓ Nourishing Face Oil - Squalane...: 1 uploaded
+      ✓ Softening Body Lotion - Shea B...: 3 uploaded
+      ✓ Precision Blending Sponge - So...: 1 uploaded
+      ✓ Everyday Makeup Brush - Synthe...: 2 uploaded
+      ✓ Compact Brush Cleaning Pad - L...: 1 uploaded
+      ✓ Angled Brow Grooming Tool - Bl...: 2 uploaded
+      ✓ Soft Touch Powder Puff - Ivory...: 2 uploaded
+      ✓ Travel Makeup Bottle Set - Cle...: 1 uploaded
+      ✓ Structured Beauty Storage Case...: 1 uploaded
+      ✓ Essential Eye Brush Set - Rose...: 2 uploaded
+      ✓ Makeup Brush Set - Rose Gold -...: 2 uploaded
+      ✓ Powder Brush - Champagne - Tap...: 1 uploaded
+      ✓ Blending Sponge - Soft Pink - ...: 2 uploaded
+      ✓ Makeup Brush Cleaner - Clear -...: 3 uploaded
+      ✓ Makeup Bag - Quilted: 3 uploaded
+      ✓ Powder Puff - Velour: 2 uploaded
+      ✓ Travel Bottle Set - Clear - Re...: 2 uploaded
+      ✓ Makeup Brush Set - Champagne -...: 1 uploaded
+      ✓ Blending Sponge - Teardrop: 3 uploaded
+      ✓ Vanity Organizer - Clear - 3 D...: 3 uploaded
+      ✓ Powder Puff - Ivory - Soft Vel...: 3 uploaded
+      ✓ Makeup Brush Cleaner - Clear -...: 2 uploaded
+      ✓ Makeup Bag - Midnight Blue - Q...: 2 uploaded
+      ✓ Travel Container Set - Clear -...: 1 uploaded
+      ✓ Eyebrow Grooming Tool - Rose G...: 1 uploaded
+      ✓ Professional Brush Set - 12 Pi...: 2 uploaded
+      ✓ Blending Sponge - Teardrop Sha...: 3 uploaded
+      ✓ Powder Brush - Rounded Full He...: 3 uploaded
+      ✓ Makeup Brush Cleaner - Silicon...: 3 uploaded
+      ✓ Angled Brow Brush - Dual-Ended...: 3 uploaded
+      ✓ Travel Container Set - Leak-Re...: 1 uploaded
+      ✓ Vanity Organizer - Clear Acryl...: 3 uploaded
+    ✓ Uploaded images for 90 products
+    Uploading category banners to Shopware...
+      ✓ Uploaded banner for "Nail Care"
+      ✓ Uploaded banner for "Eye Makeup"
+      ✓ Uploaded banner for "Nails"
+      ✓ Uploaded banner for "Manicure Tools"
+      ✓ Uploaded banner for "Face Wash"
+      ✓ Uploaded banner for "Cleansing Balm & Oil"
+      ✓ Uploaded banner for "Micellar Water"
+      ✓ Uploaded banner for "Moisturizers"
+      ✓ Uploaded banner for "Night Cream"
+      ✓ Uploaded banner for "Hydrating Serums"
+      ✓ Uploaded banner for "Eye Cream"
+      ✓ Uploaded banner for "Body Care"
+      ✓ Uploaded banner for "Body Lotion"
+      ✓ Uploaded banner for "Fragrance"
+      ✓ Uploaded banner for "Women's Perfume"
+    Wrote 357 reviews for 76 products
+      ✓ Uploaded banner for "Men's Fragrance"
+      ✓ Uploaded banner for "Unisex Fragrance"
+      ✓ Uploaded banner for "Face Brushes"
+      ✓ Uploaded banner for "Eye Brushes"
+      ✓ Uploaded banner for "Makeup Sponges & Applicators"
+      ✓ Uploaded banner for "Powder Puffs"
+      ✓ Uploaded banner for "Lash & Brow Tools"
+      ✓ Uploaded banner for "Beauty Bags & Storage"
+    ✓ Uploaded banners for 23 categories
+    ✓ cms-text: 1 processed, 0 skipped (698ms)
+    ✓ cms-images: 1 processed, 0 skipped (4392ms)
+    ✓ cms-video: 1 processed, 0 skipped (593ms)
+    ✓ cms-text-images: 1 processed, 0 skipped (3868ms)
+    ✓ cms-form: 1 processed, 0 skipped (578ms)
+    ✓ cms-footer-pages: 1 processed, 0 skipped (4030ms)
+    ✓ digital-product: 1 processed, 0 skipped (3102ms)
+    ✓ media-product: 1 processed, 0 skipped (1648ms)
+    ✓ cross-selling: 90 processed, 0 skipped (4930ms)
+    ✓ customers: 4 processed, 0 skipped (2568ms)
+    ✓ images: 90 processed, 0 skipped (18489ms)
+    ✓ manufacturers: 6 processed, 0 skipped (4298ms)
+    ✓ promotions: 4 processed, 0 skipped (666ms)
+    ✓ reviews: 76 processed, 14 skipped (17620ms)
+    ✗ theme: 1 processed, 0 skipped (3586ms)
+      Error: Failed to assign theme to SalesChannel
+  Batch 2/4: cms-commerce, variants, cms-home
+    Creating variants for 27 products...
+    ✓ Created CMS layout "Commerce Elements" with 10 products
+    ✓ Created Landing Page "Commerce Elements"
+    ✓ Created homepage CMS layout
+    ✓ Assigned homepage to root category
+      ✓ Velvet Matte Lipstick - Full Coverage: Created 4 variants (Color)
+      ✓ Nail Polish - Gloss Finish: Created 4 variants (Color)
+      ✓ Concealer - Natural Finish: Created 4 variants (Color)
+      ✓ Velvet Matte Lipstick - Satin Finish: Created 4 variants (Color)
+      ✓ Luminous Liquid Foundation - Natural Finish: Created 4 variants (Color)
+      ✓ Volumizing Mascara - Defined Lashes: Created 4 variants (Color)
+      ✓ Nail Polish - Glossy Color: Created 4 variants (Color)
+      ✓ Silk Glow Liquid Foundation - Natural Finish: Created 4 variants (Color)
+      ✓ Glossy Nail Polish - High Shine: Created 4 variants (Color)
+      ✓ Luminous Liquid Foundation - Medium Coverage: Created 4 variants (Color)
+      ✓ Precision Liquid Eyeliner - Satin Finish: Created 4 variants (Color)
+      ✓ Cream Blush Stick - Dewy Finish: Created 4 variants (Color)
+      ✓ Dewdrop Hydrating Serum - Hyaluronic Acid: Created 3 variants (Size)
+      ✓ Cloudveil Daily Moisturizer - Fragrance-Free: Created 3 variants (Size)
+      ✓ Moonpetal Overnight Cream - Lavender: Created 3 variants (Size)
+      Adding 1 option(s) to variant property group "Size"...
+      ✓ Dewdrop Hydrating Serum - Clear: Created 12 variants (Color + Size)
+      Adding 5 option(s) to variant property group "Scent"...
+      ✓ Daily Moisture Body Lotion: Created 9 variants (Scent + Size)
+      ✓ Daily Dew Moisturizer - Lightweight Gel: Created 12 variants (Color + Size)
+      Adding 6 option(s) to variant property group "Type"...
+      ✓ Nourishing Face Oil - Squalane Blend: Created 9 variants (Size + Type)
+      ✓ Softening Body Lotion - Shea Butter: Created 12 variants (Size + Color)
+      ✓ Everyday Makeup Brush - Synthetic: Created 4 variants (Color)
+      ✓ Makeup Bag - Quilted: Created 4 variants (Color)
+      ✓ Powder Puff - Velour: Created 4 variants (Color)
+      ✓ Blending Sponge - Teardrop: Created 4 variants (Color)
+      ✓ Makeup Bag - Midnight Blue - Quilted: Created 4 variants (Color)
+      ✓ Blending Sponge - Teardrop Shape: Created 4 variants (Color)
+      ✓ Powder Brush - Rounded Full Head - Soft Black: Created 4 variants (Color)
+    ✓ cms-commerce: 1 processed, 0 skipped (323ms)
+    ✓ variants: 27 processed, 0 skipped (18198ms)
+    ✓ cms-home: 1 processed, 0 skipped (441ms)
+  Batch 3/4: cms-testing, variant-images
+    141 colour images for 22 variant products
+    ✓ Created Testing CMS layout "Testing Overview"
+    ✓ Created Testing landing page "Testing Overview"
+    ✓ Created "Testing" category
+    ✓ Created CMS showcase layout "CMS Element Showcase"
+    ✓ Created CMS showcase landing page "CMS Element Showcase"
+    ✓ Created "CMS" category
+    ✓ Created "Text" CMS sub-category
+    ✓ Created "Images" CMS sub-category
+    ✓ Created "Video" CMS sub-category
+    ✓ Created "Text & Images" CMS sub-category
+    ✓ Created "Commerce" CMS sub-category
+    ✓ Created "Form" CMS sub-category
+    ✓ Created "Products" category
+    ✓ Created "Simple Product" product link
+    ✓ Created "Variant Product" product link
+    ✓ Created "Digital Product" product link
+    ✓ Created "Media Product" product link
+    ✓ Created "Cookie settings" category
+    Uploaded 141 colour images (0 already uploaded)
+    ✓ Validated: 6 CMS + 4 Product categories
+    ✓ Colour images set for 22 products
+    ✓ cms-testing: 1 processed, 0 skipped (3191ms)
+    ✓ variant-images: 22 processed, 0 skipped (6877ms)
+  Batch 4/4: translations
+    ✓ Wrote translations: 770 records for de-DE
+    ✓ translations: 770 processed, 0 skipped (1149ms)
+✓ Cleared shop cache
+=== Shopware Data Generator v2 ===
+Name: beauty
+Description: beauty webshop
+Log file: /private/tmp/catgen/logs/generator-2026-11-19T14-06-05.log
+
+Step 1: Using existing blueprint
+Step 2: Using existing hydrated blueprint
+Step 2b: Using cached translations (de-DE)
+Step 3: Syncing to Shopware...
+  Shopware: 6.7 dev build (6.7.9999999.9999999-dev)
+  Created SalesChannel: Beauty (d529394d2fe44f2c805632a3ee7c03f0)
+  Synced 59 categories
+  Synced 22 property groups
+  Synced 90 of 90 products
+
+=== Sync Complete ===
+
+Running post-processors...
+
+=== Generation Complete ===
+SalesChannel: beauty
+Storefront: http://beauty.localhost:8000
+Post-processors: 1101 processed, 1 errors
+
+Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)
+error: script "generate" exited with code 1
+---- end
+---- generator failure pg drugstore (exit 1), full log:
+$ bun run src/main.ts generate "--name=drugstore"
+Text provider: pollinations (sequential: true)
+Image provider: none (sequential: false)
+Shopware 6.7 dev build (6.7.9999999.9999999-dev)
+Created root category: Drugstore Demo-Store
+Created SalesChannel "drugstore" with domains: http://drugstore.127.0.0.1:18101, http://drugstore-de.127.0.0.1:18101
+  17 categories without products are hidden from the navigation
+Created 64 categories
+  Created 64 categories
+  ⊕ Adding 24 options to "Size"
+  ⊕ Adding 52 options to "Type"
+  ⊕ Adding 5 options to "Finish"
+  ⊕ Adding 2 options to "Key Ingredient"
+  ⊕ Adding 23 options to "Color"
+  ⊕ Updating 6 color hex codes in "Color"
+  ⊕ Adding 11 options to "Scent"
+  ⊕ Adding 4 options to "Fragrance"
+  ⊕ Adding 7 options to "Material"
+  ⊕ Adding 4 options to "Use"
+  ⊕ Adding 2 options to "Color family"
+  Property groups: 21 created, 10 updated, 2 unchanged
+  Uploading images for 1 color options...
+  ⊘ Custom field set "catalog_generator" already exists
+  ✓ Created 1 unit(s): Piece
+  Synced 90 products
+Running 21 post-processors in 4 batch(es)...
+  Batch 1/4: cms-text, cms-images, cms-video, cms-text-images, cms-form, cms-footer-pages, digital-product, media-product, cross-selling, customers, images, manufacturers, promotions, reviews, theme
+    Uploading 206 cached images to Shopware
+      - 90 products with images
+      - 21 category banners
+    Uploading product images to Shopware...
+    ⚠ Stale digital-product cache detected, rebuilding gift card state
+    ⊘ "Media Showcase" product already exists
+    Reviews spread across en-GB, de-DE
+    ⊘ B2B customer group already exists
+    Found Product Media folder
+    ⊘ Gift card product already exists globally
+    ⊘ Promotion "Welcome Discount" already exists — linked to SalesChannel
+    ✓ Created CMS layout "Form Elements"
+    ⊘ Customer "customer@example.com" already exists
+    ⊘ Customer "b2b@example.com" already exists
+    ⊘ Customer "jane@example.com" already exists
+    ⊘ Customer "b2b-buyer@example.com" already exists
+  ✓ Created child theme "Drugstore Theme"
+    ⊘ Promotion "Summer Sale" already exists — linked to SalesChannel
+    ⊘ Promotion "Flat $15 Off" already exists — linked to SalesChannel
+    ✓ Media showcase gallery: chair-damask-purplegold.glb, glass-vase-flowers.glb, pink-candle-burning.mp4, blue-candle-burning.mp4
+    ✓ Created Landing Page "Form Elements"
+    ⊘ Promotion "Free Shipping" already exists — linked to SalesChannel
+  ✓ Uploaded theme logo
+    ✓ Added gift card to SalesChannel
+    ⊘ Download media already exists
+  ✓ Uploaded theme favicon
+      ✓ Daily Hydrating Face Moisturiz...: 2 uploaded
+  ✓ Uploaded theme share
+    ✓ Created CMS layout "Text Elements"
+    ✓ Created CMS layout "Video Elements"
+    ✓ Created Landing Page "Video Elements"
+    ✓ Created Landing Page "Text Elements"
+      ✓ Flexible Hold Hair Styling Gel...: 2 uploaded
+      ✓ Nourishing Hair Conditioner - ...: 2 uploaded
+      ✓ Gentle Daily Face Cleanser - A...: 3 uploaded
+    ✓ Assigned footer roots for SalesChannel 98432def39fc4624b33213a56b8c944d
+    ✓ Assigned footer roots for SalesChannel 01a1f420c832709b91b9907f5aa2729d
+    Created 3 streams, cross-selling for 90 products
+    ✓ Assigned footer roots for SalesChannel d529394d2fe44f2c805632a3ee7c03f0
+    ✓ Assigned footer roots for SalesChannel 21e543d6159a42b8adb4467fe15d0331
+      ✓ Cream Lipstick - Satin: 3 uploaded
+      ✓ Volumizing Mascara - 10ml: 1 uploaded
+    ✓ Created CMS layout "Text & Images" with 8 images
+      ✓ Nail Polish - Glossy: 1 uploaded
+    ✓ Created Landing Page "Text & Images"
+Failed to assign theme: Error: API POST _action/theme/d145ba9a998446d29852113f1b0050de/assign/21e543d6159a42b8adb4467fe15d0331 failed: 400 - {"errors":[{"status":"400","code":"THEME__COMPILING_ERROR","title":"Bad Request","detail":"Unable to compile the theme \u0022Storefront\u0022. Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh","meta":{"parameters":{"themeName":"Storefront","message":"Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh"}}}]}
+  ✓ Theme customized for drugstore
+      ✓ Tinted Lip Balm - 4g: 2 uploaded
+      ✓ Lightweight Face Moisturizer -...: 2 uploaded
+      ✓ Daily Sunscreen Lotion - SPF 3...: 3 uploaded
+    ✓ Created CMS layout "Image Elements" with 11 images
+    ✓ Created Landing Page "Image Elements"
+      ✓ Flexible Hold Styling Gel - Cl...: 1 uploaded
+      ✓ Gentle Foaming Facial Cleanser...: 3 uploaded
+      ✓ Lengthening Mascara - Deep Bla...: 2 uploaded
+      ✓ Daily Moisturizing Cream - Fra...: 1 uploaded
+      ✓ Nourishing Conditioner - Cocon...: 3 uploaded
+      ✓ Daily Fresh Deodorant Spray - ...: 3 uploaded
+      ✓ Gentle Foaming Face Cleanser -...: 1 uploaded
+      ✓ Flexible Hold Styling Gel - Un...: 2 uploaded
+      ✓ Nourishing Hair Mask - Coconut: 3 uploaded
+      ✓ Classic Lengthening Mascara - ...: 3 uploaded
+      ✓ Daily Roll-On Deodorant - Fres...: 1 uploaded
+      ✓ Lightweight Body Lotion - Shea...: 2 uploaded
+      ✓ Everyday Shampoo - Moisture Ca...: 3 uploaded
+      ✓ Gentle Daily Shampoo - Aloe - ...: 2 uploaded
+      ✓ Daily Face Moisturizer - Soft ...: 3 uploaded
+      ✓ Nourishing Conditioner - Shea ...: 1 uploaded
+      ✓ Long-Lasting Deodorant Spray -...: 2 uploaded
+      ✓ Volumizing Mascara - Deep Blac...: 1 uploaded
+      ✓ Cream Lipstick - Dusty Rose - ...: 2 uploaded
+      ✓ Nourishing Hand Cream - Oat & ...: 1 uploaded
+      ✓ Digital Thermometer - Flexible...: 2 uploaded
+      ✓ Elastic Support Bandage - 7.5 ...: 3 uploaded
+      ✓ Sterile Adhesive Dressings - A...: 2 uploaded
+      ✓ Electrolyte Hydration Powder -...: 2 uploaded
+      ✓ Daily Multivitamin Tablets - A...: 1 uploaded
+      ✓ Herbal Sleep Tea - Chamomile B...: 3 uploaded
+      ✓ Reusable Hot & Cold Gel Pack -...: 1 uploaded
+      ✓ Compact First Aid Kit - 40 Pie...: 1 uploaded
+      ✓ Adult Multivitamin Tablets - D...: 3 uploaded
+      ✓ Electrolyte Hydration Powder -...: 3 uploaded
+      ✓ Flexible Fabric Bandages - Ass...: 1 uploaded
+      ✓ Digital Thermometer - Flexible...: 2 uploaded
+      ✓ Sleep Mask - Adjustable Fit: 1 uploaded
+      ✓ Reusable Hot and Cold Pack: 1 uploaded
+      ✓ Travel First Aid Kit - Compact...: 1 uploaded
+      ✓ Digital Thermometer - Flexible...: 3 uploaded
+      ✓ Reusable Hot & Cold Pack - Fle...: 3 uploaded
+      ✓ Electrolyte Drink Mix - Citrus...: 3 uploaded
+      ✓ Adhesive Bandage Strips - Flex...: 3 uploaded
+      ✓ Foam Earplugs - Soft Foam: 3 uploaded
+      ✓ Daily Multivitamin - Adult For...: 1 uploaded
+      ✓ Sleep Support Mask - Contoured...: 2 uploaded
+      ✓ Instant Cold Pack - Single Use...: 1 uploaded
+      ✓ Daily Multivitamin Tablets - A...: 1 uploaded
+      ✓ Flexible Fabric Bandages - Min...: 2 uploaded
+      ✓ Electrolyte Hydration Mix - Po...: 3 uploaded
+      ✓ Reusable Hot and Cold Therapy ...: 2 uploaded
+      ✓ Gentle Sleep Eye Mask - Adjust...: 3 uploaded
+      ✓ Digital Oral Thermometer - Fle...: 2 uploaded
+      ✓ Vitamin D3 Softgels - 1000 IU ...: 3 uploaded
+      ✓ Laundry Detergent: 1 uploaded
+      ✓ Fabric Softener - Lavender Bre...: 2 uploaded
+      ✓ Microfiber Cleaning Cloths - M...: 2 uploaded
+      ✓ All-Purpose Surface Cleaner - ...: 2 uploaded
+      ✓ Dishwashing Liquid - Lemon - 5...: 3 uploaded
+      ✓ Microfiber Floor Mop - Gray - ...: 3 uploaded
+      ✓ Bathroom Cleaner - Ocean Fresh...: 3 uploaded
+      ✓ Drawstring Trash Bags - Gray: 3 uploaded
+      ✓ Kitchen Surface Spray - Citrus...: 1 uploaded
+      ✓ Liquid Laundry Detergent - Eve...: 3 uploaded
+      ✓ Reusable Cleaning Cloths - 4 P...: 1 uploaded
+      ✓ Bathroom Cleaner - Eucalyptus ...: 2 uploaded
+      ✓ Fabric Softener: 1 uploaded
+      ✓ Drawstring Trash Bags - 30L - ...: 3 uploaded
+      ✓ Hand Soap Refill - Aloe Vera -...: 2 uploaded
+      ✓ Laundry Detergent - Fresh Line...: 1 uploaded
+      ✓ Microfiber Cleaning Cloth Set ...: 3 uploaded
+    Wrote 288 reviews for 63 products
+      ✓ Citrus Multi-Surface Cleaner -...: 3 uploaded
+      ✓ Foaming Hand Soap: 3 uploaded
+      ✓ Bathroom Descaler Spray - Fres...: 2 uploaded
+      ✓ Laundry Fabric Softener: 1 uploaded
+      ✓ Drawstring Trash Bags - Flexib...: 1 uploaded
+      ✓ Kitchen Sponge Scourer Set - D...: 3 uploaded
+      ✓ Liquid Laundry Detergent - Con...: 3 uploaded
+      ✓ Microfiber Cleaning Cloths - M...: 2 uploaded
+      ✓ Bathroom Cleaner - Ocean Fresh...: 1 uploaded
+      ✓ All-Purpose Surface Cleaner - ...: 1 uploaded
+      ✓ Fabric Softener - Lavender - 1...: 1 uploaded
+      ✓ Drawstring Trash Bags - Black ...: 2 uploaded
+      ✓ Paper Towels - White - 6 Rolls: 3 uploaded
+    ✓ Uploaded images for 90 products
+    Uploading category banners to Shopware...
+      ✓ Uploaded banner for "Skincare"
+      ✓ Uploaded banner for "Hair Care"
+      ✓ Uploaded banner for "Beauty & Personal Care"
+      ✓ Uploaded banner for "Hair Styling"
+      ✓ Uploaded banner for "First Aid & Medical Supplies"
+      ✓ Uploaded banner for "Conditioner & Hair Masks"
+      ✓ Uploaded banner for "Thermometers & Monitors"
+      ✓ Uploaded banner for "Bandages & Dressings"
+      ✓ Uploaded banner for "Pain Relief & Supports"
+      ✓ Uploaded banner for "Eye & Ear Care"
+      ✓ Uploaded banner for "Vitamins & Nutrition"
+      ✓ Uploaded banner for "Multivitamins"
+      ✓ Uploaded banner for "Hydration & Electrolytes"
+      ✓ Uploaded banner for "Household & Cleaning"
+      ✓ Uploaded banner for "Cleaning Supplies"
+      ✓ Uploaded banner for "Surface Cleaners"
+      ✓ Uploaded banner for "Laundry Detergent"
+      ✓ Uploaded banner for "Stain Removers"
+      ✓ Uploaded banner for "Toilet Paper & Tissues"
+      ✓ Uploaded banner for "Oral Care"
+      ✓ Uploaded banner for "Adult Incontinence Care"
+    ✓ Uploaded banners for 21 categories
+    ✓ cms-text: 1 processed, 0 skipped (1550ms)
+    ✓ cms-images: 1 processed, 0 skipped (3595ms)
+    ✓ cms-video: 1 processed, 0 skipped (1461ms)
+    ✓ cms-text-images: 1 processed, 0 skipped (2818ms)
+    ✓ cms-form: 1 processed, 0 skipped (471ms)
+    ✓ cms-footer-pages: 1 processed, 0 skipped (2837ms)
+    ✓ digital-product: 1 processed, 0 skipped (901ms)
+    ✓ media-product: 1 processed, 0 skipped (763ms)
+    ✓ cross-selling: 90 processed, 0 skipped (2257ms)
+    ✓ customers: 0 processed, 4 skipped (319ms)
+    ✓ images: 90 processed, 0 skipped (17750ms)
+    ✓ manufacturers: 6 processed, 0 skipped (1227ms)
+    ✓ promotions: 0 processed, 4 skipped (426ms)
+    ✓ reviews: 63 processed, 27 skipped (14016ms)
+    ✗ theme: 1 processed, 0 skipped (2845ms)
+      Error: Failed to assign theme to SalesChannel
+  Batch 2/4: cms-commerce, variants, cms-home
+    Creating variants for 26 products...
+    ✓ Created CMS layout "Commerce Elements" with 10 products
+    ✓ Created Landing Page "Commerce Elements"
+    ✓ Created homepage CMS layout
+    ✓ Assigned homepage to root category
+      ✓ Cream Lipstick - Satin: Created 4 variants (Color)
+      ✓ Volumizing Mascara - 10ml: Created 4 variants (Color)
+      ✓ Nail Polish - Glossy: Created 4 variants (Color)
+      ✓ Daily Sunscreen Lotion - SPF 30: Created 3 variants (Size)
+      ✓ Tinted Lip Balm - 4g: Created 4 variants (Color)
+      Adding 1 option(s) to variant property group "Scent"...
+      ✓ Nourishing Conditioner - Coconut Scent: Created 9 variants (Size + Scent)
+      ✓ Daily Moisturizing Cream - Fragrance Free: Created 12 variants (Size + Color)
+      ✓ Nourishing Hair Mask - Coconut: Created 12 variants (Size + Color)
+      Adding 3 option(s) to variant property group "Size"...
+      ✓ Reusable Hot and Cold Pack: Created 12 variants (Color + Size)
+      ✓ Sleep Mask - Adjustable Fit: Created 12 variants (Color + Size)
+      Adding 6 option(s) to variant property group "Type"...
+      ✓ Digital Thermometer - Flexible Tip - 10-Second Reading: Created 12 variants (Type + Color)
+      ✓ Reusable Hot & Cold Pack - Flexible Gel: Created 12 variants (Size + Color)
+      Adding 5 option(s) to variant property group "Quantity"...
+      ✓ Foam Earplugs - Soft Foam: Created 12 variants (Quantity + Color)
+      ✓ Daily Multivitamin - Adult Formula - 60 Tablets: Created 12 variants (Size + Color)
+      Adding 6 option(s) to variant property group "Flavor"...
+      ✓ Electrolyte Hydration Mix - Portable Single-Serve - 10 Sachets: Created 3 variants (Flavor)
+      ✓ Gentle Sleep Eye Mask - Adjustable Strap: Created 4 variants (Color)
+      ✓ Laundry Detergent: Created 9 variants (Scent + Size)
+      ✓ Fabric Softener - Lavender Breeze: Created 9 variants (Scent + Size)
+      Adding 5 option(s) to variant property group "Count"...
+      ✓ Drawstring Trash Bags - Gray: Created 9 variants (Size + Count)
+      ✓ Liquid Laundry Detergent - Everyday Loads - Easy-Pour Formula: Created 9 variants (Scent + Size)
+      Adding 1 option(s) to variant property group "Size"...
+      ✓ Reusable Cleaning Cloths - 4 Pack: Created 12 variants (Color + Size)
+      ✓ Fabric Softener: Created 9 variants (Scent + Size)
+      ✓ Foaming Hand Soap: Created 24 variants (Color + Scent + Size)
+      ✓ Laundry Fabric Softener: Created 9 variants (Scent + Size)
+      ✓ Drawstring Trash Bags - Flexible Design - Secure Closure: Created 12 variants (Size + Color)
+      ✓ Liquid Laundry Detergent - Concentrated Formula - Everyday Cleaning: Created 9 variants (Scent + Size)
+    ✓ cms-commerce: 1 processed, 0 skipped (353ms)
+    ✓ variants: 26 processed, 0 skipped (19852ms)
+    ✓ cms-home: 1 processed, 0 skipped (463ms)
+  Batch 3/4: cms-testing, variant-images
+    93 colour images for 16 variant products
+    ✓ Created Testing CMS layout "Testing Overview"
+    ✓ Created Testing landing page "Testing Overview"
+    ✓ Created "Testing" category
+    ✓ Created CMS showcase layout "CMS Element Showcase"
+    ✓ Created CMS showcase landing page "CMS Element Showcase"
+    ✓ Created "CMS" category
+    ✓ Created "Text" CMS sub-category
+    ✓ Created "Images" CMS sub-category
+    ✓ Created "Video" CMS sub-category
+    ✓ Created "Text & Images" CMS sub-category
+    ✓ Created "Commerce" CMS sub-category
+    ✓ Created "Form" CMS sub-category
+    Uploaded 93 colour images (0 already uploaded)
+    ✓ Created "Products" category
+    ✓ Created "Simple Product" product link
+    ✓ Created "Variant Product" product link
+    ✓ Created "Digital Product" product link
+    ✓ Created "Media Product" product link
+    ✓ Created "Cookie settings" category
+    ✓ Validated: 6 CMS + 4 Product categories
+    ✓ Colour images set for 16 products
+    ✓ cms-testing: 1 processed, 0 skipped (2826ms)
+    ✓ variant-images: 16 processed, 0 skipped (6645ms)
+  Batch 4/4: translations
+    ✓ Wrote translations: 767 records for de-DE
+    ✓ translations: 767 processed, 0 skipped (1465ms)
+✓ Cleared shop cache
+=== Shopware Data Generator v2 ===
+Name: drugstore
+Description: drugstore webshop
+Log file: /private/tmp/catgen/logs/generator-2026-11-19T14-06-57.log
+
+Step 1: Using existing blueprint
+Step 2: Using existing hydrated blueprint
+Step 2b: Using cached translations (de-DE)
+Step 3: Syncing to Shopware...
+  Shopware: 6.7 dev build (6.7.9999999.9999999-dev)
+  Created SalesChannel: Drugstore (21e543d6159a42b8adb4467fe15d0331)
+  Synced 64 categories
+  Synced 33 property groups
+  Synced 90 of 90 products
+
+=== Sync Complete ===
+
+Running post-processors...
+
+=== Generation Complete ===
+SalesChannel: drugstore
+Storefront: http://drugstore.localhost:8000
+Post-processors: 1070 processed, 1 errors
+
+Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)
+error: script "generate" exited with code 1
+---- end
+---- generator failure pg electronics (exit 1), full log:
+$ bun run src/main.ts generate "--name=electronics"
+Text provider: pollinations (sequential: true)
+Image provider: none (sequential: false)
+Shopware 6.7 dev build (6.7.9999999.9999999-dev)
+Created root category: Electronics Demo-Store
+Created SalesChannel "electronics" with domains: http://electronics.127.0.0.1:18101, http://electronics-de.127.0.0.1:18101
+  19 categories without products are hidden from the navigation
+Created 70 categories
+  Created 70 categories
+  ⊕ Adding 15 options to "Color"
+  ⊕ Updating 2 color hex codes in "Color"
+  ⊕ Adding 47 options to "Type"
+  ⊕ Adding 6 options to "Material"
+  ⊕ Adding 3 options to "Capacity"
+  ⊕ Adding 2 options to "Size"
+  ⊕ Adding 1 options to "Power"
+  ⊕ Adding 1 options to "Fit"
+  ⊕ Adding 7 options to "Feature"
+  ⊕ Adding 4 options to "Display"
+  ⊕ Adding 1 options to "Color family"
+  Property groups: 26 created, 10 updated, 0 unchanged
+  ⊘ Custom field set "catalog_generator" already exists
+  Synced 90 products
+Running 21 post-processors in 4 batch(es)...
+  Batch 1/4: cms-text, cms-images, cms-video, cms-text-images, cms-form, cms-footer-pages, digital-product, media-product, cross-selling, customers, images, manufacturers, promotions, reviews, theme
+    Uploading 207 cached images to Shopware
+      - 90 products with images
+      - 29 category banners
+    Uploading product images to Shopware...
+    ⊘ "Media Showcase" product already exists
+    ⚠ Stale digital-product cache detected, rebuilding gift card state
+    Reviews spread across en-GB, de-DE
+    ⊘ Gift card product already exists globally
+    ⊘ B2B customer group already exists
+    Found Product Media folder
+    Found Product Media folder
+    Found Product Media folder
+    ✓ Created CMS layout "Video Elements"
+    ⊘ Customer "customer@example.com" already exists
+    ⊘ Customer "b2b@example.com" already exists
+    ⊘ Customer "jane@example.com" already exists
+    ⊘ Customer "b2b-buyer@example.com" already exists
+  ✓ Created child theme "Electronics Theme"
+    ✓ Created Landing Page "Video Elements"
+    ✓ Media showcase gallery: chair-damask-purplegold.glb, glass-vase-flowers.glb, pink-candle-burning.mp4, blue-candle-burning.mp4
+  ✓ Uploaded theme logo
+    ✓ Added gift card to SalesChannel
+      ✓ Everyday Laptop - 14-inch - Sl...: 1 uploaded
+    ⊘ Download media already exists
+      ✓ Computer Monitor - 27-inch - M...: 1 uploaded
+      ✓ Wireless Computer Mouse - Ergo...: 2 uploaded
+  ✓ Uploaded theme favicon
+  ✓ Uploaded theme share
+      ✓ Tablet - 10.5-inch - Silver: 2 uploaded
+      ✓ Laptop Stand - Aluminum - Adju...: 2 uploaded
+      ✓ Compact Wireless Keyboard - Wh...: 3 uploaded
+    ✓ Created CMS layout "Text Elements"
+    ✓ Created CMS layout "Form Elements"
+    ⊘ Promotion "Welcome Discount" already exists — linked to SalesChannel
+    ⊘ Promotion "Summer Sale" already exists — linked to SalesChannel
+    ✓ Created Landing Page "Text Elements"
+    ⊘ Promotion "Flat $15 Off" already exists — linked to SalesChannel
+    ✓ Created Landing Page "Form Elements"
+    ⊘ Promotion "Free Shipping" already exists — linked to SalesChannel
+    ✓ Assigned footer roots for SalesChannel d529394d2fe44f2c805632a3ee7c03f0
+      ✓ Mini PC - Compact Desktop - Ma...: 1 uploaded
+    ✓ Assigned footer roots for SalesChannel 21e543d6159a42b8adb4467fe15d0331
+    ✓ Assigned footer roots for SalesChannel 98432def39fc4624b33213a56b8c944d
+    ✓ Assigned footer roots for SalesChannel 01a1f420c832709b91b9907f5aa2729d
+    ✓ Assigned footer roots for SalesChannel 2bb6339607a5488e8d245cbcbfb254d0
+Failed to assign theme: Error: API POST _action/theme/703f4bcd82b14c3cb72dd6ed0f990a5e/assign/2bb6339607a5488e8d245cbcbfb254d0 failed: 400 - {"errors":[{"status":"400","code":"THEME__COMPILING_ERROR","title":"Bad Request","detail":"Unable to compile the theme \u0022Storefront\u0022. Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh","meta":{"parameters":{"themeName":"Storefront","message":"Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh"}}}]}
+  ✓ Theme customized for electronics
+    ✓ Created CMS layout "Text & Images" with 8 images
+    ✓ Created Landing Page "Text & Images"
+    ✓ Created CMS layout "Image Elements" with 11 images
+      ✓ Everyday Laptop - 14-Inch Disp...: 3 uploaded
+      ✓ External SSD - 1TB - Portable: 1 uploaded
+    ✓ Created Landing Page "Image Elements"
+      ✓ Computer Monitor - 27-Inch Dis...: 3 uploaded
+    Created 3 streams, cross-selling for 90 products
+      ✓ Convertible Laptop - 13.3-Inch...: 3 uploaded
+      ✓ Wireless Keyboard - Full-Size ...: 2 uploaded
+      ✓ Wireless Computer Mouse - Ergo...: 3 uploaded
+      ✓ Portable Solid State Drive - 1...: 2 uploaded
+      ✓ Android Tablet - 10.1-Inch Dis...: 3 uploaded
+      ✓ Wireless Keyboard and Mouse Se...: 2 uploaded
+      ✓ Portable SSD - Silver - 1TB: 1 uploaded
+      ✓ 27-Inch Monitor - Matte Black ...: 1 uploaded
+      ✓ Wireless Ergonomic Mouse - Mid...: 2 uploaded
+      ✓ Laptop Sleeve - Charcoal - 15....: 3 uploaded
+      ✓ 10.9-Inch Tablet: 2 uploaded
+      ✓ USB-C Laptop Charger - Black -...: 1 uploaded
+      ✓ Everyday Laptop - 14-Inch Disp...: 1 uploaded
+      ✓ Mechanical Gaming Keyboard - R...: 2 uploaded
+      ✓ Wireless Computer Mouse - 2.4 ...: 1 uploaded
+      ✓ USB-C External SSD - 1TB - Com...: 1 uploaded
+      ✓ Portable Monitor - 15.6-Inch D...: 3 uploaded
+      ✓ Wireless Keyboard - Full-Size ...: 3 uploaded
+      ✓ Tablet Folio Case - Slim Prote...: 1 uploaded
+      ✓ Laptop Stand - Adjustable Alum...: 2 uploaded
+      ✓ USB-C Wall Charger - 30W - Whi...: 1 uploaded
+      ✓ Everyday Phone Case - Clear - ...: 2 uploaded
+      ✓ Kids' Smartwatch - Blue - GPS ...: 2 uploaded
+      ✓ Fitness Tracker - Midnight Bla...: 3 uploaded
+      ✓ Unlocked Smartphone - Graphite...: 2 uploaded
+      ✓ Rugged Smartphone - Forest Gre...: 3 uploaded
+      ✓ Smartwatch - GPS Fitness: 3 uploaded
+      ✓ Magnetic Power Bank - 10000mAh: 2 uploaded
+      ✓ USB-C Wall Charger - 30W Outpu...: 1 uploaded
+      ✓ Fitness Tracker - Silicone Ban...: 1 uploaded
+      ✓ Protective Phone Case - Clear ...: 2 uploaded
+      ✓ Magnetic Wireless Power Bank -...: 1 uploaded
+      ✓ Unlocked Android Smartphone - ...: 2 uploaded
+      ✓ Fitness Smartwatch - Silver - ...: 1 uploaded
+      ✓ Kids' Smartwatch - GPS and Cel...: 2 uploaded
+      ✓ Android Smartphone: 3 uploaded
+      ✓ USB-C Fast Charger: 2 uploaded
+      ✓ Fitness Tracker - Black - Hear...: 2 uploaded
+      ✓ Rugged Smartphone - Olive - 12...: 2 uploaded
+      ✓ Magnetic Phone Case - Clear - ...: 2 uploaded
+      ✓ Smartwatch - Midnight Blue - G...: 3 uploaded
+      ✓ Kids' Smartwatch - GPS Calling: 3 uploaded
+      ✓ Portable Power Bank - Black - ...: 2 uploaded
+      ✓ Fitness Tracker Band: 1 uploaded
+      ✓ Wireless Earbud Charging Case ...: 2 uploaded
+      ✓ USB-C Wall Charger - White - 3...: 1 uploaded
+      ✓ Braided USB-C Cable - Graphite...: 1 uploaded
+      ✓ Universal Phone Car Mount - Ma...: 2 uploaded
+      ✓ Magnetic Wireless Power Bank -...: 1 uploaded
+      ✓ Protective Smartphone Case - C...: 3 uploaded
+      ✓ Wireless Headphones - Graphite...: 3 uploaded
+      ✓ Streaming Media Player - Matte...: 1 uploaded
+      ✓ Bluetooth Speaker - Forest Gre...: 2 uploaded
+      ✓ Smart Speaker - Voice Assistan...: 3 uploaded
+      ✓ Soundbar - 2.1 Channel: 2 uploaded
+      ✓ TV Wall Mount - Matte Black - ...: 3 uploaded
+      ✓ 4K Smart TV - Slate Black - 55...: 3 uploaded
+      ✓ Wireless Earbuds - Pearl White...: 1 uploaded
+      ✓ Wireless Over-Ear Headphones -...: 3 uploaded
+      ✓ 4K Streaming Media Player - Co...: 2 uploaded
+      ✓ Bluetooth Portable Speaker - W...: 2 uploaded
+      ✓ Soundbar - Wireless Subwoofer: 1 uploaded
+      ✓ OLED Smart TV - 55-Inch Class ...: 3 uploaded
+      ✓ 4K QLED Smart TV - 65-Inch Cla...: 3 uploaded
+      ✓ Smart Speaker with Voice Assis...: 3 uploaded
+      ✓ Wireless Headphones - Over-Ear: 3 uploaded
+      ✓ 4K Streaming Media Player - Gr...: 1 uploaded
+      ✓ Compact Bluetooth Speaker - Sl...: 2 uploaded
+      ✓ Slim 4K TV - 55-Inch - LED: 1 uploaded
+      ✓ Wireless Earbuds - In-Ear: 1 uploaded
+      ✓ 2.1 Channel Soundbar System - ...: 3 uploaded
+      ✓ Indoor Wi-Fi Security Camera -...: 2 uploaded
+      ✓ 4K Blu-ray Player - Black - HD...: 1 uploaded
+      ✓ Bluetooth Speaker - Portable: 2 uploaded
+      ✓ Wireless Headphones - Over-Ear...: 3 uploaded
+      ✓ Streaming Media Player - Compa...: 1 uploaded
+      ✓ TV Soundbar - Black - Wireless...: 3 uploaded
+      ✓ Universal TV Remote - Black - ...: 1 uploaded
+      ✓ 4K UHD Television - 55-Inch - ...: 2 uploaded
+      ✓ Wireless Earbuds - Charging Ca...: 1 uploaded
+    ✓ Uploaded images for 90 products
+    Uploading category banners to Shopware...
+      ✓ Uploaded banner for "Computers & Tablets"
+      ✓ Uploaded banner for "2-in-1 & Convertible Laptops"
+      ✓ Uploaded banner for "Business Laptops"
+      ✓ Uploaded banner for "All-in-One PCs"
+      ✓ Uploaded banner for "Mini PCs"
+      ✓ Uploaded banner for "Computer Accessories"
+      ✓ Uploaded banner for "Keyboards"
+      ✓ Uploaded banner for "Webcams"
+      ✓ Uploaded banner for "Computer Monitors"
+      ✓ Uploaded banner for "Gaming Monitors"
+      ✓ Uploaded banner for "Phones & Wearables"
+      ✓ Uploaded banner for "E-Readers"
+      ✓ Uploaded banner for "Smartphones"
+      ✓ Uploaded banner for "Unlocked Smartphones"
+      ✓ Uploaded banner for "Phone Accessories"
+      ✓ Uploaded banner for "Power Banks"
+      ✓ Uploaded banner for "Wearable Technology"
+      ✓ Uploaded banner for "Smartwatches"
+      ✓ Uploaded banner for "Fitness Trackers"
+      ✓ Uploaded banner for "Kids' Smartwatches"
+      ✓ Uploaded banner for "TV, Audio & Home Entertainment"
+      ✓ Uploaded banner for "TV Mounts & Stands"
+      ✓ Uploaded banner for "Wireless Headphones"
+      ✓ Uploaded banner for "Soundbars"
+      ✓ Uploaded banner for "Remote Controls"
+      ✓ Uploaded banner for "Digital Cameras"
+      ✓ Uploaded banner for "Cameras & Photography"
+    Wrote 361 reviews for 75 products
+      ✓ Uploaded banner for "Smart Speakers & Displays"
+      ✓ Uploaded banner for "Smart Plugs & Sensors"
+    ✓ Uploaded banners for 29 categories
+    ✓ cms-text: 1 processed, 0 skipped (1527ms)
+    ✓ cms-images: 1 processed, 0 skipped (2923ms)
+    ✓ cms-video: 1 processed, 0 skipped (412ms)
+    ✓ cms-text-images: 1 processed, 0 skipped (2498ms)
+    ✓ cms-form: 1 processed, 0 skipped (1600ms)
+    ✓ cms-footer-pages: 1 processed, 0 skipped (2558ms)
+    ✓ digital-product: 1 processed, 0 skipped (683ms)
+    ✓ media-product: 1 processed, 0 skipped (649ms)
+    ✓ cross-selling: 90 processed, 0 skipped (5348ms)
+    ✓ customers: 0 processed, 4 skipped (274ms)
+    ✓ images: 90 processed, 0 skipped (20658ms)
+    ✓ manufacturers: 6 processed, 0 skipped (5905ms)
+    ✓ promotions: 0 processed, 4 skipped (1595ms)
+    ✓ reviews: 75 processed, 15 skipped (20436ms)
+    ✗ theme: 1 processed, 0 skipped (2221ms)
+      Error: Failed to assign theme to SalesChannel
+  Batch 2/4: cms-commerce, variants, cms-home
+    Creating variants for 27 products...
+    ✓ Created CMS layout "Commerce Elements" with 10 products
+    ✓ Created Landing Page "Commerce Elements"
+    ✓ Created homepage CMS layout
+    ✓ Assigned homepage to root category
+      ✓ Wireless Computer Mouse - Ergonomic: Created 4 variants (Color)
+      Adding 5 option(s) to variant property group "Storage Capacity"...
+      ✓ 10.9-Inch Tablet: Created 12 variants (Color + Storage Capacity)
+      ✓ Mechanical Gaming Keyboard - RGB Backlit: Created 4 variants (Color)
+      ✓ Wireless Keyboard - Full-Size Layout: Created 4 variants (Color)
+      ✓ Tablet Folio Case - Slim Protective Cover: Created 4 variants (Color)
+      Adding 5 option(s) to variant property group "Material"...
+      ✓ Everyday Phone Case - Clear - Slim Fit: Created 12 variants (Color + Material)
+      ✓ Smartwatch - GPS Fitness: Created 12 variants (Color + Material)
+      ✓ Magnetic Power Bank - 10000mAh: Created 4 variants (Color)
+      ✓ Fitness Tracker - Silicone Band: Created 4 variants (Color)
+      Adding 4 option(s) to variant property group "Size"...
+      ✓ Protective Phone Case - Clear - Slim Fit: Created 12 variants (Color + Size)
+      Adding 3 option(s) to variant property group "Storage"...
+      ✓ Android Smartphone: Created 12 variants (Color + Storage)
+      Adding 5 option(s) to variant property group "Power Output"...
+      ✓ USB-C Fast Charger: Created 12 variants (Color + Power Output)
+      ✓ Smartwatch - Midnight Blue - GPS: Created 12 variants (Color + Material)
+      ✓ Kids' Smartwatch - GPS Calling: Created 12 variants (Color + Material)
+      ✓ Fitness Tracker Band: Created 12 variants (Color + Size)
+      ✓ Smart Speaker - Voice Assistant: Created 4 variants (Color)
+      ✓ Soundbar - 2.1 Channel: Created 4 variants (Color)
+      ✓ Wireless Over-Ear Headphones - Active Noise Cancellation: Created 4 variants (Color)
+      ✓ Bluetooth Portable Speaker - Waterproof Design: Created 4 variants (Color)
+      ✓ Soundbar - Wireless Subwoofer: Created 4 variants (Color)
+      ✓ OLED Smart TV - 55-Inch Class - 4K UHD: Created 3 variants (Size)
+      ✓ 4K QLED Smart TV - 65-Inch Class - Quantum Color: Created 3 variants (Size)
+      ✓ Wireless Headphones - Over-Ear: Created 4 variants (Color)
+      ✓ Wireless Earbuds - In-Ear: Created 4 variants (Color)
+      ✓ Bluetooth Speaker - Portable: Created 4 variants (Color)
+      ✓ Wireless Headphones - Over-Ear Design - Cushioned Fit: Created 4 variants (Color)
+      ✓ Wireless Earbuds - Charging Case: Created 4 variants (Color)
+    ✓ cms-commerce: 1 processed, 0 skipped (288ms)
+    ✓ variants: 27 processed, 0 skipped (20305ms)
+    ✓ cms-home: 1 processed, 0 skipped (443ms)
+  Batch 3/4: cms-testing, variant-images
+    159 colour images for 25 variant products
+    ✓ Created Testing CMS layout "Testing Overview"
+    ✓ Created Testing landing page "Testing Overview"
+    ✓ Created "Testing" category
+    ✓ Created CMS showcase layout "CMS Element Showcase"
+    ✓ Created CMS showcase landing page "CMS Element Showcase"
+    ✓ Created "CMS" category
+    ✓ Created "Text" CMS sub-category
+    ✓ Created "Images" CMS sub-category
+    ✓ Created "Video" CMS sub-category
+    ✓ Created "Text & Images" CMS sub-category
+    ✓ Created "Commerce" CMS sub-category
+    ✓ Created "Form" CMS sub-category
+    ✓ Created "Products" category
+    ✓ Created "Simple Product" product link
+    ✓ Created "Variant Product" product link
+    ✓ Created "Digital Product" product link
+    ✓ Created "Media Product" product link
+    ✓ Created "Cookie settings" category
+    Uploaded 159 colour images (0 already uploaded)
+    ✓ Validated: 6 CMS + 4 Product categories
+    ✓ Colour images set for 25 products
+    ✓ cms-testing: 1 processed, 0 skipped (2702ms)
+    ✓ variant-images: 25 processed, 0 skipped (8226ms)
+  Batch 4/4: translations
+    ✓ Wrote translations: 800 records for de-DE
+    ✓ translations: 800 processed, 0 skipped (1657ms)
+✓ Cleared shop cache
+=== Shopware Data Generator v2 ===
+Name: electronics
+Description: electronics webshop
+Log file: /private/tmp/catgen/logs/generator-2026-11-19T14-07-49.log
+
+Step 1: Using existing blueprint
+Step 2: Using existing hydrated blueprint
+Step 2b: Using cached translations (de-DE)
+Step 3: Syncing to Shopware...
+  Shopware: 6.7 dev build (6.7.9999999.9999999-dev)
+  Created SalesChannel: Electronics (2bb6339607a5488e8d245cbcbfb254d0)
+  Synced 70 categories
+  Synced 36 property groups
+  Synced 90 of 90 products
+
+=== Sync Complete ===
+
+Running post-processors...
+
+=== Generation Complete ===
+SalesChannel: electronics
+Storefront: http://electronics.localhost:8000
+Post-processors: 1125 processed, 1 errors
+
+Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)
+error: script "generate" exited with code 1
+---- end
+---- generator failure pg fashion (exit 1), full log:
+$ bun run src/main.ts generate "--name=fashion"
+Text provider: pollinations (sequential: true)
+Image provider: none (sequential: false)
+Shopware 6.7 dev build (6.7.9999999.9999999-dev)
+Created root category: Fashion Demo-Store
+Created SalesChannel "fashion" with domains: http://fashion.127.0.0.1:18101, http://fashion-de.127.0.0.1:18101
+  18 categories without products are hidden from the navigation
+Created 75 categories
+  Created 75 categories
+  ⊕ Adding 22 options to "Color"
+  ⊕ Updating 3 color hex codes in "Color"
+  ⊕ Adding 31 options to "Material"
+  ⊕ Adding 3 options to "Closure"
+  ⊕ Adding 1 options to "Length"
+  ⊕ Adding 5 options to "Fit"
+  ⊕ Adding 44 options to "Type"
+  ⊕ Adding 1 options to "Use"
+  Property groups: 11 created, 7 updated, 2 unchanged
+  Uploading images for 1 color options...
+  ⊘ Custom field set "catalog_generator" already exists
+  Synced 90 products
+Running 21 post-processors in 4 batch(es)...
+  Batch 1/4: cms-text, cms-images, cms-video, cms-text-images, cms-form, cms-footer-pages, digital-product, media-product, cross-selling, customers, images, manufacturers, promotions, reviews, theme
+    Uploading 212 cached images to Shopware
+      - 90 products with images
+      - 27 category banners
+    Uploading product images to Shopware...
+    ⚠ Stale digital-product cache detected, rebuilding gift card state
+    ⊘ "Media Showcase" product already exists
+    Reviews spread across en-GB, de-DE
+    Found Product Media folder
+    ⊘ Promotion "Welcome Discount" already exists — linked to SalesChannel
+    ⊘ B2B customer group already exists
+    Found Product Media folder
+    Found Product Media folder
+    ⊘ Gift card product already exists globally
+    ✓ Created CMS layout "Form Elements"
+    ✓ Created CMS layout "Video Elements"
+    ✓ Created CMS layout "Text Elements"
+    ⊘ Customer "customer@example.com" already exists
+    ⊘ Customer "b2b@example.com" already exists
+    ⊘ Customer "jane@example.com" already exists
+    ⊘ Customer "b2b-buyer@example.com" already exists
+  ✓ Created child theme "Fashion Theme"
+    ⊘ Promotion "Summer Sale" already exists — linked to SalesChannel
+    ⊘ Promotion "Flat $15 Off" already exists — linked to SalesChannel
+    ✓ Created Landing Page "Form Elements"
+    ✓ Created Landing Page "Text Elements"
+    ✓ Created Landing Page "Video Elements"
+    ✓ Media showcase gallery: chair-damask-purplegold.glb, glass-vase-flowers.glb, pink-candle-burning.mp4, blue-candle-burning.mp4
+    ⊘ Promotion "Free Shipping" already exists — linked to SalesChannel
+    ✓ Added gift card to SalesChannel
+  ✓ Uploaded theme logo
+      ✓ Leather Ankle Boots - Block He...: 1 uploaded
+    ⊘ Download media already exists
+      ✓ Gold Hoop Earrings - Polished ...: 1 uploaded
+      ✓ Structured Shoulder Bag - Smoo...: 2 uploaded
+  ✓ Uploaded theme favicon
+      ✓ Ribbed Knit Top - Cream - Long...: 1 uploaded
+  ✓ Uploaded theme share
+      ✓ Midi Wrap Dress - Flutter Slee...: 1 uploaded
+      ✓ Leather Ballet Flats - Bow Det...: 3 uploaded
+    Created 3 streams, cross-selling for 90 products
+      ✓ Wide-Leg Trousers - Navy - Hig...: 3 uploaded
+    ✓ Assigned footer roots for SalesChannel 98432def39fc4624b33213a56b8c944d
+    ✓ Assigned footer roots for SalesChannel 01a1f420c832709b91b9907f5aa2729d
+    ✓ Assigned footer roots for SalesChannel 2bb6339607a5488e8d245cbcbfb254d0
+      ✓ Woven Straw Sun Hat - Natural ...: 3 uploaded
+      ✓ Leather Ankle Boots - Black - ...: 2 uploaded
+    ✓ Assigned footer roots for SalesChannel d529394d2fe44f2c805632a3ee7c03f0
+    ✓ Assigned footer roots for SalesChannel 21e543d6159a42b8adb4467fe15d0331
+    ✓ Assigned footer roots for SalesChannel ab0936c20ad64139837ecfe3d24cbe7d
+      ✓ Wrap Midi Dress - Dusty Rose -...: 1 uploaded
+    ✓ Created CMS layout "Text & Images" with 8 images
+Failed to assign theme: Error: API POST _action/theme/fbedfdbb84cc4cb3b9aaa1d689e1d6e6/assign/ab0936c20ad64139837ecfe3d24cbe7d failed: 400 - {"errors":[{"status":"400","code":"THEME__COMPILING_ERROR","title":"Bad Request","detail":"Unable to compile the theme \u0022Storefront\u0022. Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh","meta":{"parameters":{"themeName":"Storefront","message":"Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh"}}}]}
+  ✓ Theme customized for fashion
+    ✓ Created Landing Page "Text & Images"
+      ✓ Gold-Tone Hoop Earrings - Poli...: 2 uploaded
+      ✓ Structured Shoulder Bag - Cogn...: 3 uploaded
+      ✓ Wide-Leg Trousers - Navy - Tai...: 1 uploaded
+    ✓ Created CMS layout "Image Elements" with 11 images
+    ✓ Created Landing Page "Image Elements"
+      ✓ Ribbed Knit Sweater - Crew Nec...: 1 uploaded
+      ✓ Pointed-Toe Ballet Flats - Bla...: 2 uploaded
+      ✓ Leather Ankle Boots - Clean Si...: 3 uploaded
+      ✓ Wrap Midi Dress - Dusty Rose -...: 2 uploaded
+      ✓ Gold Hoop Earrings - Gold - Me...: 1 uploaded
+      ✓ Structured Shoulder Bag - Cogn...: 2 uploaded
+      ✓ Ribbed Crewneck Sweater - Rela...: 2 uploaded
+      ✓ Wide-Leg Tailored Trousers - N...: 2 uploaded
+      ✓ Strappy Heeled Sandals - Silve...: 2 uploaded
+      ✓ Silk Square Scarf - Multicolor...: 2 uploaded
+      ✓ Leather Crossbody Bag - Cognac...: 2 uploaded
+      ✓ Midi Wrap Dress - Dusty Rose -...: 3 uploaded
+      ✓ Leather Loafers - Black - Penn...: 1 uploaded
+      ✓ Knit Cardigan - Cream - Ribbed: 2 uploaded
+      ✓ Tailored Trousers - Navy - Str...: 1 uploaded
+      ✓ Satin Slip Dress - Midi: 1 uploaded
+      ✓ Woven Sun Hat - Natural - Wide...: 1 uploaded
+      ✓ Leather Derby Shoes - Smooth L...: 3 uploaded
+      ✓ Oxford Dress Shirt - Cotton: 2 uploaded
+      ✓ Woven Leather Belt - Black - C...: 3 uploaded
+      ✓ Leather Card Holder - Cognac -...: 1 uploaded
+      ✓ Quilted Gilet - Olive Green - ...: 2 uploaded
+      ✓ Straight-Leg Jeans - Classic D...: 3 uploaded
+      ✓ Cotton Polo Shirt - Short Slee...: 3 uploaded
+      ✓ Leather Chelsea Boots - Black ...: 3 uploaded
+      ✓ Oxford Shirt - Tailored Fit: 2 uploaded
+      ✓ Leather Belt - Dark Brown - Cl...: 1 uploaded
+      ✓ Low-Top Sneakers - White - Min...: 3 uploaded
+      ✓ Quilted Jacket - Olive - Light...: 3 uploaded
+      ✓ Wool Beanie - Charcoal - Ribbe...: 1 uploaded
+      ✓ Leather Care Kit - Neutral - S...: 1 uploaded
+      ✓ Leather Wallet - Black - Bifol...: 3 uploaded
+      ✓ Oxford Dress Shirt - Sky Blue ...: 2 uploaded
+      ✓ Leather Court Sneakers - Low-T...: 2 uploaded
+      ✓ Leather Chelsea Boots - Dark B...: 2 uploaded
+      ✓ Cotton Chinos - Stone - Straig...: 2 uploaded
+      ✓ Leather Belt - Brushed Buckle: 1 uploaded
+      ✓ Merino Crew-Neck Sweater - Cha...: 1 uploaded
+      ✓ Wool-Blend Overcoat - Camel - ...: 2 uploaded
+      ✓ Leather Dress Shoes - Cap Toe: 3 uploaded
+      ✓ Oxford Dress Shirt - Pale Blue...: 2 uploaded
+      ✓ Leather Dress Shoes - Dark Bro...: 1 uploaded
+      ✓ Men’s Denim Jacket - Mid Blue ...: 2 uploaded
+      ✓ Leather Bifold Wallet - Black ...: 3 uploaded
+      ✓ Minimalist Analog Watch - Silv...: 3 uploaded
+      ✓ Everyday Knit Polo Shirt - Sho...: 2 uploaded
+      ✓ Tailored Chinos - Sand - Strai...: 1 uploaded
+      ✓ Structured Crossbody Bag - Peb...: 2 uploaded
+      ✓ Classic Leather Belt - Silver ...: 2 uploaded
+      ✓ Soft Knit Beanie - Ribbed Cuff: 2 uploaded
+      ✓ Woven Leather Bracelet - Chest...: 1 uploaded
+      ✓ Silk-Feel Square Scarf - Multi...: 3 uploaded
+      ✓ Minimalist Pendant Necklace - ...: 3 uploaded
+      ✓ Aviator Sunglasses - Smoke Len...: 3 uploaded
+      ✓ Canvas Tote Bag - Natural - Co...: 2 uploaded
+      ✓ Structured Tote Bag - Cognac -...: 3 uploaded
+      ✓ Classic Leather Belt - Black -...: 3 uploaded
+      ✓ Pendant Necklace - Fine Chain ...: 2 uploaded
+      ✓ Lightweight Woven Scarf - Dust...: 3 uploaded
+      ✓ Classic Cat-Eye Sunglasses - T...: 2 uploaded
+      ✓ Everyday Crossbody Bag - Adjus...: 2 uploaded
+      ✓ Slim Card Holder - Six-Slot De...: 2 uploaded
+      ✓ Crossbody Bag - Compact Profil...: 2 uploaded
+      ✓ Structured Tote Bag - Black - ...: 3 uploaded
+      ✓ Soft Knit Beanie - Charcoal - ...: 3 uploaded
+      ✓ Woven Scarf - Lightweight Fabr...: 3 uploaded
+      ✓ Classic Leather Belt - Dark Br...: 3 uploaded
+      ✓ Minimal Hoop Earrings - Gold -...: 1 uploaded
+      ✓ Soft Knit Gloves - Oatmeal - R...: 3 uploaded
+      ✓ Slim Card Holder - Navy - Mult...: 2 uploaded
+      ✓ Leather Crossbody Bag - Compac...: 1 uploaded
+      ✓ Woven Leather Belt - Classic W...: 2 uploaded
+      ✓ Soft Rib Knit Beanie - Fold-Ov...: 3 uploaded
+      ✓ Minimalist Pendant Necklace - ...: 2 uploaded
+      ✓ Polished Hoop Earrings - Silve...: 1 uploaded
+      ✓ Classic Square Sunglasses - UV...: 2 uploaded
+      ✓ Lightweight Travel Backpack - ...: 2 uploaded
+    ✓ Uploaded images for 90 products
+    Uploading category banners to Shopware...
+      ✓ Uploaded banner for "Women’s Fashion"
+      ✓ Uploaded banner for "Dresses"
+      ✓ Uploaded banner for "Trousers & Jeans"
+      ✓ Uploaded banner for "Women’s Accessories"
+      ✓ Uploaded banner for "Women’s Shoes"
+      ✓ Uploaded banner for "Handbags"
+      ✓ Uploaded banner for "Formalwear"
+      ✓ Uploaded banner for "Men’s Clothing"
+      ✓ Uploaded banner for "Jewelry"
+      ✓ Uploaded banner for "T-Shirts & Polos"
+    Wrote 311 reviews for 70 products
+      ✓ Uploaded banner for "Jeans"
+      ✓ Uploaded banner for "Men’s Jackets & Coats"
+      ✓ Uploaded banner for "Jackets"
+      ✓ Uploaded banner for "Men’s Shoes"
+      ✓ Uploaded banner for "Blazers"
+      ✓ Uploaded banner for "Men’s Sneakers"
+      ✓ Uploaded banner for "Men’s Accessories"
+      ✓ Uploaded banner for "Belts & Wallets"
+      ✓ Uploaded banner for "Dress Shirts"
+      ✓ Uploaded banner for "Men’s Workwear"
+      ✓ Uploaded banner for "Jewelry & Watches"
+      ✓ Uploaded banner for "Belts"
+      ✓ Uploaded banner for "Scarves"
+      ✓ Uploaded banner for "Luggage & Suitcases"
+      ✓ Uploaded banner for "Underwear & Loungewear"
+      ✓ Uploaded banner for "Men’s Underwear"
+      ✓ Uploaded banner for "Sleepwear"
+    ✓ Uploaded banners for 27 categories
+    ✓ cms-text: 1 processed, 0 skipped (533ms)
+    ✓ cms-images: 1 processed, 0 skipped (3248ms)
+    ✓ cms-video: 1 processed, 0 skipped (530ms)
+    ✓ cms-text-images: 1 processed, 0 skipped (2861ms)
+    ✓ cms-form: 1 processed, 0 skipped (510ms)
+    ✓ cms-footer-pages: 1 processed, 0 skipped (2860ms)
+    ✓ digital-product: 1 processed, 0 skipped (912ms)
+    ✓ media-product: 1 processed, 0 skipped (793ms)
+    ✓ cross-selling: 90 processed, 0 skipped (2163ms)
+    ✓ customers: 0 processed, 4 skipped (351ms)
+    ✓ images: 90 processed, 0 skipped (17257ms)
+    ✓ manufacturers: 6 processed, 0 skipped (1348ms)
+    ✓ promotions: 0 processed, 4 skipped (507ms)
+    ✓ reviews: 70 processed, 20 skipped (15823ms)
+    ✗ theme: 1 processed, 0 skipped (2737ms)
+      Error: Failed to assign theme to SalesChannel
+  Batch 2/4: cms-commerce, variants, cms-home
+    Creating variants for 27 products...
+      Adding 7 option(s) to variant property group "Size"...
+    ✓ Created CMS layout "Commerce Elements" with 10 products
+    ✓ Created Landing Page "Commerce Elements"
+    ✓ Created homepage CMS layout
+    ✓ Assigned homepage to root category
+      ✓ Leather Ankle Boots - Block Heel: Created 12 variants (Color + Size)
+      Adding 5 option(s) to variant property group "Material"...
+      ✓ Structured Shoulder Bag - Smooth Finish: Created 12 variants (Color + Material)
+      ✓ Midi Wrap Dress - Flutter Sleeve: Created 12 variants (Color + Size)
+      ✓ Leather Ballet Flats - Bow Detail: Created 12 variants (Color + Size)
+      ✓ Ribbed Knit Sweater - Crew Neck: Created 12 variants (Color + Size)
+      ✓ Ribbed Crewneck Sweater - Relaxed Fit: Created 12 variants (Color + Size)
+      ✓ Satin Slip Dress - Midi: Created 12 variants (Color + Size)
+      ✓ Leather Derby Shoes - Smooth Leather: Created 12 variants (Color + Size)
+      ✓ Oxford Dress Shirt - Cotton: Created 12 variants (Color + Size)
+      ✓ Straight-Leg Jeans - Classic Denim: Created 12 variants (Color + Size)
+      ✓ Cotton Polo Shirt - Short Sleeve: Created 12 variants (Color + Size)
+      ✓ Oxford Shirt - Tailored Fit: Created 12 variants (Color + Size)
+      ✓ Leather Court Sneakers - Low-Top: Created 12 variants (Color + Size)
+      ✓ Leather Belt - Brushed Buckle: Created 12 variants (Color + Size)
+      ✓ Leather Dress Shoes - Cap Toe: Created 12 variants (Color + Size)
+      ✓ Everyday Knit Polo Shirt - Short Sleeve: Created 12 variants (Color + Size)
+      ✓ Structured Crossbody Bag - Pebbled Finish: Created 12 variants (Color + Material)
+      ✓ Classic Leather Belt - Silver Buckle: Created 12 variants (Color + Size)
+      ✓ Soft Knit Beanie - Ribbed Cuff: Created 12 variants (Color + Size)
+      ✓ Aviator Sunglasses - Smoke Lens: Created 4 variants (Color)
+      ✓ Everyday Crossbody Bag - Adjustable Strap: Created 12 variants (Color + Material)
+      ✓ Slim Card Holder - Six-Slot Design: Created 12 variants (Color + Material)
+      ✓ Crossbody Bag - Compact Profile - Hands-Free Wear: Created 4 variants (Color)
+      ✓ Leather Crossbody Bag - Compact: Created 12 variants (Color + Material)
+      ✓ Woven Leather Belt - Classic Width: Created 12 variants (Color + Size)
+      ✓ Soft Rib Knit Beanie - Fold-Over Cuff: Created 12 variants (Color + Size)
+      Adding 6 option(s) to variant property group "Style"...
+      ✓ Classic Square Sunglasses - UV Protective: Created 12 variants (Color + Style)
+    ✓ cms-commerce: 1 processed, 0 skipped (312ms)
+    ✓ variants: 27 processed, 0 skipped (18065ms)
+    ✓ cms-home: 1 processed, 0 skipped (411ms)
+  Batch 3/4: cms-testing, variant-images
+    165 colour images for 27 variant products
+    ✓ Created Testing CMS layout "Testing Overview"
+    ✓ Created Testing landing page "Testing Overview"
+    ✓ Created "Testing" category
+    ✓ Created CMS showcase layout "CMS Element Showcase"
+    ✓ Created CMS showcase landing page "CMS Element Showcase"
+    ✓ Created "CMS" category
+    ✓ Created "Text" CMS sub-category
+    ✓ Created "Images" CMS sub-category
+    ✓ Created "Video" CMS sub-category
+    ✓ Created "Text & Images" CMS sub-category
+    ✓ Created "Commerce" CMS sub-category
+    ✓ Created "Form" CMS sub-category
+    ✓ Created "Products" category
+    ✓ Created "Simple Product" product link
+    ✓ Created "Variant Product" product link
+    ✓ Created "Digital Product" product link
+    ✓ Created "Media Product" product link
+    ✓ Created "Cookie settings" category
+    Uploaded 165 colour images (0 already uploaded)
+    ✓ Validated: 6 CMS + 4 Product categories
+    ✓ Colour images set for 27 products
+    ✓ cms-testing: 1 processed, 0 skipped (2993ms)
+    ✓ variant-images: 27 processed, 0 skipped (9110ms)
+  Batch 4/4: translations
+    ✓ Wrote translations: 783 records for de-DE
+    ✓ translations: 783 processed, 0 skipped (1245ms)
+✓ Cleared shop cache
+=== Shopware Data Generator v2 ===
+Name: fashion
+Description: fashion webshop
+Log file: /private/tmp/catgen/logs/generator-2026-11-19T14-08-47.log
+
+Step 1: Using existing blueprint
+Step 2: Using existing hydrated blueprint
+Step 2b: Using cached translations (de-DE)
+Step 3: Syncing to Shopware...
+  Shopware: 6.7 dev build (6.7.9999999.9999999-dev)
+  Created SalesChannel: Fashion (ab0936c20ad64139837ecfe3d24cbe7d)
+  Synced 75 categories
+  Synced 20 property groups
+  Synced 90 of 90 products
+
+=== Sync Complete ===
+
+Running post-processors...
+
+=== Generation Complete ===
+SalesChannel: fashion
+Storefront: http://fashion.localhost:8000
+Post-processors: 1105 processed, 1 errors
+
+Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)
+error: script "generate" exited with code 1
+---- end
+---- generator failure pg garden (exit 1), full log:
+$ bun run src/main.ts generate "--name=garden"
+Text provider: pollinations (sequential: true)
+Image provider: none (sequential: false)
+Shopware 6.7 dev build (6.7.9999999.9999999-dev)
+Created root category: Garden Demo-Store
+Created SalesChannel "garden" with domains: http://garden.127.0.0.1:18101, http://garden-de.127.0.0.1:18101
+  21 categories without products are hidden from the navigation
+Created 66 categories
+  Created 66 categories
+  ⊕ Adding 26 options to "Color"
+  ⊕ Updating 5 color hex codes in "Color"
+  ⊕ Adding 34 options to "Material"
+  ⊕ Adding 49 options to "Type"
+  ⊕ Adding 4 options to "Use"
+  ⊕ Adding 10 options to "Size"
+  ⊕ Adding 2 options to "Feature"
+  ⊕ Adding 7 options to "Capacity"
+  ⊕ Adding 5 options to "Length"
+  ⊕ Adding 1 options to "Quantity"
+  ⊕ Adding 2 options to "Compatibility"
+  ⊕ Adding 1 options to "Coverage"
+  Property groups: 15 created, 11 updated, 1 unchanged
+  Uploading images for 1 color options...
+  ⊘ Custom field set "catalog_generator" already exists
+  Synced 90 products
+Running 21 post-processors in 4 batch(es)...
+  Batch 1/4: cms-text, cms-images, cms-video, cms-text-images, cms-form, cms-footer-pages, digital-product, media-product, cross-selling, customers, images, manufacturers, promotions, reviews, theme
+    Uploading 195 cached images to Shopware
+      - 90 products with images
+      - 29 category banners
+    Uploading product images to Shopware...
+    ⚠ Stale digital-product cache detected, rebuilding gift card state
+    ⊘ "Media Showcase" product already exists
+    Found Product Media folder
+    Found Product Media folder
+    ⊘ B2B customer group already exists
+    Found Product Media folder
+    ⊘ Gift card product already exists globally
+    ⊘ Customer "customer@example.com" already exists
+    ⊘ Customer "b2b@example.com" already exists
+    ⊘ Customer "jane@example.com" already exists
+    ⊘ Customer "b2b-buyer@example.com" already exists
+    ✓ Media showcase gallery: chair-damask-purplegold.glb, glass-vase-flowers.glb, pink-candle-burning.mp4, blue-candle-burning.mp4
+    ✓ Added gift card to SalesChannel
+      ✓ Outdoor Cushion - Sage Green -...: 1 uploaded
+    ⊘ Download media already exists
+      ✓ Garden Bench - Natural Acacia ...: 2 uploaded
+      ✓ Garden Dining Chair - Matte Bl...: 3 uploaded
+      ✓ Garden Parasol - Crank Lift: 1 uploaded
+      ✓ Outdoor Lounge Chair - Relaxed...: 2 uploaded
+      ✓ Outdoor Storage Box - Slate Gr...: 3 uploaded
+    Reviews spread across en-GB, de-DE
+    ⊘ Promotion "Welcome Discount" already exists — linked to SalesChannel
+    ✓ Created CMS layout "Video Elements"
+    ✓ Created CMS layout "Text Elements"
+    ⊘ Promotion "Summer Sale" already exists — linked to SalesChannel
+  ✓ Created child theme "Garden Theme"
+    ✓ Created CMS layout "Form Elements"
+    ⊘ Promotion "Flat $15 Off" already exists — linked to SalesChannel
+    ✓ Assigned footer roots for SalesChannel 98432def39fc4624b33213a56b8c944d
+    ✓ Created Landing Page "Video Elements"
+    ⊘ Promotion "Free Shipping" already exists — linked to SalesChannel
+    ✓ Created Landing Page "Text Elements"
+    ✓ Created Landing Page "Form Elements"
+    Created 3 streams, cross-selling for 90 products
+    ✓ Assigned footer roots for SalesChannel 01a1f420c832709b91b9907f5aa2729d
+  ✓ Uploaded theme logo
+    ✓ Assigned footer roots for SalesChannel bf23fbf56f8747d4869f97a2a902e863
+    ✓ Assigned footer roots for SalesChannel 2bb6339607a5488e8d245cbcbfb254d0
+  ✓ Uploaded theme favicon
+      ✓ Outdoor Dining Table - Natural...: 3 uploaded
+    ✓ Assigned footer roots for SalesChannel d529394d2fe44f2c805632a3ee7c03f0
+      ✓ Garden Arch - Matte Black - Cl...: 2 uploaded
+    ✓ Assigned footer roots for SalesChannel 21e543d6159a42b8adb4467fe15d0331
+      ✓ Garden Bench - Acacia - Natura...: 3 uploaded
+    ✓ Assigned footer roots for SalesChannel ab0936c20ad64139837ecfe3d24cbe7d
+  ✓ Uploaded theme share
+    ✓ Created CMS layout "Text & Images" with 8 images
+    ✓ Created Landing Page "Text & Images"
+      ✓ Garden Parasol - Sand - Crank ...: 1 uploaded
+      ✓ Outdoor Seat Cushion - Square ...: 2 uploaded
+      ✓ Garden Chair - Folding: 1 uploaded
+    ✓ Created CMS layout "Image Elements" with 11 images
+    ✓ Created Landing Page "Image Elements"
+      ✓ Garden Arch - Black - Metal: 1 uploaded
+      ✓ Outdoor Sofa - Natural Rattan ...: 3 uploaded
+      ✓ Outdoor Dining Set - Four Piec...: 3 uploaded
+      ✓ Garden Bench - Acacia - Slatte...: 1 uploaded
+Failed to assign theme: Error: API POST _action/theme/ba6cf3d02ec04d6ead1f0ad03acd8b3a/assign/bf23fbf56f8747d4869f97a2a902e863 failed: 400 - {"errors":[{"status":"400","code":"THEME__COMPILING_ERROR","title":"Bad Request","detail":"Unable to compile the theme \u0022Storefront\u0022. Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh","meta":{"parameters":{"themeName":"Storefront","message":"Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh"}}}]}
+  ✓ Theme customized for garden
+      ✓ Outdoor Cushion - Terracotta -...: 1 uploaded
+      ✓ Outdoor Dining Chair - Black -...: 2 uploaded
+      ✓ Outdoor Storage Box - Slate Gr...: 1 uploaded
+      ✓ Garden Parasol - Ecru - Crank ...: 3 uploaded
+      ✓ Garden Chair - Sage Green - Fo...: 2 uploaded
+      ✓ Outdoor String Lights - Warm W...: 1 uploaded
+      ✓ Outdoor Dining Chair - Woven B...: 3 uploaded
+      ✓ Garden Bench - Contoured Slatt...: 3 uploaded
+      ✓ Folding Garden Chair - Forest ...: 1 uploaded
+      ✓ Outdoor Cushion - Seat Pad: 3 uploaded
+      ✓ Garden Parasol - Taupe - Crank...: 2 uploaded
+      ✓ Garden Dining Table - Rectangu...: 1 uploaded
+      ✓ Solar Garden Lantern - Warm Wh...: 1 uploaded
+      ✓ Outdoor Storage Box - Charcoal...: 1 uploaded
+      ✓ Climbing Rose - Blush Pink - B...: 1 uploaded
+      ✓ Herb Seed Collection - Kitchen...: 2 uploaded
+      ✓ Cedar Raised Garden Bed - Natu...: 3 uploaded
+      ✓ Terracotta Herb Planter - Warm...: 1 uploaded
+      ✓ Organic Potting Mix - Peat-Fre...: 3 uploaded
+      ✓ Bypass Pruning Shears - Stainl...: 3 uploaded
+      ✓ Lavender Plant - Purple Bloom ...: 2 uploaded
+      ✓ Solar Hanging Planter - Adjust...: 2 uploaded
+      ✓ Climbing Rose Plant - Deep Pin...: 2 uploaded
+      ✓ Raised Garden Bed - Natural Ce...: 2 uploaded
+      ✓ Herb Seed Collection - Culinar...: 1 uploaded
+      ✓ Lavender Plant - Purple - 1 Li...: 2 uploaded
+      ✓ Garden Hand Tool Set - Sage Gr...: 3 uploaded
+      ✓ All-Purpose Potting Mix - Peat...: 3 uploaded
+      ✓ Solar Garden Lantern - Warm Wh...: 3 uploaded
+      ✓ Herb Seed Collection - Culinar...: 1 uploaded
+      ✓ Garden Hand Trowel - Stainless...: 1 uploaded
+      ✓ All-Purpose Potting Mix - Indo...: 2 uploaded
+      ✓ Ceramic Garden Planter: 1 uploaded
+      ✓ Flower Seed Mix - Cottage Gard...: 1 uploaded
+      ✓ Metal Garden Watering Can - Sa...: 3 uploaded
+      ✓ Garden Pruning Shears - Bypass...: 3 uploaded
+      ✓ Vegetable Seed Starter Kit - K...: 1 uploaded
+      ✓ Raised Garden Bed - Natural Ce...: 2 uploaded
+      ✓ Climbing Rose - Blush Pink - R...: 3 uploaded
+      ✓ Herb Seed Collection - Kitchen...: 1 uploaded
+      ✓ Garden Hand Tool Set - Sage Gr...: 2 uploaded
+      ✓ Hanging Planter - Matte Charco...: 2 uploaded
+      ✓ Wildflower Seed Mix - Meadow B...: 1 uploaded
+      ✓ Compact Pruning Shears - Moss ...: 3 uploaded
+      ✓ Adjustable Spray Gun - 7 Patte...: 1 uploaded
+      ✓ Galvanized Watering Can - Sage...: 1 uploaded
+      ✓ Oscillating Sprinkler - 18 Noz...: 1 uploaded
+      ✓ Expandable Garden Hose - Blue ...: 3 uploaded
+      ✓ Rain Barrel Water Diverter Kit...: 1 uploaded
+      ✓ Drip Irrigation Starter Kit - ...: 1 uploaded
+      ✓ Brass Hose Connector Set - Bra...: 1 uploaded
+      ✓ Mechanical Hose Timer - Green ...: 3 uploaded
+      ✓ Garden Hose - Sage Green: 1 uploaded
+      ✓ Drip Irrigation Starter Kit - ...: 1 uploaded
+      ✓ Metal Watering Can - 8L - Fore...: 3 uploaded
+      ✓ Oscillating Sprinkler - Eighte...: 1 uploaded
+      ✓ Rain Barrel - 200L - Graphite: 2 uploaded
+      ✓ Garden Hose Spray Gun - 7 Patt...: 1 uploaded
+      ✓ Digital Water Timer - Single O...: 1 uploaded
+      ✓ Watering Can - Sage Green - 5 ...: 3 uploaded
+      ✓ Drip Irrigation Kit - 20 Plant...: 1 uploaded
+      ✓ Adjustable Spray Gun - 7 Patte...: 3 uploaded
+      ✓ Soaker Hose - 15 Metre - Recyc...: 1 uploaded
+      ✓ Garden Hose: 1 uploaded
+      ✓ Oscillating Sprinkler - 16 Noz...: 3 uploaded
+      ✓ Water Timer - Digital - Single...: 1 uploaded
+      ✓ Rain Barrel - 210 Litre: 2 uploaded
+      ✓ Expandable Garden Hose - 15 m ...: 2 uploaded
+      ✓ Long-Reach Watering Wand - 60 ...: 1 uploaded
+      ✓ Indoor Watering Can: 1 uploaded
+      ✓ Adjustable Oscillating Sprinkl...: 2 uploaded
+      ✓ Automatic Hose Timer - Single ...: 3 uploaded
+      ✓ Porous Soaker Hose: 2 uploaded
+      ✓ Rain Barrel Diverter Kit - Uni...: 1 uploaded
+    ✓ Uploaded images for 90 products
+    Uploading category banners to Shopware...
+      ✓ Uploaded banner for "Garden Benches"
+      ✓ Uploaded banner for "Garden Chairs"
+      ✓ Uploaded banner for "Outdoor Sofas"
+      ✓ Uploaded banner for "Sun Loungers"
+      ✓ Uploaded banner for "Outdoor Rugs"
+      ✓ Uploaded banner for "Garden Parasols"
+      ✓ Uploaded banner for "Outdoor Storage"
+      ✓ Uploaded banner for "Garden Arches"
+      ✓ Uploaded banner for "Pergolas"
+      ✓ Uploaded banner for "Gazebos"
+      ✓ Uploaded banner for "Garden Sheds"
+      ✓ Uploaded banner for "Privacy Screens & Fencing"
+      ✓ Uploaded banner for "Flowering Plants"
+      ✓ Uploaded banner for "Shrubs & Bushes"
+      ✓ Uploaded banner for "Grasses & Ferns"
+      ✓ Uploaded banner for "Flower Bulbs"
+      ✓ Uploaded banner for "Herb Seeds"
+      ✓ Uploaded banner for "Garden Pots"
+      ✓ Uploaded banner for "Raised Garden Beds"
+      ✓ Uploaded banner for "Window Boxes"
+      ✓ Uploaded banner for "Plant Stands"
+      ✓ Uploaded banner for "Watering & Garden Irrigation"
+      ✓ Uploaded banner for "Watering Cans"
+      ✓ Uploaded banner for "Garden Hoses"
+      ✓ Uploaded banner for "Irrigation Systems"
+      ✓ Uploaded banner for "Drip Irrigation"
+      ✓ Uploaded banner for "Soaker Hoses"
+      ✓ Uploaded banner for "Timers & Water Controllers"
+      ✓ Uploaded banner for "Watering Accessories"
+    ✓ Uploaded banners for 29 categories
+    Wrote 300 reviews for 74 products
+    ✓ cms-text: 1 processed, 0 skipped (1566ms)
+    ✓ cms-images: 1 processed, 0 skipped (2745ms)
+    ✓ cms-video: 1 processed, 0 skipped (1518ms)
+    ✓ cms-text-images: 1 processed, 0 skipped (2301ms)
+    ✓ cms-form: 1 processed, 0 skipped (1568ms)
+    ✓ cms-footer-pages: 1 processed, 0 skipped (2373ms)
+    ✓ digital-product: 1 processed, 0 skipped (606ms)
+    ✓ media-product: 1 processed, 0 skipped (573ms)
+    ✓ cross-selling: 90 processed, 0 skipped (1573ms)
+    ✓ customers: 0 processed, 4 skipped (264ms)
+    ✓ images: 90 processed, 0 skipped (16844ms)
+    ✓ manufacturers: 6 processed, 0 skipped (2100ms)
+    ✓ promotions: 0 processed, 4 skipped (1456ms)
+    ✓ reviews: 74 processed, 16 skipped (17419ms)
+    ✗ theme: 1 processed, 0 skipped (3173ms)
+      Error: Failed to assign theme to SalesChannel
+  Batch 2/4: cms-commerce, variants, cms-home
+    Creating variants for 27 products...
+    ✓ Created CMS layout "Commerce Elements" with 10 products
+    ✓ Created Landing Page "Commerce Elements"
+    ✓ Created homepage CMS layout
+    ✓ Assigned homepage to root category
+      ✓ Outdoor Cushion - Sage Green - Square: Created 4 variants (Color)
+      ✓ Garden Parasol - Crank Lift: Created 4 variants (Color)
+      ✓ Outdoor Storage Box - Slate Grey - Lift-Up Lid: Created 4 variants (Color)
+      ✓ Outdoor Lounge Chair - Relaxed Profile: Created 4 variants (Color)
+      ✓ Outdoor Seat Cushion - Square Shape - Soft Garden Comfort: Created 4 variants (Color)
+      ✓ Garden Chair - Folding: Created 4 variants (Color)
+      ✓ Outdoor Dining Set - Four Piece: Created 4 variants (Color)
+      ✓ Outdoor Dining Chair - Woven Back: Created 4 variants (Color)
+      Adding 5 option(s) to variant property group "Material"...
+      ✓ Garden Bench - Contoured Slatted Seat - Classic Timber Style: Created 12 variants (Color + Material)
+      Adding 3 option(s) to variant property group "Size"...
+      ✓ Outdoor Cushion - Seat Pad: Created 12 variants (Color + Size)
+      Adding 9 option(s) to variant property group "Type"...
+      ✓ Solar Garden Lantern - Warm White - Hanging: Created 12 variants (Color + Type)
+      ✓ Terracotta Herb Planter - Warm Terracotta - Drainage Base: Created 12 variants (Color + Size)
+      ✓ Solar Hanging Planter - Adjustable Hanger: Created 12 variants (Color + Size)
+      ✓ Ceramic Garden Planter: Created 12 variants (Color + Size)
+      ✓ Metal Garden Watering Can - Sage Green: Created 12 variants (Color + Size)
+      ✓ Adjustable Spray Gun - 7 Patterns: Created 4 variants (Color)
+      ✓ Oscillating Sprinkler - 18 Nozzles: Created 4 variants (Color)
+      Adding 2 option(s) to variant property group "Length"...
+      ✓ Garden Hose - Sage Green: Created 12 variants (Color + Length)
+      ✓ Oscillating Sprinkler - Eighteen Nozzles - Broad Even Coverage: Created 4 variants (Color)
+      ✓ Garden Hose Spray Gun - 7 Patterns: Created 4 variants (Color)
+      ✓ Watering Can - Sage Green - 5 Litre: Created 12 variants (Color + Size)
+      ✓ Drip Irrigation Kit - 20 Plants: Created 9 variants (Size + Type)
+      ✓ Garden Hose: Created 12 variants (Color + Size)
+      ✓ Water Timer - Digital - Single Outlet: Created 9 variants (Type + Size)
+      ✓ Rain Barrel - 210 Litre: Created 12 variants (Color + Size)
+      ✓ Indoor Watering Can: Created 12 variants (Color + Size)
+      ✓ Porous Soaker Hose: Created 12 variants (Color + Length)
+    ✓ cms-commerce: 1 processed, 0 skipped (338ms)
+    ✓ variants: 27 processed, 0 skipped (20419ms)
+    ✓ cms-home: 1 processed, 0 skipped (446ms)
+  Batch 3/4: cms-testing, variant-images
+    132 colour images for 25 variant products
+    ✓ Created Testing CMS layout "Testing Overview"
+    ✓ Created Testing landing page "Testing Overview"
+    ✓ Created "Testing" category
+    ✓ Created CMS showcase layout "CMS Element Showcase"
+    ✓ Created CMS showcase landing page "CMS Element Showcase"
+    ✓ Created "CMS" category
+    ✓ Created "Text" CMS sub-category
+    ✓ Created "Images" CMS sub-category
+    ✓ Created "Video" CMS sub-category
+    ✓ Created "Text & Images" CMS sub-category
+    ✓ Created "Commerce" CMS sub-category
+    ✓ Created "Form" CMS sub-category
+    ✓ Created "Products" category
+    ✓ Created "Simple Product" product link
+    ✓ Created "Variant Product" product link
+    ✓ Created "Digital Product" product link
+    Uploaded 132 colour images (0 already uploaded)
+    ✓ Created "Media Product" product link
+    ✓ Created "Cookie settings" category
+    ✓ Validated: 6 CMS + 4 Product categories
+    ✓ Colour images set for 25 products
+    ✓ cms-testing: 1 processed, 0 skipped (3150ms)
+    ✓ variant-images: 25 processed, 0 skipped (9585ms)
+  Batch 4/4: translations
+    ✓ Wrote translations: 769 records for de-DE
+    ✓ translations: 769 processed, 0 skipped (1252ms)
+✓ Cleared shop cache
+=== Shopware Data Generator v2 ===
+Name: garden
+Description: garden webshop
+Log file: /private/tmp/catgen/logs/generator-2026-11-19T14-09-40.log
+
+Step 1: Using existing blueprint
+Step 2: Using existing hydrated blueprint
+Step 2b: Using cached translations (de-DE)
+Step 3: Syncing to Shopware...
+  Shopware: 6.7 dev build (6.7.9999999.9999999-dev)
+  Created SalesChannel: Garden (bf23fbf56f8747d4869f97a2a902e863)
+  Synced 66 categories
+  Synced 27 property groups
+  Synced 90 of 90 products
+
+=== Sync Complete ===
+
+Running post-processors...
+
+=== Generation Complete ===
+SalesChannel: garden
+Storefront: http://garden.localhost:8000
+Post-processors: 1093 processed, 1 errors
+
+Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)
+error: script "generate" exited with code 1
+---- end
+---- generator failure pg music (exit 1), full log:
+$ bun run src/main.ts generate "--name=music"
+Text provider: pollinations (sequential: true)
+Image provider: none (sequential: false)
+Shopware 6.7 dev build (6.7.9999999.9999999-dev)
+Created root category: Music Demo-Store
+Created SalesChannel "music" with domains: http://music.127.0.0.1:18101, http://music-de.127.0.0.1:18101
+  25 categories without products are hidden from the navigation
+Created 70 categories
+  Created 70 categories
+  ⊕ Adding 11 options to "Color"
+  ⊕ Updating 3 color hex codes in "Color"
+  ⊕ Adding 65 options to "Type"
+  ⊕ Adding 16 options to "Material"
+  ⊕ Adding 7 options to "Size"
+  ⊕ Adding 1 options to "Finish"
+  ⊕ Adding 2 options to "Display"
+  ⊕ Adding 7 options to "Use"
+  ⊕ Adding 1 options to "Length"
+  ⊕ Adding 15 options to "Format"
+  Property groups: 19 created, 9 updated, 1 unchanged
+  Uploading images for 1 color options...
+  ⊘ Custom field set "catalog_generator" already exists
+  Synced 90 products
+Running 21 post-processors in 4 batch(es)...
+  Batch 1/4: cms-text, cms-images, cms-video, cms-text-images, cms-form, cms-footer-pages, digital-product, media-product, cross-selling, customers, images, manufacturers, promotions, reviews, theme
+    Uploading 216 cached images to Shopware
+      - 90 products with images
+      - 34 category banners
+    Uploading product images to Shopware...
+    ⚠ Stale digital-product cache detected, rebuilding gift card state
+    ⊘ "Media Showcase" product already exists
+    Reviews spread across en-GB, de-DE
+    ⊘ Gift card product already exists globally
+    Found Product Media folder
+    Found Product Media folder
+    ⊘ B2B customer group already exists
+    Found Product Media folder
+    ✓ Created CMS layout "Form Elements"
+    ✓ Created CMS layout "Video Elements"
+    ⊘ Promotion "Welcome Discount" already exists — linked to SalesChannel
+    ✓ Created CMS layout "Text Elements"
+  ✓ Created child theme "Music Theme"
+    ⊘ Customer "customer@example.com" already exists
+    ⊘ Customer "b2b@example.com" already exists
+    ⊘ Customer "jane@example.com" already exists
+    ⊘ Customer "b2b-buyer@example.com" already exists
+    ⊘ Promotion "Summer Sale" already exists — linked to SalesChannel
+    ✓ Created Landing Page "Form Elements"
+    ✓ Media showcase gallery: chair-damask-purplegold.glb, glass-vase-flowers.glb, pink-candle-burning.mp4, blue-candle-burning.mp4
+    ⊘ Promotion "Flat $15 Off" already exists — linked to SalesChannel
+    ✓ Created Landing Page "Video Elements"
+    ✓ Created Landing Page "Text Elements"
+    ⊘ Promotion "Free Shipping" already exists — linked to SalesChannel
+  ✓ Uploaded theme logo
+    ✓ Added gift card to SalesChannel
+    ⊘ Download media already exists
+      ✓ Acoustic Guitar - Natural Spru...: 2 uploaded
+  ✓ Uploaded theme favicon
+      ✓ Digital Piano - Black - 88-Key: 3 uploaded
+      ✓ Electric Guitar - Double Cutaw...: 3 uploaded
+  ✓ Uploaded theme share
+      ✓ MIDI Keyboard - 49-Key: 3 uploaded
+      ✓ Studio Headphones - Over-Ear: 1 uploaded
+      ✓ Cajón - Natural Birch - Box Pe...: 2 uploaded
+    ✓ Assigned footer roots for SalesChannel 21e543d6159a42b8adb4467fe15d0331
+Failed to assign theme: Error: API POST _action/theme/4f444f40bbde48ed94267c98fc873374/assign/f80b7d50a90e42b4a35a165349886588 failed: 400 - {"errors":[{"status":"400","code":"THEME__COMPILING_ERROR","title":"Bad Request","detail":"Unable to compile the theme \u0022Storefront\u0022. Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh","meta":{"parameters":{"themeName":"Storefront","message":"Unable to resolve file \u0022Resources\/app\/storefront\/dist\/storefront\/storefront.js\u0022. Did you forget to build the theme? Try running .\/bin\/build-storefront.sh"}}}]}
+  ✓ Theme customized for music
+    ✓ Assigned footer roots for SalesChannel ab0936c20ad64139837ecfe3d24cbe7d
+    ✓ Assigned footer roots for SalesChannel 98432def39fc4624b33213a56b8c944d
+    ✓ Assigned footer roots for SalesChannel f80b7d50a90e42b4a35a165349886588
+    ✓ Assigned footer roots for SalesChannel 01a1f420c832709b91b9907f5aa2729d
+    ✓ Assigned footer roots for SalesChannel bf23fbf56f8747d4869f97a2a902e863
+    ✓ Assigned footer roots for SalesChannel 2bb6339607a5488e8d245cbcbfb254d0
+    ✓ Created CMS layout "Text & Images" with 8 images
+      ✓ Snare Drum - Natural Maple - 1...: 2 uploaded
+    ✓ Assigned footer roots for SalesChannel d529394d2fe44f2c805632a3ee7c03f0
+      ✓ Acoustic Guitar - Natural Maho...: 3 uploaded
+      ✓ Acoustic Guitar - Natural - Dr...: 3 uploaded
+    Created 3 streams, cross-selling for 90 products
+    ✓ Created Landing Page "Text & Images"
+      ✓ Digital Piano - Full-Range Lay...: 1 uploaded
+    ✓ Created CMS layout "Image Elements" with 11 images
+      ✓ Keyboard - Black - Portable: 1 uploaded
+      ✓ Electric Guitar - Sunburst - S...: 3 uploaded
+    ✓ Created Landing Page "Image Elements"
+      ✓ Drum Kit - Black - Five-Piece: 3 uploaded
+      ✓ Violin - Natural - Full Size: 1 uploaded
+      ✓ Acoustic Guitar - Concert: 2 uploaded
+      ✓ Acoustic Guitar - Spruce Top -...: 1 uploaded
+      ✓ Electric Guitar - Solid Body: 1 uploaded
+      ✓ Electronic Drum Kit - Mesh Pad: 3 uploaded
+      ✓ Digital Piano - Black - 88-Key...: 2 uploaded
+      ✓ Concert Ukulele - Natural Maho...: 1 uploaded
+      ✓ Acoustic Piano - Polished Ebon...: 3 uploaded
+      ✓ Digital Keyboard - Black - 61-...: 1 uploaded
+      ✓ Acoustic Guitar - Sunburst - A...: 1 uploaded
+      ✓ Acoustic Guitar - Full-Size Bo...: 3 uploaded
+      ✓ Digital Piano - Matte Black - ...: 3 uploaded
+      ✓ Electric Guitar - Sunburst - D...: 3 uploaded
+      ✓ Electronic Drum Kit - Black - ...: 1 uploaded
+      ✓ MIDI Keyboard - Black - 49-Key: 1 uploaded
+      ✓ Studio Monitor - White - 5-Inc...: 2 uploaded
+      ✓ Headphones - Over-Ear: 3 uploaded
+      ✓ Padded Guitar Strap - Black - ...: 1 uploaded
+      ✓ Clip-On Chromatic Tuner - Rota...: 3 uploaded
+      ✓ Folding Guitar Stand - Black -...: 3 uploaded
+      ✓ Woven Guitar Strap - Natural B...: 1 uploaded
+      ✓ Guitar Cleaning Kit - Natural ...: 1 uploaded
+      ✓ Celluloid Guitar Picks - Torto...: 2 uploaded
+      ✓ Acoustic Guitar Strings - Phos...: 3 uploaded
+      ✓ Guitar Capo - Satin Silver - Q...: 3 uploaded
+      ✓ Guitar Strap - Woven Jacquard: 2 uploaded
+      ✓ Clip-On Tuner - Chromatic - LC...: 1 uploaded
+      ✓ Guitar Picks - Celluloid: 2 uploaded
+      ✓ Instrument Cable - 6.35 mm Jac...: 2 uploaded
+      ✓ Foldable Music Stand - Steel -...: 1 uploaded
+      ✓ Guitar String Set - Nickel-Pla...: 3 uploaded
+      ✓ Guitar Capo - Spring Clamp: 3 uploaded
+      ✓ Guitar Picks: 2 uploaded
+      ✓ Guitar Strings: 3 uploaded
+      ✓ Guitar Strap - Woven Jacquard ...: 3 uploaded
+      ✓ Instrument Stand - Folding Tri...: 3 uploaded
+      ✓ Guitar Capo - Spring Clamp - M...: 2 uploaded
+      ✓ Guitar Care Kit - Cleaning and...: 2 uploaded
+      ✓ Music Stand - Folding Desk - B...: 2 uploaded
+      ✓ Guitar Tuner - Clip-On - Chrom...: 2 uploaded
+      ✓ Guitar Strap - Woven Cotton - ...: 2 uploaded
+      ✓ Guitar Capo - Zinc Alloy - Sat...: 1 uploaded
+      ✓ Guitar Picks - Medium Celluloi...: 1 uploaded
+      ✓ Guitar Strap - Woven Cotton: 3 uploaded
+      ✓ Guitar Care Kit - Cleaning and...: 2 uploaded
+      ✓ Guitar Tuner - Clip-On Chromat...: 1 uploaded
+      ✓ Guitar Strings - Light Gauge N...: 3 uploaded
+      ✓ Piano Method Book - Beginner L...: 2 uploaded
+      ✓ Vocal Warm-Up Cards - Singer P...: 2 uploaded
+      ✓ Guitar Chord Songbook - Popula...: 3 uploaded
+      ✓ Music Theory Workbook - Founda...: 2 uploaded
+      ✓ Choir Rehearsal Folder - Expan...: 1 uploaded
+      ✓ Piano Sight-Reading Book - Ear...: 1 uploaded
+      ✓ Beginner Recorder Lesson Book ...: 3 uploaded
+      ✓ Choir Music Folder - Lightweig...: 1 uploaded
+      ✓ Piano Practice Method Book - B...: 2 uploaded
+      ✓ Vocal Warm-Up Guide - All Voic...: 1 uploaded
+      ✓ Classical Guitar Songbook - In...: 2 uploaded
+      ✓ Music Theory Workbook - Beginn...: 2 uploaded
+      ✓ Piano Solo Collection - Interm...: 1 uploaded
+      ✓ Choir Rehearsal Score Set - SA...: 1 uploaded
+      ✓ Music Reading Practice Cards -...: 1 uploaded
+      ✓ Piano Method Book - Step-by-St...: 3 uploaded
+      ✓ Guitar Chord Songbook - Popula...: 1 uploaded
+      ✓ Vocal Warm-Up Cards - Daily Ro...: 2 uploaded
+      ✓ Music Theory Flash Cards - Not...: 1 uploaded
+      ✓ Piano Practice Journal - Weekl...: 3 uploaded
+      ✓ Choir Rehearsal Folder - Sheet...: 3 uploaded
+      ✓ Orchestra Repertoire Book - St...: 2 uploaded
+      ✓ Vocal Technique Workbook - Bre...: 1 uploaded
+      ✓ Guitar Songbook - Chord Arrang...: 1 uploaded
+      ✓ Piano Method Book - Keyboard B...: 3 uploaded
+      ✓ Vocal Warm-Up Book - Daily Exe...: 3 uploaded
+      ✓ Piano Sheet Music Collection -...: 2 uploaded
+      ✓ Choir Rehearsal Guide - Practi...: 3 uploaded
+      ✓ Music Theory Workbook - Fundam...: 2 uploaded
+      ✓ Beginner Violin Lesson Book - ...: 2 uploaded
+    ✓ Uploaded images for 90 products
+    Uploading category banners to Shopware...
+      ✓ Uploaded banner for "Bass Guitars"
+      ✓ Uploaded banner for "Classical Guitars"
+      ✓ Uploaded banner for "Guitars"
+      ✓ Uploaded banner for "Digital Pianos"
+      ✓ Uploaded banner for "Portable Keyboards"
+      ✓ Uploaded banner for "MIDI Keyboards"
+      ✓ Uploaded banner for "Woodwind Instruments"
+      ✓ Uploaded banner for "Brass Instruments"
+      ✓ Uploaded banner for "Orchestral Strings"
+      ✓ Uploaded banner for "Microphones"
+      ✓ Uploaded banner for "Headphones"
+      ✓ Uploaded banner for "Accessories"
+    Wrote 317 reviews for 67 products
+      ✓ Uploaded banner for "Guitar Straps"
+      ✓ Uploaded banner for "Instrument Stands"
+      ✓ Uploaded banner for "Music Stands"
+      ✓ Uploaded banner for "Cables & Adapters"
+      ✓ Uploaded banner for "Music Production"
+      ✓ Uploaded banner for "MIDI Controllers"
+      ✓ Uploaded banner for "Synthesizers"
+      ✓ Uploaded banner for "Music Learning & Sheet Music"
+      ✓ Uploaded banner for "Mixers"
+      ✓ Uploaded banner for "Piano Sheet Music"
+      ✓ Uploaded banner for "Guitar Sheet Music"
+      ✓ Uploaded banner for "Band & Orchestra Scores"
+      ✓ Uploaded banner for "Music Theory & Method Books"
+      ✓ Uploaded banner for "Music Lessons & Practice"
+      ✓ Uploaded banner for "Music Education Resources"
+      ✓ Uploaded banner for "Choir Accessories"
+      ✓ Uploaded banner for "Vocal Effects & Processors"
+      ✓ Uploaded banner for "Vocal Warm-Up Tools"
+      ✓ Uploaded banner for "Songbooks"
+      ✓ Uploaded banner for "DJ & Electronic Music Gear"
+      ✓ Uploaded banner for "DJ Controllers"
+      ✓ Uploaded banner for "DJ Mixers"
+    ✓ Uploaded banners for 34 categories
+    ✓ cms-text: 1 processed, 0 skipped (641ms)
+    ✓ cms-images: 1 processed, 0 skipped (3797ms)
+    ✓ cms-video: 1 processed, 0 skipped (623ms)
+    ✓ cms-text-images: 1 processed, 0 skipped (3281ms)
+    ✓ cms-form: 1 processed, 0 skipped (590ms)
+    ✓ cms-footer-pages: 1 processed, 0 skipped (3463ms)
+    ✓ digital-product: 1 processed, 0 skipped (943ms)
+    ✓ media-product: 1 processed, 0 skipped (902ms)
+    ✓ cross-selling: 90 processed, 0 skipped (3257ms)
+    ✓ customers: 0 processed, 4 skipped (372ms)
+    ✓ images: 90 processed, 0 skipped (18968ms)
+    ✓ manufacturers: 6 processed, 0 skipped (2290ms)
+    ✓ promotions: 0 processed, 4 skipped (673ms)
+    ✓ reviews: 67 processed, 23 skipped (17245ms)
+    ✗ theme: 1 processed, 0 skipped (2587ms)
+      Error: Failed to assign theme to SalesChannel
+  Batch 2/4: cms-commerce, variants, cms-home
+    Creating variants for 27 products...
+    ✓ Created CMS layout "Commerce Elements" with 10 products
+    ✓ Created Landing Page "Commerce Elements"
+    ✓ Created homepage CMS layout
+    ✓ Assigned homepage to root category
+      ✓ Electric Guitar - Double Cutaway: Created 4 variants (Color)
+      Adding 6 option(s) to variant property group "Size"...
+      ✓ MIDI Keyboard - 49-Key: Created 12 variants (Color + Size)
+      ✓ Studio Headphones - Over-Ear: Created 4 variants (Color)
+      ✓ Acoustic Guitar - Concert: Created 4 variants (Color)
+      Adding 6 option(s) to variant property group "Material"...
+      ✓ Electric Guitar - Solid Body: Created 12 variants (Color + Material)
+      Adding 6 option(s) to variant property group "Type"...
+      ✓ Electronic Drum Kit - Mesh Pad: Created 12 variants (Color + Type)
+      ✓ Headphones - Over-Ear: Created 4 variants (Color)
+      ✓ Clip-On Chromatic Tuner - Rotating Display: Created 4 variants (Color)
+      ✓ Woven Guitar Strap - Natural Brown - Adjustable Length: Created 4 variants (Color)
+      ✓ Guitar Strap - Woven Jacquard: Created 12 variants (Color + Size)
+      ✓ Guitar Picks - Celluloid: Created 12 variants (Color + Size)
+      Adding 3 option(s) to variant property group "Length"...
+      ✓ Instrument Cable - 6.35 mm Jack: Created 12 variants (Length + Color)
+      ✓ Guitar Capo - Spring Clamp: Created 12 variants (Color + Material)
+      ✓ Guitar Picks: Created 12 variants (Color + Size)
+      ✓ Guitar Strings: Created 9 variants (Size + Material)
+      ✓ Instrument Stand - Folding Tripod: Created 12 variants (Color + Material)
+      ✓ Guitar Strap - Woven Cotton: Created 4 variants (Color)
+      ✓ Choir Rehearsal Folder - Expanding Music Storage: Created 4 variants (Color)
+      ✓ Choir Music Folder - Lightweight Performance Binder: Created 4 variants (Color)
+      ✓ Music Theory Workbook - Beginner Level - Ear Training: Created 4 variants (Color)
+      Adding 7 option(s) to variant property group "Format"...
+      ✓ Piano Solo Collection - Intermediate Level - Contemporary Classics: Created 3 variants (Format)
+      ✓ Music Theory Flash Cards - Note Reading: Created 4 variants (Color)
+      Adding 5 option(s) to variant property group "Level"...
+      ✓ Piano Method Book - Keyboard Basics: Created 9 variants (Level + Format)
+      ✓ Guitar Songbook - Chord Arrangements: Created 9 variants (Level + Format)
+      ✓ Vocal Warm-Up Book - Daily Exercises: Created 9 variants (Level + Format)
+      Adding 5 option(s) to variant property group "Voicing"...
+      ✓ Choir Rehearsal Guide - Practice Edition: Created 9 variants (Voicing + Format)
+      ✓ Piano Sheet Music Collection - Classical Selections: Created 9 variants (Level + Format)
+    ✓ cms-commerce: 1 processed, 0 skipped (282ms)
+    ✓ variants: 27 processed, 0 skipped (19680ms)
+    ✓ cms-home: 1 processed, 0 skipped (542ms)
+  Batch 3/4: cms-testing, variant-images
+    126 colour images for 20 variant products
+    ✓ Created Testing CMS layout "Testing Overview"
+    ✓ Created Testing landing page "Testing Overview"
+    ✓ Created "Testing" category
+    ✓ Created CMS showcase layout "CMS Element Showcase"
+    ✓ Created CMS showcase landing page "CMS Element Showcase"
+    ✓ Created "CMS" category
+    ✓ Created "Text" CMS sub-category
+    ✓ Created "Images" CMS sub-category
+    ✓ Created "Video" CMS sub-category
+    ✓ Created "Text & Images" CMS sub-category
+    ✓ Created "Commerce" CMS sub-category
+    ✓ Created "Form" CMS sub-category
+    ✓ Created "Products" category
+    ✓ Created "Simple Product" product link
+    Uploaded 126 colour images (0 already uploaded)
+    ✓ Created "Variant Product" product link
+    ✓ Created "Digital Product" product link
+    ✓ Created "Media Product" product link
+    ✓ Created "Cookie settings" category
+    ✓ Validated: 6 CMS + 4 Product categories
+    ✓ Colour images set for 20 products
+    ✓ cms-testing: 1 processed, 0 skipped (3191ms)
+    ✓ variant-images: 20 processed, 0 skipped (6609ms)
+  Batch 4/4: translations
+    ✓ Wrote translations: 782 records for de-DE
+    ✓ translations: 782 processed, 0 skipped (1248ms)
+✓ Cleared shop cache
+=== Shopware Data Generator v2 ===
+Name: music
+Description: music webshop
+Log file: /private/tmp/catgen/logs/generator-2026-11-19T14-10-34.log
+
+Step 1: Using existing blueprint
+Step 2: Using existing hydrated blueprint
+Step 2b: Using cached translations (de-DE)
+Step 3: Syncing to Shopware...
+  Shopware: 6.7 dev build (6.7.9999999.9999999-dev)
+  Created SalesChannel: Music (f80b7d50a90e42b4a35a165349886588)
+  Synced 70 categories
+  Synced 29 property groups
+  Synced 90 of 90 products
+
+=== Sync Complete ===
+
+Running post-processors...
+
+=== Generation Complete ===
+SalesChannel: music
+Storefront: http://music.localhost:8000
+Post-processors: 1094 processed, 1 errors
+
+Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)
+error: script "generate" exited with code 1
+---- end

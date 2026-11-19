@@ -1,0 +1,60 @@
+catalog mariadb integration created
+catalog mariadb beauty upload_seconds=26.38 exit=1
+catalog mariadb beauty FAILED, log in catalog-errors-mariadb.txt
+catalog mariadb beauty log_lines_with_4xx_5xx=3
+catalog mariadb drugstore upload_seconds=28.07 exit=1
+catalog mariadb drugstore FAILED, log in catalog-errors-mariadb.txt
+catalog mariadb drugstore log_lines_with_4xx_5xx=6
+catalog mariadb electronics upload_seconds=28.1 exit=1
+catalog mariadb electronics FAILED, log in catalog-errors-mariadb.txt
+catalog mariadb electronics log_lines_with_4xx_5xx=3
+catalog mariadb fashion upload_seconds=34.79 exit=1
+catalog mariadb fashion FAILED, log in catalog-errors-mariadb.txt
+catalog mariadb fashion log_lines_with_4xx_5xx=5
+catalog mariadb garden upload_seconds=33.65 exit=1
+catalog mariadb garden FAILED, log in catalog-errors-mariadb.txt
+catalog mariadb garden log_lines_with_4xx_5xx=5
+catalog mariadb music upload_seconds=32.58 exit=1
+catalog mariadb music FAILED, log in catalog-errors-mariadb.txt
+catalog mariadb music log_lines_with_4xx_5xx=4
+catalog mariadb counts after upload (products, variants, categories, media, product_media, options, sales_channels, size_mb): 542 1298 503 2206 2781 1113 8 82.8
+catalog mysql integration created
+catalog mysql beauty upload_seconds=28.5 exit=1
+catalog mysql beauty FAILED, log in catalog-errors-mysql.txt
+catalog mysql beauty log_lines_with_4xx_5xx=3
+catalog mysql drugstore upload_seconds=27.15 exit=1
+catalog mysql drugstore FAILED, log in catalog-errors-mysql.txt
+catalog mysql drugstore log_lines_with_4xx_5xx=3
+catalog mysql electronics upload_seconds=28.39 exit=1
+catalog mysql electronics FAILED, log in catalog-errors-mysql.txt
+catalog mysql electronics log_lines_with_4xx_5xx=4
+catalog mysql fashion upload_seconds=35.87 exit=1
+catalog mysql fashion FAILED, log in catalog-errors-mysql.txt
+catalog mysql fashion log_lines_with_4xx_5xx=5
+catalog mysql garden upload_seconds=35.22 exit=1
+catalog mysql garden FAILED, log in catalog-errors-mysql.txt
+catalog mysql garden log_lines_with_4xx_5xx=5
+catalog mysql music upload_seconds=31.92 exit=1
+catalog mysql music FAILED, log in catalog-errors-mysql.txt
+catalog mysql music log_lines_with_4xx_5xx=5
+catalog mysql counts after upload (products, variants, categories, media, product_media, options, sales_channels, size_mb): 542 1298 503 2206 2781 1113 8 40.6
+catalog pg integration created
+catalog pg beauty upload_seconds=46.32 exit=1
+catalog pg beauty FAILED, log in catalog-errors-pg.txt
+catalog pg beauty log_lines_with_4xx_5xx=1
+catalog pg drugstore upload_seconds=46.73 exit=1
+catalog pg drugstore FAILED, log in catalog-errors-pg.txt
+catalog pg drugstore log_lines_with_4xx_5xx=4
+catalog pg electronics upload_seconds=3.17 exit=1
+catalog pg electronics FAILED, log in catalog-errors-pg.txt
+catalog pg electronics log_lines_with_4xx_5xx=0
+catalog pg fashion upload_seconds=60.3 exit=1
+catalog pg fashion FAILED, log in catalog-errors-pg.txt
+catalog pg fashion log_lines_with_4xx_5xx=6
+catalog pg garden upload_seconds=53.81 exit=1
+catalog pg garden FAILED, log in catalog-errors-pg.txt
+catalog pg garden log_lines_with_4xx_5xx=6
+catalog pg music upload_seconds=59.28 exit=1
+catalog pg music FAILED, log in catalog-errors-pg.txt
+catalog pg music log_lines_with_4xx_5xx=3
+catalog pg counts after upload (products, variants, categories, media, product_media, options, sales_channels, size_mb): 452 1120 489 1817 2318 959 8 104.0

@@ -21,6 +21,8 @@ def pct(values, q):
 
 
 def ms(x):
+    if x is None:
+        return 'n/a'
     return f'{x:.1f}'
 
 
@@ -32,10 +34,15 @@ for line in open(f'{d}/install-times.txt'):
 dbs = ('mariadb', 'mysql', 'pg')
 print('| Step | Runs | ' + ' | '.join(f'{LABEL[k]} median (min..max)' for k in dbs) + ' |')
 print('|---|---|' + '---|' * len(dbs))
-for kind, label in (('install', 'system:install --basic-setup (910 migrations)'), ('demodata', 'framework:demodata (once)'), ('index', 'dal:refresh:index')):
+for kind, label in (('install', 'system:install --basic-setup (910 migrations)'), ('demodata', 'framework:demodata (once)'), ('catalog', 'catalog upload, 6 templates (once)'), ('index', 'dal:refresh:index')):
     cells = []
+    if not any(times[(kind, k)] for k in dbs):
+        continue
     for k in dbs:
         a = times[(kind, k)]
+        if not a:
+            cells.append('-')
+            continue
         cells.append(f'{statistics.median(a):.1f} ({min(a):.1f}..{max(a):.1f})')
     print(f'| {label} | {len(times[(kind, "mariadb")])} | ' + ' | '.join(cells) + ' |')
 
@@ -46,7 +53,9 @@ sep = '|---|' + '---|' * len(stacks)
 
 
 def lat(s, k):
-    runs = [statistics.median(x) * 1000 for x in s['latency'][k]]
+    if not any(s['latency'][k]):
+        return None
+    runs = [statistics.median(x) * 1000 for x in s['latency'][k] if x]
     allv = [v * 1000 for x in s['latency'][k] for v in x]
     return statistics.median(runs), pct(allv, 0.95), min(runs), max(runs)
 
@@ -56,19 +65,19 @@ print(f'Median of the 5 per-run medians. Requests per run in the second column.\
 print(f'| Scenario | n | {heads} |')
 print(sep.replace('|---|', '|---|---|', 1))
 for name, s in r['scenarios'].items():
-    print(f'| {name} | {s["n"]} | ' + ' | '.join(ms(lat(s, k)[0]) for k in stacks) + ' |')
+    print(f'| {name} | {s["n"]} | ' + ' | '.join(ms((lat(s, k) or [None])[0]) for k in stacks) + ' |')
 
 print('\n### Latency, sequential requests, p95 over all requests of all runs (ms)\n')
 print(f'| Scenario | {heads} |')
 print(sep)
 for name, s in r['scenarios'].items():
-    print(f'| {name} | ' + ' | '.join(ms(lat(s, k)[1]) for k in stacks) + ' |')
+    print(f'| {name} | ' + ' | '.join(ms((lat(s, k) or [None] * 4)[1]) for k in stacks) + ' |')
 
 print('\n### Latency, range of the 5 per-run medians (ms)\n')
 print(f'| Scenario | {heads} |')
 print(sep)
 for name, s in r['scenarios'].items():
-    print(f'| {name} | ' + ' | '.join(f'{ms(lat(s, k)[2])}..{ms(lat(s, k)[3])}' for k in stacks) + ' |')
+    print(f'| {name} | ' + ' | '.join((f'{ms(lat(s, k)[2])}..{ms(lat(s, k)[3])}' if lat(s, k) else 'n/a') for k in stacks) + ' |')
 
 print('\n### Throughput, 4 parallel connections, median (requests per second)\n')
 print(f'| Scenario | {heads} |')
@@ -101,6 +110,10 @@ for name, s in r['scenarios'].items():
     cells, clears = [], []
     for a, b in pairs:
         x, y = lat(s, a), lat(s, b)
+        if not x or not y:
+            cells.append('n/a')
+            clears.append('n/a')
+            continue
         cells.append(f'{x[0] / y[0]:.2f}')
         clears.append('yes' if (x[2] > y[3] or y[2] > x[3]) else 'no')
     print(f'| {name} | ' + ' | '.join(cells) + ' | ' + ', '.join(clears) + ' |')
@@ -132,5 +145,5 @@ if any('probes' in s for s in r['scenarios'].values()):
         if 'probes' not in s:
             continue
         pp = s['probes']['latency_median_ms']
-        base = lat(s, 'pg')[0] if 'pg' in stacks else float('nan')
+        base = (lat(s, 'pg') or [None])[0] if 'pg' in stacks else None
         print(f'| {name} | {ms(pp)} | {ms(base)} |')

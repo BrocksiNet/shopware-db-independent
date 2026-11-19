@@ -276,3 +276,179 @@ Deviations, stated because they could matter:
 - The demo data is still `framework:demodata` (small, 81 MB on PostgreSQL after `VACUUM FULL`); next run uses the catalogs of https://github.com/shopwareLabs/shopware-catalog-generator as a larger and more realistic data set.
 - Storefront search and the bulk write remain the largest gaps on PostgreSQL even with persistent connections.
 - The environment changes above are reset after the catalog run (PostgreSQL `ALTER SYSTEM RESET`, PgBouncer container removed).
+
+## Catalog data set
+
+Same harness, same 7 setups, same instance snapshot (21fc93eedd8) as the rerun after wave 4, but the data comes from the 6 catalog templates of https://github.com/shopwareLabs/shopware-catalog-generator (commit 5d71970e1c5234872cee764941741ca5942d5f68) instead of `framework:demodata`.
+`DATASET=catalog sh scripts/benchmark.sh prepare` installs, creates an integration, uploads the templates through the Admin API of a php-fpm stack on the target database and runs `dal:refresh:index`; the demodata path is unchanged.
+Raw data in `docs/benchmark-results/wave4-catalog/` (`results.json`, `install-times.txt`, `catalog-import.txt`, generator logs in `catalog-errors-*.txt`, full tables in `report.md`).
+
+### Result in short
+
+- The catalog upload succeeded on MariaDB and MySQL 8.4 on the first attempt and on PostgreSQL only after a fix in `SeoUrlPersister` (finding 1 below); after the fix all three databases hold identical counts.
+- PostgreSQL then failed every storefront request and every store API product listing on the template sales channels with USD as currency (finding 2 below); the benchmark ran with the template sales channels and their domains set to EUR on all three databases.
+- With that workaround all 7 setups served all requests without an error.
+- PostgreSQL without pooling is 2.60x to 3.56x the MariaDB median latency on the 4 storefront scenarios and 1.63x to 1.96x on the store API listing, admin search and bulk write (demo data: 1.42x to 1.93x on all 7).
+- With persistent connections PostgreSQL is 2.23x to 3.06x of MariaDB on the storefront and 1.07x to 1.63x on the other three (demo data: 1.13x to 1.57x on reads, 1.83x on the write).
+- MySQL 8.4 is 1.01x to 1.17x of MariaDB on all 7 scenarios (demo data: 0.94x to 1.26x).
+- PgBouncer lowers the PostgreSQL median on every scenario except the bulk write (571.8 ms without, 580.3 ms with), and persistent connections lower it on every scenario.
+- The bulk write on PostgreSQL reached 1.1 requests per second with 4 parallel connections (range 0.5 to 1.9 over 5 runs), MariaDB 9.9; the demo data rerun reached 6.9 on PostgreSQL.
+  I did not investigate why.
+- On PostgreSQL the PDO driver time is 161.4 ms of 251.9 ms wall time on the storefront home page and 130.0 of 187.4 ms on the filtered listing; the translator share of the wall time is 1.9 % to 8.6 % and the id codec share 0.3 % to 3.6 %.
+
+### Data set
+
+| Item | Count (identical on MariaDB, MySQL 8.4, PostgreSQL) |
+|---|---|
+| Products without parent | 542 |
+| Variants | 1298 |
+| Categories | 503 |
+| Media | 2206 |
+| Product media | 2781 |
+| Property options | 1113 |
+| SEO urls | 6811 (MariaDB and PostgreSQL, counted after the upload) |
+| Sales channels | 8 (6 templates plus the install defaults Storefront and Headless) |
+
+The upload ran with `IMAGE_PROVIDER=none`.
+
+| Size of the database (MB) | MariaDB | MySQL 8.4 | PostgreSQL |
+|---|---|---|---|
+| After the upload (`data_length + index_length`, `pg_database_size`) | 82.8 | 40.6 | 113.3 |
+| After the benchmark | 93.5 | 90.8 | 278.4 |
+
+PostgreSQL was 64 MB after `VACUUM FULL` before the run (189 MB before the vacuum); the growth to 278.4 MB comes from the run, which included the bulk writes.
+The MySQL value after the upload is smaller than after the run and I did not check whether the table statistics were stale at that point.
+
+### Import results
+
+Upload time per template in seconds, `bun run generate --name=<template>` against the stack on the target database.
+
+| Template | MariaDB | MySQL 8.4 | PostgreSQL (after the fix) | PostgreSQL (first attempt, before the fix) |
+|---|---|---|---|---|
+| beauty | 26.38 | 28.50 | 51.75 | 46.32 |
+| drugstore | 28.07 | 27.15 | 52.09 | 46.73 |
+| electronics | 28.10 | 28.39 | 58.38 | 3.17 (failed, see finding 1) |
+| fashion | 34.79 | 35.87 | 51.99 | 60.30 |
+| garden | 33.65 | 35.22 | 54.73 | 53.81 |
+| music | 32.58 | 31.92 | 52.72 | 59.28 |
+
+Wall time of the whole upload step including setup: MariaDB 33.5 s, MySQL 8.4 32.5 s, PostgreSQL 53.4 s (after the fix).
+Install, 5 runs, median: MariaDB 8.5 s, MySQL 8.4 20.5 s, PostgreSQL 8.1 s.
+`dal:refresh:index`, 5 runs, median: MariaDB 7.1 s, MySQL 8.4 9.8 s, PostgreSQL 11.8 s.
+
+Errors of the upload:
+
+- Every one of the 18 generator runs (6 templates on 3 databases) exits with code 1: `Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)`.
+  The reason is the same on all databases: `POST _action/theme/<id>/assign/<salesChannelId>` returns 400 `THEME__COMPILING_ERROR`, "Unable to compile the theme "Storefront". Unable to resolve file "Resources/app/storefront/dist/storefront/storefront.js". Did you forget to build the theme?".
+  The storefront of the instance is not built, so the theme compile fails; products, categories, media and SEO urls are written before that step and the counts above are complete.
+  The snapshot contains the copied `src/Storefront/Resources/app/storefront/vendor` directory.
+- No other non-2xx response occurred on MariaDB and MySQL 8.4; the full logs are in `catalog-errors-mariadb.txt` and `catalog-errors-mysql.txt`.
+
+### Finding 1: PostgreSQL rejects the SEO url bulk insert (electronics template)
+
+First attempt, request on PostgreSQL during the electronics upload:
+
+```
+[Internal Server Error] An exception occurred while executing a query: SQLSTATE[22P02]: Invalid text representation: 7 ERROR:  invalid input syntax for type uuid: "me,sGAؕO:^\h\"
+```
+
+The statement is the bulk `INSERT INTO "seo_url" (id, sales_channel_id, language_id, foreign_key, ...)` of `SeoUrlPersister`, which goes through `MultiInsertQueryQueue`; the failing value is a bound parameter of that statement.
+Cause, read in the code: `SeoUrlPersister` bound the 16-byte ids as strings.
+`IdCodecMiddleware::encode` converts a string parameter to a uuid only if it is not valid UTF-8 or contains a NUL byte; a random id that happens to be valid UTF-8 stays raw and PostgreSQL rejects it.
+The upload stopped after 3.17 s and `dal:refresh:index` then failed on the same value, so the first PostgreSQL attempt ended with 452 products (542 expected).
+Fix in the instance (commit bde8801404f on `poc/db-independent`, not pushed): `SeoUrlPersister` passes `ParameterType::BINARY` for `id`, `sales_channel_id`, `language_id` and `foreign_key`.
+After the fix the PostgreSQL upload succeeded with the counts above; the same file was copied into the benchmark snapshot.
+The change has no effect on MySQL and MariaDB.
+The other `MultiInsertQueryQueue` callers also bind ids as strings and share the weakness of the codec; I did not check them one by one.
+
+### Finding 2: PostgreSQL fails price calculations with a currency factor other than 1
+
+The template sales channels and their English domains use USD (factor 1.17085), the German domains EUR.
+On PostgreSQL every request of these scenarios returned 500 in a check: storefront home, listing, search, product detail and the store API product listing; MariaDB and MySQL answered them with 200.
+The error is the same in all of them:
+
+```
+SQLSTATE[42883]: Undefined function: 7 ERROR: operator does not exist: text * numeric
+LINE 2: ...currencyb7d2554b0ce847cd82f3ac9bd1c0dfca.gross')) * 1.17085)...
+HINT: No operator matches the given name and argument types. You might need to add explicit type casts.
+```
+
+The statement multiplies the JSON price extract, which is text on PostgreSQL, with the currency factor; MySQL and MariaDB convert implicitly.
+The admin API scenarios returned 200 on PostgreSQL.
+This is a translator finding and is not fixed.
+To get comparable numbers I set `sales_channel.currency_id` of the 6 template channels and `currency_id` of their 12 domains to EUR (factor 1) in the three `bench_*` databases with SQL after the upload.
+Whether a factor of 1 skips the multiplication, or why it passes, I did not look up; the requests succeed with EUR.
+
+### Latency, sequential requests, median of 5 run medians (ms)
+
+| Scenario | n | MariaDB | MySQL 8.4 | PostgreSQL | PostgreSQL + PgBouncer | MariaDB persistent | MySQL 8.4 persistent | PostgreSQL persistent |
+|---|---|---|---|---|---|---|---|---|
+| storefront home | 30 | 97.4 | 103.3 | 253.5 | 221.1 | 96.7 | 101.2 | 215.7 |
+| storefront listing with filter | 40 | 60.9 | 61.6 | 200.4 | 169.7 | 62.8 | 64.8 | 170.7 |
+| storefront search | 40 | 72.7 | 80.8 | 258.5 | 235.7 | 74.9 | 77.7 | 219.0 |
+| storefront product detail | 40 | 84.2 | 85.6 | 290.1 | 248.7 | 83.7 | 90.9 | 255.7 |
+| store API product listing with aggregations | 60 | 33.2 | 36.3 | 54.2 | 32.0 | 26.2 | 27.3 | 28.1 |
+| admin API product search with aggregations | 60 | 27.3 | 31.9 | 53.6 | 39.6 | 25.6 | 29.4 | 31.6 |
+| admin API bulk sync write (50 products) | 10 | 332.0 | 387.8 | 571.8 | 580.3 | 325.1 | 394.7 | 529.4 |
+
+### Throughput, 4 parallel connections, median of 5 runs (requests per second)
+
+| Scenario | MariaDB | MySQL 8.4 | PostgreSQL | PostgreSQL + PgBouncer | MariaDB persistent | MySQL 8.4 persistent | PostgreSQL persistent |
+|---|---|---|---|---|---|---|---|
+| storefront home | 35.6 | 32.4 | 13.5 | 15.6 | 35.6 | 33.3 | 16.0 |
+| storefront listing with filter | 56.5 | 53.0 | 16.6 | 18.4 | 49.2 | 49.3 | 19.2 |
+| storefront search | 45.8 | 44.4 | 12.8 | 14.6 | 48.7 | 44.5 | 15.9 |
+| storefront product detail | 39.8 | 35.2 | 11.7 | 14.2 | 38.6 | 40.3 | 13.7 |
+| store API product listing with aggregations | 98.0 | 92.7 | 56.3 | 89.1 | 106.2 | 87.5 | 95.9 |
+| admin API product search with aggregations | 131.8 | 116.6 | 68.3 | 101.9 | 131.6 | 124.2 | 120.8 |
+| admin API bulk sync write (50 products) | 9.9 | 7.1 | 1.1 | 1.4 | 9.4 | 7.1 | 3.2 |
+
+Error counts are 0 for all 7 setups in all 7 scenarios and in the probe pass.
+p95, per-run ranges and the PostgreSQL time breakdown are in `docs/benchmark-results/wave4-catalog/report.md`.
+Whether per-run ranges overlap is listed in the "clear" column of `report.md`.
+
+### Comparison with the demo data rerun
+
+Ratios of the median latency, same harness; the demo data column is taken from the section "Rerun after wave 4".
+
+| Scenario | PostgreSQL / MariaDB, demo data | PostgreSQL / MariaDB, catalog | PostgreSQL persistent / MariaDB persistent, demo data | PostgreSQL persistent / MariaDB persistent, catalog | MySQL 8.4 / MariaDB, demo data | MySQL 8.4 / MariaDB, catalog |
+|---|---|---|---|---|---|---|
+| storefront home | 1.42 | 2.60 | 1.21 | 2.23 | 1.20 | 1.06 |
+| storefront listing with filter | 1.56 | 3.29 | 1.27 | 2.72 | 1.15 | 1.01 |
+| storefront search | 1.93 | 3.56 | 1.57 | 2.92 | 1.21 | 1.11 |
+| storefront product detail | 1.56 | 3.45 | 1.28 | 3.06 | 1.13 | 1.02 |
+| store API product listing with aggregations | 1.71 | 1.63 | 1.18 | 1.07 | 0.94 | 1.09 |
+| admin API product search with aggregations | 1.79 | 1.96 | 1.13 | 1.23 | 1.15 | 1.17 |
+| admin API bulk sync write (50 products) | 1.85 | 1.72 | 1.83 | 1.63 | 1.26 | 1.17 |
+
+- The PostgreSQL gap on the storefront scenarios roughly doubled with the catalog data (for example filtered listing 1.56x to 3.29x); on store API listing, admin search and bulk write it stayed within 0.1x to 0.2x.
+- In absolute numbers the MariaDB storefront medians are lower on the catalog (home 97.4 ms against 207.2 ms) while the PostgreSQL ones are about equal (home 253.5 ms against 294.4 ms, filtered listing 200.4 against 199.9) or higher (product detail 290.1 against 215.2).
+- The two runs differ in more than the data: the catalog run has 6 sales channels with rotating Host headers, 4 pages per channel instead of 20 for the store API listing, SEO urls of the channel language, and different settings (below), so absolute numbers are not directly comparable and I did not find out which difference causes the gap on the storefront.
+- Persistent connections still help PostgreSQL on every scenario, by 1.13x to 1.93x without pooling against with.
+
+### Settings and deviations of the catalog run
+
+| Setting | MariaDB 10.11.16 | MySQL 8.4.13 | PostgreSQL 18.7 |
+|---|---|---|---|
+| Container limit during the run | 4 CPUs, 4 GiB | 4 CPUs, 4 GiB | 4 CPUs, 4 GiB |
+| Cache | `innodb_buffer_pool_size` 1 GiB | `innodb_buffer_pool_size` 1 GiB | `shared_buffers` 1 GB, `effective_cache_size` 3 GB |
+| Work memory | `sort_buffer_size` 16 MiB, `join_buffer_size` 256 KiB | `sort_buffer_size` 16 MiB, `join_buffer_size` 256 KiB | `work_mem` 16 MB, `maintenance_work_mem` 256 MB |
+| Pooling | per request, or persistent | per request, or persistent | per request, persistent, or PgBouncer 1.26.1 (transaction mode, pool 20) |
+
+- MariaDB `sort_buffer_size` was 16 MiB this time (2 MiB in the rerun after wave 4), so the two runs differ in that setting.
+- `join_buffer_size` was set to 256 KiB with `SET GLOBAL` on MariaDB and MySQL, as in the rerun after wave 4.
+- The generator needs an `AI_API_KEY` even for templates; a dummy value and `IMAGE_PROVIDER=none` were used, no AI call was made.
+- Host port 8101 was taken by another lane, so the upload went through a socat container on host port 18101 and the generator ran with `SW_ENV_URL=http://127.0.0.1:18101`.
+  The sales channel domains were therefore created as `http://<template>.127.0.0.1:18101`; Symfony treats a host whose last label is numeric as an IP address and answers 400 "Invalid Host", so I rewrote the 12 domain urls with SQL to `http://<template>.localhost:18101` on all three databases after the upload.
+  `scripts/benchmark.sh` now uses `http://localhost:18101` for new imports; that path was not run end to end.
+- The load generator reads the template channels, their primary domains, products visible in the channel and the SEO urls of the channel language, and rotates the storefront requests over the 6 channels with the matching Host header.
+  Latencies are computed from 200 responses only; there were no other responses.
+- After the domain and currency updates I removed `var/cache/prod_h*` of the benchmark stacks and restarted them; a `cache:clear` run on the console did not take effect for the php-fpm pools because their cache directory differs.
+- The PostgreSQL upload that ended in finding 1 is kept in `wave4-catalog/catalog-import.txt`, `catalog-errors-pg.txt` and `install-times-first-attempt.txt`; the successful upload is in `wave4-catalog/pg-rerun/`.
+  `install-times.txt` combines the install and index runs of the first attempt (MariaDB, MySQL) with the catalog and index runs of the PostgreSQL rerun.
+
+### Still open
+
+- PostgreSQL translator finding 2 (text times numeric on the price extract) is not fixed; USD sales channels cannot be served on PostgreSQL until it is.
+- The storefront gap on PostgreSQL (2.6x to 3.6x of MariaDB) and the low bulk write throughput were not analysed; the probe pass shows the time inside the PDO calls, not why the statements are slow.
+- The theme of the template sales channels is not compiled because the storefront is not built; storefront pages are served without it.

@@ -67,6 +67,9 @@ def token(port):
     return json.loads(payload)['access_token']
 
 
+CATALOG = False  # --dataset catalog: shopware-catalog-generator templates, one sales channel per template, storefront requests rotate over them
+
+
 def discover(port):
     """Ids and names of one database, found through the admin API."""
     c = Client(port)
@@ -77,61 +80,99 @@ def discover(port):
         assert status == 200, (entity, payload[:300])
         return json.loads(payload)['data']
 
-    sc = search('sales-channel', {'filter': [{'type': 'equals', 'field': 'type.name', 'value': 'Storefront'}], 'limit': 1})[0]
-    products = search('product', {'filter': [{'type': 'equals', 'field': 'parentId', 'value': None}, {'type': 'equals', 'field': 'active', 'value': True}],
-                                  'sort': [{'field': 'productNumber'}], 'limit': 500, 'includes': {'product': ['id', 'name']}})
-    categories = search('category', {'filter': [{'type': 'equals', 'field': 'type', 'value': 'page'},
-                                                {'type': 'not', 'operator': 'and', 'queries': [{'type': 'equals', 'field': 'products.id', 'value': None}]}],
-                                     'sort': [{'field': 'id'}], 'limit': 100, 'includes': {'category': ['id']}})
+    def channel(sc, host):
+        pfilter = [{'type': 'equals', 'field': 'parentId', 'value': None}, {'type': 'equals', 'field': 'active', 'value': True}]
+        if CATALOG:
+            pfilter.append({'type': 'equals', 'field': 'visibilities.salesChannelId', 'value': sc['id']})
+        products = search('product', {'filter': pfilter, 'sort': [{'field': 'productNumber'}], 'limit': 500, 'includes': {'product': ['id', 'name']}})
 
-    def seo(route, ids):
-        rows = search('seo-url', {'filter': [{'type': 'equals', 'field': 'routeName', 'value': route}, {'type': 'equals', 'field': 'isCanonical', 'value': True},
-                                             {'type': 'equals', 'field': 'salesChannelId', 'value': sc['id']}, {'type': 'equalsAny', 'field': 'foreignKey', 'value': '|'.join(ids)}],
-                                  'limit': 500, 'includes': {'seo_url': ['foreignKey', 'seoPathInfo']}})
-        return {r['foreignKey']: '/' + r['seoPathInfo'] for r in rows}
+        def seo(route, ids):
+            rows = search('seo-url', {'filter': [{'type': 'equals', 'field': 'routeName', 'value': route}, {'type': 'equals', 'field': 'isCanonical', 'value': True},
+                                                 {'type': 'equals', 'field': 'salesChannelId', 'value': sc['id']}, {'type': 'equals', 'field': 'languageId', 'value': sc['languageId']}, {'type': 'equalsAny', 'field': 'foreignKey', 'value': '|'.join(ids)}],
+                                      'limit': 500, 'includes': {'seo_url': ['foreignKey', 'seoPathInfo']}})
+            return {r['foreignKey']: '/' + r['seoPathInfo'] for r in rows}
 
-    # the storefront answers /navigation/<id> and /detail/<id> with a redirect to the SEO url, the benchmark requests the SEO url
-    product_urls = seo('frontend.detail.page', [p['id'] for p in products])
-    category_urls = seo('frontend.navigation.page', [x['id'] for x in categories])
+        if CATALOG:
+            # categories of this sales channel that have products: take the SEO urls of the channel, then keep those with products
+            nav = search('seo-url', {'filter': [{'type': 'equals', 'field': 'routeName', 'value': 'frontend.navigation.page'}, {'type': 'equals', 'field': 'isCanonical', 'value': True},
+                                                {'type': 'equals', 'field': 'salesChannelId', 'value': sc['id']}, {'type': 'equals', 'field': 'languageId', 'value': sc['languageId']}], 'limit': 500, 'includes': {'seo_url': ['foreignKey']}})
+            cfilter = [{'type': 'equals', 'field': 'type', 'value': 'page'}, {'type': 'equalsAny', 'field': 'id', 'value': '|'.join(r['foreignKey'] for r in nav)},
+                       {'type': 'not', 'operator': 'and', 'queries': [{'type': 'equals', 'field': 'products.id', 'value': None}]}]
+        else:
+            cfilter = [{'type': 'equals', 'field': 'type', 'value': 'page'}, {'type': 'not', 'operator': 'and', 'queries': [{'type': 'equals', 'field': 'products.id', 'value': None}]}]
+        categories = search('category', {'filter': cfilter, 'sort': [{'field': 'id'}], 'limit': 100, 'includes': {'category': ['id']}})
+        # the storefront answers /navigation/<id> and /detail/<id> with a redirect to the SEO url, the benchmark requests the SEO url
+        product_urls = seo('frontend.detail.page', [p['id'] for p in products])
+        category_urls = seo('frontend.navigation.page', [x['id'] for x in categories])
+        words = sorted({w.lower() for p in products for w in (p['name'] or '').split() if len(w) > 4 and w.isalpha() and w.isascii()})
+        return {
+            'host': host,
+            'accessKey': sc['accessKey'],
+            'products': [p['id'] for p in products],
+            'categories': [x['id'] for x in categories if x['id'] in category_urls],
+            'product_urls': product_urls,
+            'category_urls': category_urls,
+            'words': words,
+        }
+
+    if CATALOG:
+        scs = search('sales-channel', {'filter': [{'type': 'equals', 'field': 'type.name', 'value': 'Storefront'}, {'type': 'not', 'operator': 'and', 'queries': [{'type': 'equals', 'field': 'name', 'value': 'Storefront'}]}],
+                                       'sort': [{'field': 'name'}], 'limit': 20, 'associations': {'domains': {}}})
+        channels = []
+        for sc in scs:
+            # the primary domain is the one without a language suffix (http://beauty.localhost:18101 against http://beauty-de.localhost:18101)
+            doms = [d['url'] for d in sc['domains'] if d['url'].split('//')[1].split('.')[0] == sc['name'].lower()]
+            assert doms, ('no primary domain', sc['name'], [d['url'] for d in sc['domains']])
+            channels.append(channel(sc, doms[0].split('//')[1]))
+    else:
+        sc = search('sales-channel', {'filter': [{'type': 'equals', 'field': 'type.name', 'value': 'Storefront'}], 'limit': 1})[0]
+        channels = [channel(sc, HOST)]
     manufacturers = search('product-manufacturer', {'limit': 100, 'includes': {'product_manufacturer': ['id']}})
-    words = sorted({w.lower() for p in products for w in (p['name'] or '').split() if len(w) > 4 and w.isalpha() and w.isascii()})
     return {
-        'accessKey': sc['accessKey'],
         'auth': auth,
-        'products': [p['id'] for p in products],
-        'categories': [x['id'] for x in categories if x['id'] in category_urls],
-        'product_urls': product_urls,
-        'category_urls': category_urls,
+        'channels': channels,
+        'products': [p for ch in channels for p in ch['products']],
+        'categories': [x for ch in channels for x in ch['categories']],
         'manufacturers': [m['id'] for m in manufacturers],
-        'words': words,
+        'words': [w for ch in channels for w in ch['words']],
     }
 
 
 def scenarios(d, runs):
     """name -> (n, builder(i) -> (method, path, body, headers)). i is the ordinal of the request inside the scenario, unique per request."""
-    store = {'sw-access-key': d['accessKey']}
     auth = d['auth']
-    cats, manus, prods, words = d['categories'], d['manufacturers'], d['products'], d['words']
-    if not cats:
+    chs, manus, prods = d['channels'], d['manufacturers'], d['products']
+    if not d['categories']:
         raise SystemExit('no category with products found')
+    nch = len(chs)
+
+    def pick(i):
+        """channel and in-channel ordinal of request i (storefront requests rotate over the sales channels)"""
+        ch = chs[i % nch]
+        return ch, i // nch, {'Host': ch['host']}
 
     def listing(i):
-        cat = cats[i % len(cats)]
+        ch, j, h = pick(i)
+        cat = ch['categories'][j % len(ch['categories'])]
         manu = manus[(i * 7 + 3) % len(manus)]
         order = ('price-asc', 'price-desc', 'name-asc', 'name-desc')[i % 4]
         q = f'?order={order}&manufacturer={manu}&min-price=1'  # always page 1, a page beyond the last one is a cheap redirect
-        return 'GET', d['category_urls'][cat] + q, None, {}
+        return 'GET', ch['category_urls'][cat] + q, None, h
 
     def search(i):
-        return 'GET', '/search?search=' + words[(i * 7) % len(words)] + '', None, {}
-
-    urls = [d['product_urls'][p] for p in prods if p in d['product_urls']]
+        ch, j, h = pick(i)
+        return 'GET', '/search?search=' + ch['words'][(j * 7) % len(ch['words'])], None, h
 
     def detail(i):
-        return 'GET', urls[i % len(urls)], None, {}
+        ch, j, h = pick(i)
+        urls = [ch['product_urls'][p] for p in ch['products'] if p in ch['product_urls']]
+        return 'GET', urls[j % len(urls)], None, h
+
+    pages = 4 if CATALOG else 20  # a catalog sales channel has 90 products, 24 per page
 
     def store_listing(i):
-        body = {'limit': 24, 'p': 1 + i % 20, 'total-count-mode': 1, 'order': ('name-asc', 'price-asc')[i % 2],
+        ch = chs[i % nch]
+        body = {'limit': 24, 'p': 1 + (i // nch) % pages, 'total-count-mode': 1, 'order': ('name-asc', 'price-asc')[i % 2],
                 'filter': [{'type': 'equals', 'field': 'manufacturerId', 'value': manus[i % len(manus)]}] if i % 3 else [],
                 'aggregations': [
                     {'name': 'manufacturer', 'type': 'entity', 'field': 'manufacturerId', 'definition': 'product_manufacturer'},
@@ -140,7 +181,7 @@ def scenarios(d, runs):
                     {'name': 'rating', 'type': 'max', 'field': 'ratingAverage'},
                 ],
                 'associations': {'cover': {'associations': {'media': {}}}}}
-        return 'POST', '/store-api/product', body, store
+        return 'POST', '/store-api/product', body, {'sw-access-key': ch['accessKey']}
 
     def admin_search(i):
         body = {'limit': 25, 'page': 1 + i % 40, 'total-count-mode': 1, 'sort': [{'field': ('name', 'productNumber', 'stock')[i % 3], 'order': 'ASC'}],
@@ -161,7 +202,7 @@ def scenarios(d, runs):
         return 'POST', '/api/_action/sync', body, auth
 
     return {
-        'storefront home': (30, lambda i: ('GET', '/', None, {})),
+        'storefront home': (30, lambda i: ('GET', '/', None, pick(i)[2])),
         'storefront listing with filter': (40, listing),
         'storefront search': (40, search),
         'storefront product detail': (40, detail),
@@ -227,12 +268,13 @@ def probe_pass(d_pg, name, n, builder_factory):
     lat, errors = [], 0
     for i in range(n):
         status, secs, _ = c.request(*builder(2000 + i))
-        lat.append(secs)
+        if status == 200:
+            lat.append(secs)
         errors += status != 200
     time.sleep(0.5)
     rows = [json.loads(line) for line in open(TIMING_FILE) if line.strip()]
     rows = [r for r in rows if not r['uri'].startswith('/api/oauth')]
-    out = {'errors': errors, 'requests': len(rows), 'latency_median_ms': statistics.median(lat) * 1000}
+    out = {'errors': errors, 'requests': len(rows), 'latency_median_ms': statistics.median(lat) * 1000 if lat else None}
     if not rows:
         return out
     for key, fn in (
@@ -255,18 +297,22 @@ def main():
     ap.add_argument('--out', default='/tmp/bench/results.json')
     ap.add_argument('--only', default='', help='substring of a scenario name')
     ap.add_argument('--stacks', default=DEFAULT_STACKS, help='comma separated stack names')
+    ap.add_argument('--dataset', default='demodata', choices=('demodata', 'catalog'))
     ap.add_argument('--no-throughput', action='store_true')
     ap.add_argument('--no-probes', action='store_true')
     ap.add_argument('--merge', action='store_true', help='keep the scenarios already in --out, run only the missing ones')
     a = ap.parse_args()
+    global CATALOG
+    CATALOG = a.dataset == 'catalog'
     names = a.stacks.split(',')
 
     dbs = sorted({DATABASE[k] for k in names} | {'pg'})
     first_stack = {db: next(k for k in (*names, 'pg') if DATABASE[k] == db) for db in dbs}
     disc = {db: discover(STACKS[first_stack[db]]) for db in dbs}
     scen = {db: scenarios(disc[db], a.runs) for db in dbs}
-    result = {'runs': a.runs, 'host': HOST, 'stacks': names, 'scenarios': {}, 'counts': {}}
+    result = {'runs': a.runs, 'host': HOST, 'dataset': a.dataset, 'stacks': names, 'scenarios': {}, 'counts': {}}
     result['counts'] = {db: {x: len(disc[db][x]) for x in ('products', 'categories', 'manufacturers', 'words')} for db in dbs}
+    result['counts_channels'] = {db: len(disc[db]['channels']) for db in dbs}
 
     if a.merge and os.path.exists(a.out):
         result['scenarios'] = json.load(open(a.out))['scenarios']
@@ -289,7 +335,7 @@ def main():
                 lat, err = measure_sequential(STACKS[k], scen[DATABASE[k]][name][1], run * n, n)
                 res['latency'][k].append(lat)
                 res['errors'][k] += err
-            print('  latency run', run + 1, {k: round(statistics.median(res['latency'][k][-1]) * 1000, 1) for k in order}, flush=True)
+            print('  latency run', run + 1, {k: (round(statistics.median(res['latency'][k][-1]) * 1000, 1) if res['latency'][k][-1] else None) for k in order}, flush=True)
         if not a.no_throughput:
             for run in range(a.runs):
                 r = run % len(names)
