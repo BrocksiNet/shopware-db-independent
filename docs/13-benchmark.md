@@ -220,7 +220,7 @@ Raw data in `docs/benchmark-results/wave4/` (`results.json`, `install-times.txt`
 - With persistent connections PostgreSQL is 1.13x to 1.57x of MariaDB on reads and 1.83x on the bulk write.
 - Persistent connections make PostgreSQL 1.16x to 1.55x faster than without; MariaDB and MySQL gain nothing measurable from them.
 - PgBouncer in transaction mode helps less than persistent connections on most scenarios (for example admin API product search 36.2 ms against 33.0 ms, 51.1 ms without either).
-- MySQL 8.4 sits between the two: 1.07x to 1.26x of MariaDB on reads, and PostgreSQL with persistent connections is within 1.03x to 1.17x of MySQL 8.4 with persistent connections on 5 of 7 scenarios (storefront search 1.43x, bulk write 1.32x).
+- MySQL 8.4 sits between the two: 0.94x (store API listing) to 1.21x of MariaDB on reads, and PostgreSQL with persistent connections is within 1.03x to 1.17x of MySQL 8.4 with persistent connections on 5 of 7 scenarios (storefront search 1.43x, bulk write 1.32x).
 - Install: PostgreSQL 6.5 s, MariaDB 8.0 s, MySQL 8.4 18.3 s (median of 5).
   Indexing: MariaDB 9.5 s, MySQL 12.5 s, PostgreSQL 15.6 s (first run on PostgreSQL 31.2 s, before vacuum).
 - The translator costs 3.1 to 7.4 % of the wall time on reads and 9.0 % on the bulk write, the id codec 0.5 to 1.2 % on reads and 3.1 % on the write.
