@@ -102,7 +102,7 @@ Target (decision 2026-11-19, `docs/02-decisions.md`): code above the connection 
 The dialect decides the storage type and binds them: `idParameterType()` / `idListParameterType()` for parameters, `idToText()` for ids selected as text.
 The binary uuid helpers in SQL code and the id codec middleware go away, the codec stays only in the compatibility shim for extension SQL.
 
-212 files call the binary uuid helpers directly, so this is the widest single change.
+212 files call the binary uuid helpers directly; counting `LOWER(HEX())`, `UNHEX()` and the list helpers too it is 309 files outside the migrations (`docs/15-id-spike.md`), the widest single change.
 Most call sites follow a few patterns, so the migration should be mostly automated (a Rector rule plus a check that no new byte binding gets in), with manual work for the rest.
 Extensions that bind ids as bytes keep working on MySQL and MariaDB, and through the shim elsewhere, during a deprecation period.
 
@@ -150,7 +150,7 @@ Effort is an estimate (S: days, M: weeks, L: months for one developer), not meas
 | 1 | Connection factories | 3 classes, exists for MySQL and PostgreSQL | add SQLite, move session setup and middlewares per platform | S | no |
 | 2 | `SqlDialect` interface and three implementations | the methods in the table above | extract from the rewriters and the DAL findings | M | no (new API) |
 | 3 | DAL on the dialect | 4 interfaces, 16 generation points (`docs/inventory/dal/findings.md`) | inject the dialect, drop static `escape()` | M | yes for code calling `EntityDefinitionQueryHelper::escape()` statically |
-| 4 | Id handling | 715 id columns, 212 files with binary uuid helpers | ids as hex strings above the connection, the dialect binds them; Rector rule for the call sites; codec only in the shim | L | yes for raw SQL binding ids as bytes |
+| 4 | Id handling | 715 id columns, 309 files with binary uuid helpers or hex SQL (`docs/15-id-spike.md`) | ids as hex strings above the connection, the dialect binds them; Rector rule for the call sites; codec only in the shim | L | yes for raw SQL binding ids as bytes |
 | 5 | Raw SQL on hot paths | 241 files with MySQL constructs | rewrite by request path, rest stays on the shim | L | no |
 | 6 | Migrations | 910 historic, plus every new one | history on the shim, new ones portable, schema check per database in CI | M | new migrations must be portable |
 | 7 | Introspection | `Column`, `TableHelper`, `SHOW`, `information_schema` | DBAL schema manager | S | rarely |
