@@ -240,7 +240,7 @@ Last runs of the final commit:
 
 | Area | PostgreSQL | MySQL |
 |---|---|---|
-| `Core/Framework/Api` | 446 tests, 17 failing, all in the baseline sets of earlier runs except `ApiControllerDeleteTest::testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList`, which also fails with the four last files reverted | OK |
+| `Core/Framework/Api` | 446 tests, 14 failing, all in the baseline sets of earlier runs except `ApiControllerDeleteTest::testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList`, which also fails with the four last files reverted | OK |
 | `Storefront/Theme` | 150 tests, 3 failing, all in the baseline sets | 1 failing (`ThemeCompilerTest`) |
 | `Content/Product/DataAbstractionLayer` | 72 tests, 7 failing, all in the baseline sets | OK |
 | DAL integration | 801 tests, 16 failing (167 at the start of wave 5, fixes by handoff E) | 801 tests, OK |
@@ -248,8 +248,8 @@ Last runs of the final commit:
 
 ### Left, with the reason
 
-- `Installer/Configuration/ShopConfigurationService.php`: runs before the database dialect is known.
-- `Core/Test/Stub/Framework/IdsCollection.php`: test stub, returns bytes by contract.
+- `Installer/Configuration/ShopConfigurationService.php`: not converted (not part of the request path, left as is).
+- `Core/Test/Stub/Framework/IdsCollection.php`: test stub, left as is.
 - `SearchKeyword/*` and `SearchKeywordUpdater`: handoff B.
 - `SeoUrlPersister`, `MultiInsertQueryQueue`, `IdCodecMiddleware`: handoff C.
 - `ShippingMethodValidator`: comment only.
