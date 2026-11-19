@@ -203,3 +203,60 @@ The DAL now emits quoted identifiers inside functions (`REPLACE("col"::text, ...
 `MySQLToPostgreSQLTranslator::isQuotedIdentifier()` decides by position whether a double-quoted token is an identifier or a string literal, and misread these as literals (`InvalidUuid "product_id"`).
 Two rules were added there: a quoted token directly followed by `::` is a column, and `("id" IN (?))` is a column.
 Those edits are in the translator file of the quoting work and are not part of the DAL commit.
+
+## 8. Remaining call sites (wave 5, handoff D)
+
+### Result
+
+The files outside the DAL that bound ids as raw bytes are converted to the `IdBinding` API in eight commits on `poc/db-independent` in `instance/`.
+The commits are `05ef0992853` (Checkout, 30 files), `42c0a093ccf` (Checkout validators), `a27c84adfe3` (Content, 61 files), `b6ae634e8e0` (System, 28 files), `bbe0e03e148` (Framework, 48 files), `acda5200d93` (Storefront, Administration, Maintenance, 21 files), `23891f8a2b9` (test helpers and Elasticsearch admin indexers, 36 files) and `8540b8f60b7` (four selects on the store and admin request path).
+`scripts/id-pattern-inventory.py` counts 309 files with a bytes pattern in `src` before the spike conversion and 12 files at the end of this handoff (7 of them are left after the Rector rule is applied, see `scripts/id-rector-coverage.sh`).
+Migrations are untouched on purpose (111 files).
+
+### Rector rule
+
+The `LOWER(HEX())` regex of `BinaryUuidToIdBindingRector` now also matches one level of `IFNULL`, `COALESCE` and `IF` around the call.
+The rule does not handle `UNHEX()`, nowdoc constants, nested expressions and methods that receive bytes from their callers, those were converted by hand.
+It also imported fully qualified class names such as `\DateTime`, php-cs-fixer normalizes them.
+
+### Codec conversions per flow
+
+Measured with a temporary log in `IdCodecMiddleware` (removed again) over `scripts/id-path-flow.sh`-style flows (storefront scenarios, listing, product PATCH, 0 non-2xx).
+
+| State | Conversions |
+|---|---|
+| before wave 4 | 6465 |
+| end of wave 4 | 281 (23 decodes) |
+| after this handoff | 204 (8 decodes, 196 encodes) |
+
+The 196 encodes are 178 in `MultiInsertQueryQueue` (handoff C), 14 in `SearchKeywordUpdater` (handoff B), 2 in `StatementHelper` (DAL) and 2 in `RefreshTokenRepository` (opaque bytes of the token family id).
+The 8 decodes are 5 in `EntityWriteGateway` (DAL), 2 in `SeoUrlPlaceholderHandler` (handoff C) and 1 in `VariantListingUpdater` (the parent id is bound as bytes in several places).
+
+### Tests
+
+Each area was run on PostgreSQL and MySQL before and after the conversion and the failing sets were compared from the junit XML.
+New failures in the after runs were rerun alone, they were parallel session noise (App sync foreign key violations, cookie and stock tests) or failed at baseline.
+Last runs of the final commit:
+
+| Area | PostgreSQL | MySQL |
+|---|---|---|
+| `Core/Framework/Api` | 446 tests, 17 failing, all in the baseline sets of earlier runs except `ApiControllerDeleteTest::testPreventDeletionOfDefaultSalesChannelLanguageFromLanguageList`, which also fails with the four last files reverted | OK |
+| `Storefront/Theme` | 150 tests, 3 failing, all in the baseline sets | 1 failing (`ThemeCompilerTest`) |
+| `Content/Product/DataAbstractionLayer` | 72 tests, 7 failing, all in the baseline sets | OK |
+| DAL integration | 801 tests, 16 failing (167 at the start of wave 5, fixes by handoff E) | 801 tests, OK |
+| Adapter unit tests (`tests/unit/Core/Framework/Adapter/Database`) | 192 tests, OK | 192 tests, OK |
+
+### Left, with the reason
+
+- `Installer/Configuration/ShopConfigurationService.php`: runs before the database dialect is known.
+- `Core/Test/Stub/Framework/IdsCollection.php`: test stub, returns bytes by contract.
+- `SearchKeyword/*` and `SearchKeywordUpdater`: handoff B.
+- `SeoUrlPersister`, `MultiInsertQueryQueue`, `IdCodecMiddleware`: handoff C.
+- `ShippingMethodValidator`: comment only.
+- DAL internals, `Adapter/Database` and migrations: out of scope, the codec stays for old migrations and extension SQL.
+- Refresh token family id, `VariantListingUpdater` parent id, `SeoUrlPlaceholderHandler`, `StatementHelper`, `EntityWriteGateway`: see the conversion table.
+
+### Pitfall
+
+`IdBinding::toHexList()` drops array keys (`array_values`).
+Where keys matter (`fetchAllKeyValue`), use `array_map(IdBinding::toHex(...), $rows)`, as in `CustomFieldSetPersister`.
