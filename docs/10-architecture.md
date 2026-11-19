@@ -229,8 +229,8 @@ Statements arriving at the translator for a product listing, a product write and
 | `ON DUPLICATE KEY` | 4 | 4 |
 | backtick quoted | 431 | 455 (the dialect emits backticks on purpose, see above) |
 
-The statement count differs because the checkout creates more rows on the second run, the number of distinct statements is the same (283).
-The `GROUP_CONCAT` that remains comes from other readers (`EntityAggregator`, `ProductListingLoader` and others), the remaining `HEX(` from id lookups that the id spike converts.
+The number of distinct statements is the same (283), the total differs with the data of each run.
+The `GROUP_CONCAT` that remains comes from code outside the moved places (for example `ManyToManyIdFieldUpdater`, `ProductCategoryDenormalizer`, `EntityDefinitionQueryHelper`, `SqlHelper`), the remaining `HEX(` from id lookups that the id spike converts.
 
 Tests:
 
