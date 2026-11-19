@@ -37,6 +37,40 @@ PostgreSQL 18 can generate UUIDv7 ids natively.
    override and `POSTGRES_URL` for `web`, the `postgres` service and the
    `postgres-data` volume.
 
+## Switch test databases (wave 3)
+
+The switch harness (`scripts/switch-db.sh`, results in `docs/12-switch-test.md`) installs Shopware from scratch on MySQL 8, MariaDB and PostgreSQL.
+All three use the separate database `shopware_switch`, the lane database `shopware` is never touched.
+
+MariaDB (`instance-database-1`) and PostgreSQL (`instance-postgres-1`) are the existing lane containers, they run without CPU or memory limits.
+MySQL 8 runs as a fourth container on the same compose network (`instance_default`, alias `mysql`), also without limits, with the same server settings as the MariaDB service in `compose.yaml` (sql_mode, buffer pool 1 GB, `log_bin_trust_function_creators`, UTC):
+
+```bash
+podman run -d --name instance-mysql-1 --network instance_default --network-alias mysql \
+  -e MYSQL_ROOT_PASSWORD=root -e MYSQL_DATABASE=shopware_switch -v instance_mysql-data:/var/lib/mysql \
+  docker.io/library/mysql:8.4 \
+  --sql_mode=STRICT_TRANS_TABLES,NO_ZERO_IN_DATE,ERROR_FOR_DIVISION_BY_ZERO,NO_ENGINE_SUBSTITUTION \
+  --log_bin_trust_function_creators=1 --binlog_cache_size=16M --join_buffer_size=1024M \
+  --innodb_log_file_size=128M --innodb_buffer_pool_size=1024M --innodb_buffer_pool_instances=1 \
+  --group_concat_max_len=320000 --default-time-zone=+00:00 --max_binlog_size=512M --binlog_expire_logs_seconds=86400
+```
+
+It is not part of `compose.yaml` (that file belongs to the Shopware checkout), so `podman compose down` does not remove it.
+Stop and remove it with `podman rm -f instance-mysql-1` (the volume `instance_mysql-data` stays).
+Image: `mysql:8.4` (8.4.13 at the time of writing).
+
+Connection URLs used by the script (passed with `podman exec -e DATABASE_URL=...`, the lane `.env` stays untouched):
+
+| Database | `DATABASE_URL` | Port of the smoke web process |
+|---|---|---|
+| MySQL 8 | `mysql://root:root@mysql:3306/shopware_switch` | 8092 |
+| MariaDB | `mysql://root:root@database:3306/shopware_switch` | 8093 |
+| PostgreSQL | `pgsql://shopware:shopware@postgres:5432/shopware_switch` | 8094 |
+
+How the smoke test runs without breaking the lane: a second web process `php -S 127.0.0.1:<port> -t public public/index.php` is started inside `instance-web-1` with its own `DATABASE_URL`, `APP_URL=http://localhost:<port>`, `APP_ENV=prod` and its own `APP_CACHE_DIR=/tmp/sw-switch-<db>` (so the compiled container and cache of the lane in `var/cache` are never reused or overwritten).
+The Python smoke script runs inside the container and talks to that port, the lane keeps serving on http://pg.localhost:8088.
+`framework:demodata` refuses to run outside `APP_ENV=prod`, therefore the whole harness runs in `prod`.
+
 ## Incident: Podman VM `/Users` mount hung (resolved)
 
 On 2026-11-18, for at least 30 minutes, every read under `/Users` inside the
