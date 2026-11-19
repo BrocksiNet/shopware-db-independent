@@ -133,3 +133,73 @@ The performance gain only shows once the DAL (about 550 conversions per request 
 - `PostgreSqlDialect::idParameterType()` returns `BINARY`, see section 2.
 - The rule is not applied to the DAL core and the other 250 files, only to the converted path.
 - PostgreSQL failures listed in section 4 exist before and after the change and are not investigated here.
+
+## 7. DAL migration
+
+The DAL now binds and reads ids as hex strings through `IdBinding`, so the `IdCodecMiddleware` has almost nothing left to convert for DAL statements on PostgreSQL.
+The numbers come from the temporary conversion log (one line per encode or decode in the middleware, not committed) over three flows: store API checkout, a storefront listing and an admin product PATCH.
+
+### Conversions per flow
+
+| | Before | After |
+|---|---|---|
+| all conversions (encode plus decode) | 6,465 | 281 |
+| decodes (uuid text to 16 bytes) | 4,972 | 23 |
+
+The three flows still pass on PostgreSQL after the change: store flow 0 non-2xx responses, listing 200, product PATCH 204.
+
+What changed in the DAL:
+
+- Reader, searcher, aggregator, `IteratorFactory`, `EntityDefinitionQueryHelper`, `EntityForeignKeyResolver`, field resolvers and accessor builders, `SqlQueryParser`, serializers, indexers, the write classes and `VersionManager` bind with `IdBinding::value()` / `values()` / `type()` / `listType()` and read with `toHex()`.
+- Raw id columns are selected through the new `IdBinding::selectText($col)`, which is `REPLACE(col::text, '-', '')` on PostgreSQL and the plain column elsewhere.
+  Without it the middleware decodes the dashed uuid text of `SELECT *` or a raw id column to 16 bytes, which no longer matches the hex primary keys.
+- `IdBinding::literal()` and a 32 hex character check for values that go into SQL text.
+- `EntityWriteGateway::generateChangeSets()` and `RowLoader::load()` normalize the id columns of the loaded rows to hex, so change set before and after values match the primary keys of the write commands.
+- Subscribers and validators that bound primary keys as `BINARY` (`OrderStockSubscriber`, `LanguageValidator`, `LockValidator`, `CleanupVersionTaskHandler`, integration, user and service write protection) use `IdBinding::listType()`.
+  Binding hex values with a `BINARY` type fails on PostgreSQL with SQLSTATE 22P03.
+- `EntityWriteResultFactory::fetchForeignKey()` uses `IdBinding::text(escape($col))` instead of `LOWER(HEX("col"))`, see the translator dependency below.
+
+### Remaining callers, ranked
+
+1. About 126 `ParameterType::BINARY` sites in `src` (without migrations).
+   Sites that bind real bytes still work through the middleware.
+   Sites that bind values derived from primary keys (`ThemeIndexer`, `ProductVariantsSubscriber`, `ProductSubscriber`, `CustomFieldSearchableSubscriber`, `ProductStreamIndexer`, `MediaPathWriteValidator`, `PromotionRedemptionUpdater`) are not converted and would fail with 22P03 on PostgreSQL once their inputs are hex.
+2. `UNHEX()` in SQL text, 0 % covered by the rule.
+3. `IterateEntitiesQueryBuilder` (UsageData) still wraps `escape()` in `LOWER(HEX(%s))`, the same quoted-identifier-as-literal risk as `HEX("col")`.
+4. Raw id selects outside the DAL (about 23 decodes per flow).
+
+### Rector rule
+
+New patterns from the DAL were added to `BinaryUuidToIdBindingRector`, coverage re-run with `scripts/id-rector-coverage.sh` on a copy of all affected files (249 files, 232 changed, 41 still with hits):
+
+| | Before | After |
+|---|---|---|
+| all hits | 1,004 | 67 (93 % covered) |
+| `LOWER(HEX())` | 340 | 26 |
+| `BINARY` types | 139 | 28 |
+| `UNHEX()` | 14 | 14 (0 %) |
+
+The numbers of section 3 are the earlier measurement.
+
+### Test results
+
+| Suite | MySQL | PostgreSQL |
+|---|---|---|
+| DAL integration (801 tests) | 0 failures | 110 errors plus 57 failures = 167 (wave 3: 168) |
+| unit (24,337 tests) | 3 failures | 3 failures |
+
+- `scripts/check-migrations-on-postgresql.sh`: 0 differences.
+- PHPStan on all touched `src` files: no errors.
+- The 3 unit failures on both databases are `ThumbnailServiceTest::testGenerateRotatesImageForExifOrientation` (EXIF rotation), unrelated to ids.
+- Tests that hardcoded backticks now fail on PostgreSQL because the dialect quotes with double quotes.
+  Adapted to be quote-agnostic: `EntityForeignKeyResolverTest`, `ManyToManyAssociationServiceTest`, `CriteriaQueryHelperTest`, `PriceFieldAccessorBuilderTest`.
+- Tests that compared ids as bytes (`EntityWriteGatewayTest`, `RowLoaderTest`) now use `IdBinding::value()` / `toHex()`.
+- `MultiInsertQueryQueueTest::testNullableDatetime` failed once on a millisecond format difference and passes alone, a time dependent flake.
+- `VersioningTest::testDeleteNoneExistingVersion` fails on PostgreSQL with a `product_search_keyword` foreign key violation, which is the keyword indexer area.
+
+### Dependency on the translator
+
+The DAL now emits quoted identifiers inside functions (`REPLACE("col"::text, ...)`).
+`MySQLToPostgreSQLTranslator::isQuotedIdentifier()` decides by position whether a double-quoted token is an identifier or a string literal, and misread these as literals (`InvalidUuid "product_id"`).
+Two rules were added there: a quoted token directly followed by `::` is a column, and `("id" IN (?))` is a column.
+Those edits are in the translator file of the quoting work and are not part of the DAL commit.
