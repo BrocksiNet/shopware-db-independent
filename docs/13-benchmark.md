@@ -1,5 +1,7 @@
 # Benchmark: MariaDB against PostgreSQL
 
+Update 2026-11-19: a rerun after wave 4 with MySQL 8.4, equal memory settings, persistent connections and PgBouncer is at the end of this document ("Rerun after wave 4").
+
 First measured numbers for "is PostgreSQL faster, and what does the translator cost" (benchmark plan in `docs/11-database-comparison.md`).
 MySQL 8 is not part of this run, because handoff A has not added a MySQL 8 lane yet.
 
@@ -205,3 +207,72 @@ What the numbers do not say:
 - The deadlocks on `product_keyword_dictionary` need a look at the write order of the keyword indexer.
 - Host load from other sessions was not controlled; repeat on a quiet machine for final numbers.
 - The benchmark stacks, `/tmp/bench-src` and the databases `bench_mariadb` and `bench_pg` are left in place for a rerun (`scripts/benchmark.sh run`).
+
+## Rerun after wave 4
+
+Same harness and the same 7 scenarios, rerun on instance HEAD 21fc93eedd8 (keyword and seo url indexes via `SqlDialect::caseInsensitive()`, `mysql-compat.sql` loaded by `system:install`, DAL ids bound as hex strings).
+Raw data in `docs/benchmark-results/wave4/` (`results.json`, `install-times.txt`, full tables in `report.md`).
+
+### Result in short
+
+- All 7 setups served every request without an error, including the parallel bulk write that deadlocked on PostgreSQL in the first run (now 6.9 requests per second and 0 errors, before 0.4 and 11 errors).
+- PostgreSQL without pooling is 1.42x to 1.93x the MariaDB median latency (first run: 1.27x to 2.32x).
+- With persistent connections PostgreSQL is 1.13x to 1.57x of MariaDB on reads and 1.83x on the bulk write.
+- Persistent connections make PostgreSQL 1.16x to 1.55x faster than without; MariaDB and MySQL gain nothing measurable from them.
+- PgBouncer in transaction mode helps less than persistent connections on most scenarios (for example admin API product search 36.2 ms against 33.0 ms, 51.1 ms without either).
+- MySQL 8.4 sits between the two: 1.07x to 1.26x of MariaDB on reads, and PostgreSQL with persistent connections is within 1.03x to 1.17x of MySQL 8.4 with persistent connections on 5 of 7 scenarios (storefront search 1.43x, bulk write 1.32x).
+- Install: PostgreSQL 6.5 s, MariaDB 8.0 s, MySQL 8.4 18.3 s (median of 5).
+  Indexing: MariaDB 9.5 s, MySQL 12.5 s, PostgreSQL 15.6 s (first run on PostgreSQL 31.2 s, before vacuum).
+- The translator costs 3.1 to 7.4 % of the wall time on reads and 9.0 % on the bulk write, the id codec 0.5 to 1.2 % on reads and 3.1 % on the write.
+  Both are slightly higher shares than in the first run, because the rest of the request got faster; per statement they cost about the same.
+
+### Latency, sequential requests, median of 5 run medians (ms)
+
+| Scenario | MariaDB | MySQL 8.4 | PostgreSQL | PostgreSQL + PgBouncer | MariaDB persistent | MySQL 8.4 persistent | PostgreSQL persistent |
+|---|---|---|---|---|---|---|---|
+| storefront home | 207.2 | 248.0 | 294.4 | 261.0 | 210.0 | 245.8 | 254.3 |
+| storefront listing with filter | 128.4 | 147.7 | 199.9 | 182.6 | 126.1 | 152.0 | 160.3 |
+| storefront search | 133.5 | 160.9 | 257.4 | 220.6 | 137.2 | 150.9 | 215.8 |
+| storefront product detail | 138.2 | 155.5 | 215.2 | 206.5 | 137.3 | 163.7 | 176.2 |
+| store API product listing with aggregations | 47.6 | 44.6 | 81.5 | 60.7 | 47.9 | 48.2 | 56.4 |
+| admin API product search with aggregations | 28.6 | 32.9 | 51.1 | 36.2 | 29.1 | 30.5 | 33.0 |
+| admin API bulk sync write (50 products) | 204.3 | 258.1 | 378.1 | 369.6 | 194.7 | 269.4 | 355.5 |
+
+### Throughput, 4 parallel connections, median of 5 runs (requests per second)
+
+| Scenario | MariaDB | MySQL 8.4 | PostgreSQL | PostgreSQL + PgBouncer | MariaDB persistent | MySQL 8.4 persistent | PostgreSQL persistent |
+|---|---|---|---|---|---|---|---|
+| storefront home | 14.1 | 11.3 | 11.5 | 12.8 | 14.2 | 11.5 | 12.5 |
+| storefront listing with filter | 26.4 | 20.8 | 15.6 | 18.6 | 25.3 | 23.1 | 20.7 |
+| storefront search | 23.0 | 19.5 | 11.4 | 15.1 | 23.3 | 21.0 | 14.3 |
+| storefront product detail | 23.4 | 20.3 | 15.9 | 16.6 | 25.1 | 18.7 | 21.6 |
+| store API product listing with aggregations | 70.0 | 57.4 | 38.8 | 49.1 | 71.5 | 59.9 | 49.5 |
+| admin API product search with aggregations | 103.3 | 87.8 | 57.3 | 90.0 | 104.2 | 98.0 | 94.7 |
+| admin API bulk sync write (50 products) | 17.7 | 11.4 | 6.9 | 8.1 | 18.2 | 11.4 | 7.9 |
+
+p95, per-run ranges, the error table and the PostgreSQL time breakdown are in `docs/benchmark-results/wave4/report.md`.
+Several ratios have overlapping per-run ranges (column "clear" there), so differences below about 1.2x are not reliable.
+
+### Settings of this run
+
+| Setting | MariaDB 10.11.16 | MySQL 8.4.13 | PostgreSQL 18.7 |
+|---|---|---|---|
+| Container limit during the run | 4 CPUs, 4 GiB | 4 CPUs, 4 GiB | 4 CPUs, 4 GiB |
+| Cache | `innodb_buffer_pool_size` 1 GiB | `innodb_buffer_pool_size` 1 GiB | `shared_buffers` 1 GB, `effective_cache_size` 3 GB |
+| Work memory | `sort_buffer_size` 2 MiB, `tmp_table_size` 16 MiB, `join_buffer_size` 256 KiB | `sort_buffer_size` 16 MiB, `tmp_table_size` 16 MiB, `join_buffer_size` 256 KiB | `work_mem` 16 MB, `maintenance_work_mem` 256 MB |
+| Binary log | off | off (`--skip-log-bin`), `innodb_redo_log_capacity` 128M | not applicable |
+| Pooling | per request, or persistent | per request, or persistent | per request, persistent, or PgBouncer 1.26.1 (transaction mode, pool 20) |
+
+Deviations, stated because they could matter:
+
+- The MariaDB `sort_buffer_size` stayed at 2 MiB: the harness sets 16 MiB with `SET GLOBAL`, but MariaDB was restarted after an out-of-memory kill and the value was lost; MySQL had 16 MiB.
+- `join_buffer_size` was 1 GiB on both MySQL engines from the lane compose file; a first full run ended with MariaDB killed for memory (exit 137) under the 4 GiB limit.
+  I set it to the server default of 256 KiB on both before this run and MariaDB was not killed again; that this was the cause is not proven.
+- PostgreSQL was tuned in the lane container (`ALTER SYSTEM` and a restart), not in a separate container; there is no run with default PostgreSQL settings this time.
+- Host load at the start was 6.8 (desktop applications, database containers near idle); the stack order rotates between runs to spread that noise.
+
+### Still open
+
+- The demo data is still `framework:demodata` (small, 81 MB on PostgreSQL after `VACUUM FULL`); next run uses the catalogs of https://github.com/shopwareLabs/shopware-catalog-generator as a larger and more realistic data set.
+- Storefront search and the bulk write remain the largest gaps on PostgreSQL even with persistent connections.
+- The environment changes above are reset after the catalog run (PostgreSQL `ALTER SYSTEM RESET`, PgBouncer container removed).

@@ -1,12 +1,13 @@
 #!/usr/bin/env python3
 """Load generator for scripts/benchmark.sh, runs inside the web container (standard library only).
 
-Stacks (same code snapshot, same Host header, own php-fpm pool and caddy):
-  mariadb :8101, pg :8102, pgtime :8103 (pg with the timing probes, only for the translator pass)
+Stacks (same code snapshot, same Host header, own php-fpm pool and caddy, see STACKS):
+  one stack per database and setting, for example mariadb, mysql, pg, pgbouncer (pg through PgBouncer), *-persistent (DATABASE_PERSISTENT_CONNECTION=1)
+  pg-timing is pg with the timing probes, only used for the translator pass
 
 Per scenario:
-  latency   RUNS runs of N sequential requests per database, the databases alternate per run
-  throughput RUNS runs of 2N requests with 4 parallel connections per database
+  latency   RUNS runs of N sequential requests per stack, the order of the stacks rotates per run
+  throughput RUNS runs of 2N requests with 4 parallel connections per stack
   probes    translator pass on pgtime: per request time in the driver, in the translator layer and in the id codec layer
 
 Every request URL differs from every other one of the same scenario (page, filter, category, product, search term),
@@ -22,7 +23,12 @@ import threading
 import time
 
 HOST = '127.0.0.1:8101'
-STACKS = {'mariadb': 8101, 'pg': 8102, 'pgtime': 8103}
+STACKS = {'mariadb': 8101, 'mysql': 8104, 'pg': 8102, 'pgbouncer': 8105,
+          'mariadb-persistent': 8106, 'mysql-persistent': 8107, 'pg-persistent': 8108, 'pg-timing': 8103}
+# the data of a stack: the stacks of one database share its demo data
+DATABASE = {'mariadb': 'mariadb', 'mariadb-persistent': 'mariadb', 'mysql': 'mysql', 'mysql-persistent': 'mysql',
+            'pg': 'pg', 'pgbouncer': 'pg', 'pg-persistent': 'pg', 'pg-timing': 'pg'}
+DEFAULT_STACKS = 'mariadb,mysql,pg,pgbouncer,mariadb-persistent,mysql-persistent,pg-persistent'
 TIMING_FILE = '/tmp/bench/timing.jsonl'
 
 
@@ -211,9 +217,9 @@ def measure_parallel(port, builder, start, n, workers=4):
 
 
 def probe_pass(d_pg, name, n, builder_factory):
-    """Translator pass: requests on the pgtime stack, sums per probe from the timing file."""
+    """Translator pass: requests on the pg-timing stack, sums per probe from the timing file."""
     builder = builder_factory
-    c = Client(STACKS['pgtime'])
+    c = Client(STACKS['pg-timing'])
     for i in range(5):
         c.request(*builder(1000 + i))
     time.sleep(0.5)
@@ -248,47 +254,54 @@ def main():
     ap.add_argument('--runs', type=int, default=5)
     ap.add_argument('--out', default='/tmp/bench/results.json')
     ap.add_argument('--only', default='', help='substring of a scenario name')
+    ap.add_argument('--stacks', default=DEFAULT_STACKS, help='comma separated stack names')
     ap.add_argument('--no-throughput', action='store_true')
+    ap.add_argument('--no-probes', action='store_true')
     ap.add_argument('--merge', action='store_true', help='keep the scenarios already in --out, run only the missing ones')
     a = ap.parse_args()
+    names = a.stacks.split(',')
 
-    disc = {k: discover(STACKS[k]) for k in ('mariadb', 'pg')}
-    disc['pgtime'] = disc['pg']
-    scen = {k: scenarios(disc[k], a.runs) for k in ('mariadb', 'pg', 'pgtime')}
-    result = {'runs': a.runs, 'host': HOST, 'scenarios': {}, 'counts': {}}
-    result['counts'] = {k: {x: len(disc[k][x]) for x in ('products', 'categories', 'manufacturers', 'words')} for k in ('mariadb', 'pg')}
+    dbs = sorted({DATABASE[k] for k in names} | {'pg'})
+    first_stack = {db: next(k for k in (*names, 'pg') if DATABASE[k] == db) for db in dbs}
+    disc = {db: discover(STACKS[first_stack[db]]) for db in dbs}
+    scen = {db: scenarios(disc[db], a.runs) for db in dbs}
+    result = {'runs': a.runs, 'host': HOST, 'stacks': names, 'scenarios': {}, 'counts': {}}
+    result['counts'] = {db: {x: len(disc[db][x]) for x in ('products', 'categories', 'manufacturers', 'words')} for db in dbs}
 
     if a.merge and os.path.exists(a.out):
         result['scenarios'] = json.load(open(a.out))['scenarios']
 
-    for name in scen['mariadb']:
+    for name in scen[dbs[0]]:
         if (a.only and a.only not in name) or name in result['scenarios']:
             continue
         # the admin token lives 10 minutes
-        for k in ('mariadb', 'pg'):
-            disc[k]['auth']['Authorization'] = 'Bearer ' + token(STACKS[k])
-        n = scen['mariadb'][name][0]
-        res = {'n': n, 'latency': {'mariadb': [], 'pg': []}, 'errors': {'mariadb': 0, 'pg': 0}, 'throughput': {'mariadb': [], 'pg': []}}
+        for db in dbs:
+            disc[db]['auth']['Authorization'] = 'Bearer ' + token(STACKS[first_stack[db]])
+        n = scen[dbs[0]][name][0]
+        res = {'n': n, 'latency': {k: [] for k in names}, 'errors': {k: 0 for k in names}, 'throughput': {k: [] for k in names}}
         print('==', name, flush=True)
-        for k in ('mariadb', 'pg'):  # warm up: opcache, container, connection, first object cache entries
-            measure_sequential(STACKS[k], scen[k][name][1], 5000, 8)
+        for k in names:  # warm up: opcache, container, connection, first object cache entries
+            measure_sequential(STACKS[k], scen[DATABASE[k]][name][1], 5000, 8)
         for run in range(a.runs):
-            order = ('mariadb', 'pg') if run % 2 == 0 else ('pg', 'mariadb')
+            r = run % len(names)
+            order = names[r:] + names[:r]
             for k in order:
-                lat, err = measure_sequential(STACKS[k], scen[k][name][1], run * n, n)
+                lat, err = measure_sequential(STACKS[k], scen[DATABASE[k]][name][1], run * n, n)
                 res['latency'][k].append(lat)
                 res['errors'][k] += err
             print('  latency run', run + 1, {k: round(statistics.median(res['latency'][k][-1]) * 1000, 1) for k in order}, flush=True)
         if not a.no_throughput:
             for run in range(a.runs):
-                order = ('mariadb', 'pg') if run % 2 == 0 else ('pg', 'mariadb')
+                r = run % len(names)
+                order = names[r:] + names[:r]
                 for k in order:
-                    rps, err = measure_parallel(STACKS[k], scen[k][name][1], 10000 + run * 2 * n, 2 * n)
+                    rps, err = measure_parallel(STACKS[k], scen[DATABASE[k]][name][1], 10000 + run * 2 * n, 2 * n)
                     res['throughput'][k].append(rps)
                     res['errors'][k] += err
                 print('  throughput run', run + 1, {k: round(res['throughput'][k][-1], 2) for k in order}, flush=True)
-        res['probes'] = probe_pass(disc['pg'], name, n, scen['pgtime'][name][1])
-        print('  probes', json.dumps(res['probes'])[:300], flush=True)
+        if not a.no_probes:
+            res['probes'] = probe_pass(disc['pg'], name, n, scen['pg'][name][1])
+            print('  probes', json.dumps(res['probes'])[:300], flush=True)
         result['scenarios'][name] = res
         json.dump(result, open(a.out, 'w'))
 
