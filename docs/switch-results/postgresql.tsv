@@ -43,3 +43,28 @@
 20261119-111302	smoke: admin sync api	PASS	0.1	http 200 
 20261119-111302	smoke: store api checkout	PASS	0.6	order 10010, total 22.53
 20261119-111302	total (install to smoke)	PASS	32.0	0 failed steps
+20261119-122353	system:install	FAIL	8.9	exit 7, see /tmp/switch-postgresql-system:install.log: 11:24:02 WARNING   [app] Cache tags could not be fetched or removed from storage. Possible deadlock encountered. If the error persists, try the redis adapter. E
+20261119-122533	system:install	PASS	13.4	
+20261119-122533	framework:demodata	FAIL	1.6	exit 1, see /tmp/switch-postgresql-framework:demodata.log:   0/10 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%11:25:49 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --
+20261119-123547	system:install	PASS	11.8	
+20261119-123547	framework:demodata	FAIL	9.8	exit 7, see /tmp/switch-postgresql-framework:demodata.log:  0/3 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%11:36:09 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --ca
+20261119-123736	system:install	PASS	10.6	
+20261119-123736	framework:demodata	FAIL	6.2	exit 7, see /tmp/switch-postgresql-framework:demodata.log:  0/3 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%11:37:53 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --ca
+20261119-124738	system:install	PASS	9.7	
+20261119-124738	framework:demodata	FAIL	5.9	exit 7, see /tmp/switch-postgresql-framework:demodata.log:  0/3 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%11:47:54 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --ca
+20261119-125146	system:install	PASS	9.6	
+20261119-125146	framework:demodata	FAIL	6.3	exit 7, see /tmp/switch-postgresql-framework:demodata.log:  0/3 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%11:52:02 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --ca
+20261119-125210	system:install	PASS	9.0	
+20261119-125210	framework:demodata	PASS	6.4	
+20261119-125210	dal:refresh:index	PASS	3.6	
+20261119-125210	cache:clear	PASS	1.7	
+20261119-125210	web process start	PASS	0.4	php -S 127.0.0.1:8094
+20261119-125210	smoke: storefront home	PASS	0.6	http 200, 1490064 bytes
+20261119-125210	smoke: storefront listing	PASS	0.7	http 200, 1490154 bytes
+20261119-125210	smoke: storefront search	PASS	0.1	http 200, 870217 bytes
+20261119-125210	smoke: admin token	PASS	0.6	http 200
+20261119-125210	smoke: admin product search	PASS	0.0	total 256 products
+20261119-125210	smoke: admin product write	PASS	0.3	create 204, update 204, read back ok
+20261119-125210	smoke: admin sync api	PASS	0.1	http 200 
+20261119-125210	smoke: store api checkout	PASS	0.7	order 10010, total 38.39
+20261119-125210	total (install to smoke)	PASS	25.0	0 failed steps

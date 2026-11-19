@@ -40,3 +40,17 @@
 20261119-111142	smoke: admin sync api	PASS	0.0	http 200 
 20261119-111142	smoke: store api checkout	PASS	0.4	order 10010, total 1206.77
 20261119-111142	total (install to smoke)	PASS	49.6	0 failed steps
+20261119-125240	system:install	PASS	23.5	
+20261119-125240	framework:demodata	PASS	7.0	
+20261119-125240	dal:refresh:index	PASS	3.0	
+20261119-125240	cache:clear	PASS	1.8	
+20261119-125240	web process start	PASS	0.4	php -S 127.0.0.1:8092
+20261119-125240	smoke: storefront home	PASS	0.6	http 200, 1729669 bytes
+20261119-125240	smoke: storefront listing	PASS	0.7	http 200, 1729758 bytes
+20261119-125240	smoke: storefront search	PASS	0.1	http 200, 1108243 bytes
+20261119-125240	smoke: admin token	PASS	0.7	http 200
+20261119-125240	smoke: admin product search	PASS	0.0	total 295 products
+20261119-125240	smoke: admin product write	PASS	0.2	create 204, update 204, read back ok
+20261119-125240	smoke: admin sync api	PASS	0.0	http 200 
+20261119-125240	smoke: store api checkout	PASS	0.4	order 10010, total 1897
+20261119-125240	total (install to smoke)	PASS	39.2	0 failed steps
