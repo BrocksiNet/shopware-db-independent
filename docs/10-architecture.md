@@ -172,3 +172,69 @@ Effort is an estimate (S: days, M: weeks, L: months for one developer), not meas
 - How far does a portable migration API go before migrations need per-database code?
 - Is the per-statement cost of the shim small enough to keep it for extension SQL in production, or only for installs and updates?
 - Case-insensitive text: one rule for all 507 columns, or a decision per column?
+
+## Dialect spike
+
+### What moved
+
+The DAL now builds these statements through `SqlDialect` (`instance/src/Core/Framework/Adapter/Database/Dialect/`), with `MySqlDialect`, `MariaDbDialect` and `PostgreSqlDialect`.
+The dialect is a DI service, chosen by the platform of the connection (`SqlDialectFactory::forConnection()`).
+
+- `EntityDefinitionQueryHelper::escape()` stays as a static wrapper and asks the default dialect (`SqlDialectFactory::getDefault()`, by `ConnectionFactory::getDriver()`).
+- `EntityReader`: the group concat of the many to many and inherited reads, and the id list parameter type.
+- `JsonFieldAccessorBuilder` (and `CustomFieldsAccessorBuilder` on top of it): `dialect->jsonValue()` with a type per field.
+- `EntityWriteGateway`: JSON set and bind for `JsonUpdateCommand`, and the id parameter types.
+- `MultiInsertQueryQueue`: `dialect->upsert()` replaces `ON DUPLICATE KEY UPDATE` and `INSERT IGNORE`, and the conflict target is a real argument instead of the old SQL comment hint.
+
+### The interface
+
+- `getName()`, `quoteIdentifier()`
+- `upsert($table, $columns, $valuesSql, $conflictColumns, $updateColumns, $ignoreConflicts)`: `ON DUPLICATE KEY UPDATE` on MySQL and MariaDB, `ON CONFLICT (...) DO UPDATE` or `DO NOTHING` on PostgreSQL (the primary key is read from `pg_index` and cached per table).
+- `jsonExtract()`, `jsonExtractText()`, `jsonSet()`, `jsonValue($col, $path, $type)`, `jsonBind($placeholder, $type)`
+- `idToText()`, `idParameterType()`, `idListParameterType()`
+- `groupConcat($expr, $separator, $orderBy)`
+
+The interface only grows additively, `SqliteDialect` (handoff D) and the id spike (handoff E) build on it.
+After the id spike the PostgreSQL dialect binds ids as hex strings (`ParameterType::STRING`), and `IdBinding` asks the dialect instead of the connection factory.
+
+### What was harder than expected
+
+- **Quoting stays on the shim.**
+  The translator reads a double quoted token as a string literal, shortens identifiers over 63 bytes with a hash and keeps the map that restores them in the result.
+  Native `"` quoting from the DAL therefore breaks every statement that still passes the translator (first error: `'sales_channel'.'id'`).
+  `PostgreSqlDialect` quotes with backticks by default (`nativeIdentifiers = false`) and the translator converts them, native quoting is a constructor flag and only works for statements that bypass the translator.
+  So the quoting concern is moved behind the dialect, but not yet removed from the translator.
+- **The translator reads `#` as a comment.**
+  `#>> '{}'` (unquote a jsonb scalar) cut the statement after the operator, which showed up as `syntax error at end of input` in the `CustomFieldTest` int and float cases.
+  `jsonExtractText()` now uses `jsonb_build_array(x) ->> 0`.
+- **The dialect must be lazy.**
+  The platform is only known after a connect, the unit tests of the write gateway use a connection that cannot connect.
+  Each DAL class takes an optional trailing `?SqlDialect` (BC) and resolves `SqlDialectFactory::forConnection()` on first use.
+- **The conflict target hint is gone.**
+  `MultiInsertQueryQueue` passed the target as an SQL comment for the PostgreSQL upsert rewriter, now it is an argument of `upsert()` (a test replaced the old comment test).
+- **Not everything is DAL.**
+  `ON DUPLICATE KEY`, `JSON_EXTRACT` and `HEX()` also come from raw SQL outside the six generation points and from the price and config accessor builders, those still need the translator.
+
+### Numbers
+
+Statements arriving at the translator for a product listing, a product write and a guest checkout (`/tmp/dialect-workload.sh`, temporary log in `MySQLToPostgreSQLTranslator::translate`, not committed):
+
+| Construct | Before (613 statements) | After (644 statements) |
+|---|---|---|
+| `GROUP_CONCAT` | 39 | 18 |
+| `INSERT IGNORE` | 5 | 0 |
+| `JSON_SET` / `JSON_MERGE` | 1 | 0 |
+| `HEX(` | 142 | 126 |
+| `JSON_EXTRACT` / `JSON_UNQUOTE` / `JSON_TYPE` | 4 | 4 |
+| `ON DUPLICATE KEY` | 4 | 4 |
+| backtick quoted | 431 | 455 (the dialect emits backticks on purpose, see above) |
+
+The statement count differs because the checkout creates more rows on the second run, the number of distinct statements is the same (283).
+The `GROUP_CONCAT` that remains comes from other readers (`EntityAggregator`, `ProductListingLoader` and others), the remaining `HEX(` from id lookups that the id spike converts.
+
+Tests:
+
+- Unit tests: `SqlDialectTest` (19 tests, every method on MySQL, MariaDB and PostgreSQL), `JsonFieldAccessorBuilderTest`, `MultiInsertQueryQueueTest`.
+- DAL integration tests (801 tests): MySQL 0 failed on the last run (earlier runs showed 2 to 9 flaky app fixture tests when PostgreSQL and MySQL runs overlapped), PostgreSQL 168 failed against the 184 of `docs/09-test-run-on-postgresql.md`.
+- `scripts/check-migrations-on-postgresql.sh`: 910 migrations, 0 schema differences.
+- Lane flows on PostgreSQL: product listing, product `PATCH` and the guest checkout all succeed.
