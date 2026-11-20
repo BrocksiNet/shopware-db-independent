@@ -1,0 +1,83 @@
+                                                                                                                                                                                                                  
+------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+ Group  (cost=1998.31..1998.33 rows=1 width=48) (actual time=18.212..18.216 rows=1.00 loops=1)
+   Group Key: (COALESCE(product.product_manufacturer_id, "product.parent".product_manufacturer_id))
+   Buffers: shared hit=987
+   ->  Sort  (cost=1998.31..1998.32 rows=1 width=48) (actual time=18.198..18.201 rows=2.00 loops=1)
+         Sort Key: (COALESCE(product.product_manufacturer_id, "product.parent".product_manufacturer_id))
+         Sort Method: quicksort  Memory: 25kB
+         Buffers: shared hit=987
+         ->  Nested Loop  (cost=1982.59..1998.30 rows=1 width=48) (actual time=18.150..18.179 rows=2.00 loops=1)
+               Buffers: shared hit=984
+               ->  Nested Loop  (cost=1982.30..1994.57 rows=1 width=80) (actual time=18.131..18.142 rows=2.00 loops=1)
+                     Buffers: shared hit=976
+                     ->  Nested Loop Left Join  (cost=1982.03..1994.17 rows=1 width=96) (actual time=18.119..18.127 rows=2.00 loops=1)
+                           Filter: (COALESCE(product.active, "product.parent".active) = '1'::smallint)
+                           Buffers: shared hit=970
+                           ->  Nested Loop  (cost=1981.49..1989.61 rows=1 width=114) (actual time=18.114..18.119 rows=2.00 loops=1)
+                                 Buffers: shared hit=970
+                                 ->  Sort  (cost=1981.22..1981.22 rows=1 width=40) (actual time=18.104..18.106 rows=2.00 loops=1)
+                                       Sort Key: (((sum((CASE WHEN ((lower(("product.searchKeywords_1".keyword)::text))::text = 'organizer'::text) THEN ('1.2'::double precision * "product.searchKeywords_1".rank
+                                       Sort Method: quicksort  Memory: 25kB
+                                       Buffers: shared hit=964
+                                       ->  GroupAggregate  (cost=1981.14..1981.21 rows=1 width=40) (actual time=18.081..18.084 rows=2.00 loops=1)
+                                             Group Key: product_1.id
+                                             Filter: (((sum((CASE WHEN ((lower(("product.searchKeywords_1".keyword)::text))::text = 'organizer'::text) THEN ('1.2'::double precision * "product.searchKeywords_1".
+                                             Buffers: shared hit=961
+                                             ->  Sort  (cost=1981.14..1981.15 rows=1 width=71) (actual time=18.071..18.072 rows=2.00 loops=1)
+                                                   Sort Key: product_1.id, "product.searchKeywords_1".id
+                                                   Sort Method: quicksort  Memory: 25kB
+                                                   Buffers: shared hit=961
+                                                   ->  Nested Loop  (cost=1.09..1981.13 rows=1 width=71) (actual time=17.276..18.061 rows=2.00 loops=1)
+                                                         Buffers: shared hit=961
+                                                         ->  Nested Loop Left Join  (cost=0.81..1980.73 rows=1 width=87) (actual time=17.235..18.011 rows=2.00 loops=1)
+                                                               Filter: (COALESCE(product_1.active, "product.parent_1".active) = '1'::smallint)
+                                                               Buffers: shared hit=955
+                                                               ->  Nested Loop  (cost=0.28..1976.17 rows=1 width=121) (actual time=17.226..17.999 rows=2.00 loops=1)
+                                                                     Buffers: shared hit=955
+                                                                     ->  Seq Scan on product_search_keyword "product.searchKeywords_1"  (cost=0.00..1967.79 rows=1 width=71) (actual time=17.192..17.942 rows=2.00
+                                                                           Filter: ((product_version_id = '0fa91ce3-e96a-4bc2-be4b-d9ce752c3425'::uuid) AND (language_id = '2fbb5fe2-e29a-4d70-aa58-54ce7ce3e20b':
+                                                                           Rows Removed by Filter: 34191
+                                                                           Buffers: shared hit=949
+                                                                     ->  Index Scan using product_pkey on product product_1  (cost=0.28..8.37 rows=1 width=82) (actual time=0.025..0.025 rows=1.00 loops=2)
+                                                                           Index Cond: ((id = "product.searchKeywords_1".product_id) AND (version_id = '0fa91ce3-e96a-4bc2-be4b-d9ce752c3425'::uuid))
+                                                                           Filter: (display_group IS NOT NULL)
+                                                                           Index Searches: 2
+                                                                           Buffers: shared hit=6
+                                                               ->  Bitmap Heap Scan on product "product.parent_1"  (cost=0.53..4.55 rows=1 width=34) (actual time=0.004..0.004 rows=0.00 loops=2)
+                                                                     Recheck Cond: ((product_1.parent_id = id) AND (product_1.parent_version_id = version_id))
+                                                                     ->  Bitmap Index Scan on product_pkey  (cost=0.00..0.53 rows=1 width=0) (actual time=0.000..0.000 rows=0.00 loops=2)
+                                                                           Index Cond: ((id = product_1.parent_id) AND (version_id = product_1.parent_version_id))
+                                                                           Index Searches: 0
+                                                         ->  Index Scan using "product_visibility.idx.product_visibility.product_id" on product_visibility "product.visibilities_1"  (cost=0.28..0.40 rows=1 width
+                                                               Index Cond: ((product_id = product_1.visibilities) AND (product_version_id = '0fa91ce3-e96a-4bc2-be4b-d9ce752c3425'::uuid))
+                                                               Filter: ((visibility >= 20) AND (sales_channel_id = '6a6d9237-b4d5-41ac-937b-91b496b4daf3'::uuid))
+                                                               Index Searches: 2
+                                                               Buffers: shared hit=6
+                                 ->  Index Scan using product_pkey on product  (cost=0.28..8.37 rows=1 width=98) (actual time=0.006..0.006 rows=1.00 loops=2)
+                                       Index Cond: ((id = product_1.id) AND (version_id = '0fa91ce3-e96a-4bc2-be4b-d9ce752c3425'::uuid))
+                                       Filter: (display_group IS NOT NULL)
+                                       Index Searches: 2
+                                       Buffers: shared hit=6
+                           ->  Bitmap Heap Scan on product "product.parent"  (cost=0.53..4.55 rows=1 width=50) (actual time=0.002..0.002 rows=0.00 loops=2)
+                                 Recheck Cond: ((product.parent_id = id) AND (product.parent_version_id = version_id))
+                                 ->  Bitmap Index Scan on product_pkey  (cost=0.00..0.53 rows=1 width=0) (actual time=0.000..0.000 rows=0.00 loops=2)
+                                       Index Cond: ((id = product.parent_id) AND (version_id = product.parent_version_id))
+                                       Index Searches: 0
+                     ->  Index Scan using "product_visibility.idx.product_visibility.product_id" on product_visibility "product.visibilities"  (cost=0.28..0.40 rows=1 width=32) (actual time=0.006..0.006 rows=1.
+                           Index Cond: ((product_id = product.visibilities) AND (product_version_id = '0fa91ce3-e96a-4bc2-be4b-d9ce752c3425'::uuid))
+                           Filter: ((visibility >= 20) AND (sales_channel_id = '6a6d9237-b4d5-41ac-937b-91b496b4daf3'::uuid))
+                           Index Searches: 2
+                           Buffers: shared hit=6
+               ->  Index Scan using "product_search_keyword.idx.product_search_keyword.product_id" on product_search_keyword "product.searchKeywords"  (cost=0.29..3.72 rows=1 width=32) (actual time=0.014..0.018
+                     Index Cond: ((product_id = product.id) AND (product_version_id = '0fa91ce3-e96a-4bc2-be4b-d9ce752c3425'::uuid))
+                     Filter: ((language_id = '2fbb5fe2-e29a-4d70-aa58-54ce7ce3e20b'::uuid) AND ((lower((keyword)::text))::text = ANY ('{organizer,organizer}'::text[])))
+                     Rows Removed by Filter: 17
+                     Index Searches: 2
+                     Buffers: shared hit=8
+ Planning:
+   Buffers: shared hit=846
+ Planning Time: 4.655 ms
+ Execution Time: 18.431 ms
+(79 rows)
+
