@@ -1,0 +1,39 @@
+host load at start: 12:44  up 3 days,  4:39, 11 users, load averages: 2.65 3.34 4.47
+port 8101  repeat 1
+{"dedupe": false, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [259.8], "par_rps": [12.87], "par_rps_median": 12.87, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8101  repeat 2
+{"dedupe": false, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [241.1], "par_rps": [12.11], "par_rps_median": 12.11, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8101  repeat 3
+{"dedupe": false, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [242.9], "par_rps": [12.8], "par_rps_median": 12.8, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8101 --dedupe repeat 1
+{"dedupe": true, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [239.0], "par_rps": [12.78], "par_rps_median": 12.78, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8101 --dedupe repeat 2
+{"dedupe": true, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [230.9], "par_rps": [13.33], "par_rps_median": 13.33, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8101 --dedupe repeat 3
+{"dedupe": true, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [233.2], "par_rps": [12.29], "par_rps_median": 12.29, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8102  repeat 1
+{"dedupe": false, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [528.2], "par_rps": [3.97], "par_rps_median": 3.97, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8102  repeat 2
+{"dedupe": false, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [526.9], "par_rps": [3.91], "par_rps_median": 3.91, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8102  repeat 3
+{"dedupe": false, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [508.2], "par_rps": [3.98], "par_rps_median": 3.98, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8102 --dedupe repeat 1
+{"dedupe": true, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [492.3], "par_rps": [5.99], "par_rps_median": 5.99, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8102 --dedupe repeat 2
+{"dedupe": true, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [527.0], "par_rps": [5.94], "par_rps_median": 5.94, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+port 8102 --dedupe repeat 3
+{"dedupe": true, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [543.3], "par_rps": [6.12], "par_rps_median": 6.12, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter)
+host load at end: 12:46  up 3 days,  4:41, 11 users, load averages: 4.49 3.81 4.51
+done

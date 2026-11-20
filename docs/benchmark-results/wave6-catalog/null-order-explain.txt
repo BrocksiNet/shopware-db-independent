@@ -1,0 +1,5 @@
+Statement: admin search sorted by productNumber, page 5 (LIMIT 25 OFFSET 100), filter stock >= 4, version_id = live, bench_pg (1840 product rows), run alone, host load 3.4 to 4.5.
+EXPLAIN (ANALYZE, COSTS OFF), 5 executions each, Execution Time in ms.
+explicit ORDER BY product_number ASC NULLS FIRST (as the DAL emits it): Bitmap Heap Scan + top-N heapsort, 18.652 9.766 9.346 9.18 9.196
+default ORDER BY product_number ASC (NULLS LAST): Index Scan using "product.uniq.product.product_number__version_id", 6.202 8.44 5.979 6.06 5.949
+with CREATE INDEX tmp_f_pn_nf ON product (product_number NULLS FIRST, version_id) (inside a transaction, rolled back): Index Scan using tmp_f_pn_nf, 0.257 0.117 0.210 0.112 0.117

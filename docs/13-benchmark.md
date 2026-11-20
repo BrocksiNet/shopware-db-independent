@@ -614,3 +614,122 @@ Deviations:
 - Smoke check with the template channel hosts `beauty.localhost:18101` and `electronics-de.localhost:18101`: 200 on the MariaDB, MySQL and PostgreSQL stacks.
 - `join_buffer_size` is still 1 GiB on MariaDB and MySQL (container command line); I did not change it, measuring handoffs must `SET GLOBAL join_buffer_size = 262144` first.
 - The stacks are stopped (`stop-stacks`).
+
+## Rerun after wave 6
+
+Same harness and catalog data in `bench_mariadb`, `bench_mysql` and `bench_pg` as the wave 5 rerun, measured on the instance snapshot `03e1d43300f` (wave 5: `f6a37fd183f`), with one extra setup: PostgreSQL with persistent connections and the plan cache (`pg-plancache`, `DATABASE_PERSISTENT_CONNECTION=1`, `DATABASE_PLAN_CACHE=1`, recommendation of [docs/22](22-postgresql-connection-and-planning.md)).
+Raw data in `docs/benchmark-results/wave6-catalog/` (`results.json`, `report.md`, `run.log`, `parallel-writes.txt`, `null-order-*`, `host-load-at-start.txt`, `host-load-at-end.txt`).
+All 8 setups served all requests of all 7 scenarios without an error (0 non-200 responses in the latency, throughput and probe passes, `report.md` "Errors").
+Host load: `12:09 load averages: 3.64 3.98 5.42` before I started, `12:11 5.54 4.80 5.52` at the start of the run, `12:43 2.34 3.52 4.61` at its end; nothing else of mine ran during the timings, other lanes' containers were idle but running (load source not isolated).
+
+### Result in short
+
+- The PostgreSQL gap to MariaDB did not move much: storefront 1.71x to 2.20x (wave 5: 1.77x to 2.01x), store API listing 1.79x, admin search 1.85x, bulk write 2.18x (wave 5: 1.69x, 1.86x, 1.72x).
+  The milliseconds on PostgreSQL fell on all 4 storefront scenarios (home 181.3 to 162.9, listing 118.4 to 106.5, search 149.0 to 130.7, detail 155.2 to 149.8), but MariaDB fell as well (search 77.5 to 59.5, listing 63.7 to 57.5), so the ratio only shows what fell on both.
+- With persistent connections the gap is 1.19x to 1.71x on the storefront (wave 5: 1.35x to 1.64x); with persistent connections and the plan cache 1.12x to 1.63x.
+  Storefront search and product detail are 1.6x to 1.7x in all persistent setups, they do not profit from the plan cache here (97.1 against 99.5 ms for search).
+- Store API listing and admin search stay at 1.79x and 1.85x without pooling; with persistent connections 20.3 and 24.9 ms against 28.2 and 21.5 ms on MariaDB persistent.
+  The ratio 0.72 of the store API listing comes from a noisy MariaDB persistent value (range of the 5 run medians 19.2 to 29.7 ms against 21.3 to 29.8 ms on plain MariaDB), not from a PostgreSQL gain.
+- The bulk write is slower on PostgreSQL than in wave 5 (555.3 against 427.1 ms median, 2.18x against 1.72x) while MariaDB is unchanged (254.2 against 249.0 ms).
+  Parallel throughput of the bulk write rose from 1.6 to 3.8 requests per second, and the parallel runs of `parallel-writes.py` had 0 deadlocks in 12 runs (wave 5: deadlock waits, docs/19), see below.
+- MySQL 8.4 is 1.00x to 1.07x of MariaDB on 6 scenarios and 1.21x on the bulk write.
+
+### Ratios before and after
+
+Ratio of the median latency; "before" is wave 5 (`wave5-catalog/report.md`), "after" this run (`wave6-catalog/report.md`), PostgreSQL against MariaDB of the same setting.
+The setup "PG pers. + plan cache" has no wave 5 value; its ratio is against MariaDB persistent.
+
+| Scenario | PG/MariaDB before | after | PG + PgBouncer/MariaDB before | after | PG pers./MariaDB pers. before | after | PG pers. + plan cache/MariaDB pers. after | MySQL/MariaDB before | after | PG ms before | PG ms after |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| storefront home | 1.77 | 1.71 | 1.46 | 1.42 | 1.35 | 1.37 | 1.19 | 1.04 | 1.00 | 181.3 | 162.9 |
+| storefront listing with filter | 1.86 | 1.85 | 1.49 | 1.50 | 1.38 | 1.19 | 1.12 | 1.00 | 1.07 | 118.4 | 106.5 |
+| storefront search | 1.92 | 2.20 | 1.49 | 1.80 | 1.44 | 1.68 | 1.63 | 1.01 | 1.03 | 149.0 | 130.7 |
+| storefront product detail | 2.01 | 2.03 | 1.71 | 1.65 | 1.64 | 1.71 | 1.61 | 0.99 | 1.00 | 155.2 | 149.8 |
+| store API product listing with aggregations | 1.69 | 1.79 | 1.10 | 1.25 | 1.06 | 0.72 | 0.80 | 0.91 | 1.01 | 38.3 | 40.7 |
+| admin API product search with aggregations | 1.86 | 1.85 | 1.23 | 1.26 | 1.20 | 1.16 | 1.16 | 1.02 | 1.04 | 39.7 | 41.0 |
+| admin API bulk sync write (50 products) | 1.72 | 2.18 | 1.73 | 2.23 | 1.60 | 2.03 | 1.97 | 1.21 | 1.21 | 427.1 | 555.3 |
+
+Median latency in ms of this run (median of 5 run medians): MariaDB 95.1 / 57.5 / 59.5 / 73.8 / 22.8 / 22.2 / 254.2, MariaDB persistent 96.1 / 59.5 / 59.4 / 70.9 / 28.2 / 21.5 / 251.7, PostgreSQL 162.9 / 106.5 / 130.7 / 149.8 / 40.7 / 41.0 / 555.3, PostgreSQL persistent 131.7 / 70.9 / 99.5 / 121.0 / 20.3 / 24.9 / 510.6, PostgreSQL persistent + plan cache 114.3 / 66.8 / 97.1 / 114.1 / 22.6 / 25.0 / 497.0 (scenarios in the table order).
+Per-run ranges are in `report.md`; the ranges of PostgreSQL and MariaDB do not overlap in the plain setups.
+
+Admin search: the wave 5 ratio of 1.86x compared different result pages, as handoff D found ([docs/23](23-postgresql-api-reads.md)): the scenario sorts by `name`, and 834 of 1916 `product_translation` rows have a NULL name, which MariaDB sorts first and PostgreSQL sorted last, so page 1 held 25 variants on MariaDB and 25 named products on PostgreSQL.
+This run follows the MySQL NULL order on PostgreSQL (commit `03e1d43300f`), so the pages are the same and 1.85x is the first like-for-like value; I did not re-measure wave 5 with the old code, so I cannot say how much of the earlier 1.86x was the page.
+This scenario rotates its sort field (`name`, `productNumber`, `stock`) and its page between requests.
+
+### Throughput, 4 parallel connections, median of 5 runs (requests per second)
+
+| Scenario | MariaDB rps before | after | PG rps before | after | PG persistent rps before | after | PG pers. + plan cache after |
+|---|---|---|---|---|---|---|---|
+| storefront home | 35.0 | 36.6 | 20.6 | 21.6 | 25.3 | 27.0 | 31.0 |
+| storefront listing with filter | 52.0 | 60.5 | 28.3 | 32.3 | 39.4 | 44.4 | 52.0 |
+| storefront search | 52.9 | 55.3 | 26.0 | 25.0 | 34.5 | 32.3 | 33.5 |
+| storefront product detail | 47.3 | 45.5 | 21.9 | 22.7 | 28.8 | 28.1 | 29.3 |
+| store API product listing with aggregations | 119.5 | 110.8 | 68.1 | 68.5 | 111.4 | 108.8 | 114.2 |
+| admin API product search with aggregations | 150.4 | 140.5 | 79.6 | 78.0 | 137.9 | 138.5 | 130.0 |
+| admin API bulk sync write (50 products) | 12.1 | 11.5 | 1.6 | 3.8 | 1.0 | 3.8 | 3.6 |
+
+The plan cache setup has the highest PostgreSQL value in 5 of the 7 rows (home 31.0, listing 52.0, search 33.5, detail 29.3, store API 114.2); on search, detail and store API the lead over PostgreSQL persistent is 1 to 5 %, I did not test whether that is outside the spread between runs (`report.md` "range of the 5 runs").
+
+### Which wave 6 commit explains which change
+
+- Bulk write parallel throughput 1.6 to 3.8 requests per second and 0 deadlocks: `38f1d41ac6c` (ordered row locks in `ProductIndexer`, handoff B).
+  Backed by a run: with the two B files (`ProductIndexer.php` before `38f1d41ac6c`, `SearchKeywordUpdater.php` before `e0e6f3d3fae`) put back into the benchmark snapshot, the same row (list as built, PostgreSQL plain stack) gave 0.85, 0.67 and 0.57 requests per second and 454.8, 479.8 and 438.2 ms sequential median, against 3.97, 3.91, 3.98 and 528.2, 526.9, 508.2 ms with the final code.
+  So the locks cost 47 ms (medians 479.8 against 526.9 ms, 10 %) of sequential latency in this setup and remove the deadlock waits; I did not count deadlocks of the old-code runs.
+  The old code's 479.8 ms is itself above the wave 5 value of 432.8 ms of the same row, so the rise of the sequential latency since wave 5 is only partly the locks; I did not find the rest.
+  Which statement of the lock path costs the time I did not isolate.
+- `SearchKeywordUpdater` fix `e0e6f3d3fae` is a correctness fix (docs/19); one extra `SELECT` per call, not isolated.
+- String filter change `028d4c97a54` (`lower() COLLATE ucs_basic`, 16 expression indexes): the storefront scenarios send no filter on the columns it changes, I measured no storefront effect I can attribute to it; its effect on filters is in [docs/23](23-postgresql-api-reads.md).
+- NULL order `03e1d43300f`: changes the pages of the admin search (above) and the sort plan of one statement, see the NULL order section.
+- Plan cache and persistent connections (docs/22, not a code commit of this wave): persistent connections lower PostgreSQL storefront latency from 162.9 to 131.7 ms (home) and 40.7 to 20.3 ms (store API); the plan cache adds 131.7 to 114.3 ms on home, 70.9 to 66.8 listing, 121.0 to 114.1 detail and nothing measurable on search (99.5 to 97.1 ms).
+- Storefront search got worse in ratio (1.92x to 2.20x) because MariaDB got faster (77.5 to 59.5 ms), PostgreSQL got faster too (149.0 to 130.7 ms); I have no wave 6 commit that targets search and did not find the cause.
+- `a3770fd3f5e` (handoff C, dialect fixes) and the docs/21 changes target correctness; I measured no speed effect.
+
+### Parallel bulk write and deadlocks (separate rows)
+
+`scripts/parallel-writes.py` (docs/19), payload of the benchmark bulk write, 10 sequential and 20 parallel requests with 4 workers, 3 repeats run one after the other (one `--repeats 1` call each), DB containers limited to 4 CPUs / 4 GiB, `deadlock_timeout` 1 s (default), all responses 200 (33 per run).
+Deadlock count is the difference of `pg_stat_database.deadlocks` of `bench_pg` before and after each run.
+Host load at start and end of the block is in `parallel-writes.txt` (end: `4.49 3.81 4.51`).
+
+| Row | Setting | Sequential median ms (3 repeats) | Parallel requests per second (3 repeats, median) | Deadlocks per run | Wave 5 parallel median |
+|---|---|---|---|---|---|
+| MariaDB | product list as the benchmark builds it | 259.8, 241.1, 242.9 | 12.87, 12.11, 12.8 (12.8) | n/a | 12.17 |
+| MariaDB | `--dedupe` | 239.0, 230.9, 233.2 | 12.78, 13.33, 12.29 (12.78) | n/a | 13.4 |
+| PostgreSQL | product list as the benchmark builds it | 528.2, 526.9, 508.2 | 3.97, 3.91, 3.98 (3.97) | 0, 0, 0 | 1.36 |
+| PostgreSQL | `--dedupe` | 492.3, 527.0, 543.3 | 5.99, 5.94, 6.12 (5.99) | 0, 0, 0 | 7.33 |
+
+The list as built is now 2.9 times the wave 5 throughput (3.97 against 1.36); `--dedupe` is still higher (5.99) but lower than in wave 5 (7.33), and its sequential median is higher too (492 to 543 ms against 404 to 427 ms); I did not find the reason.
+PostgreSQL is 0.31 times MariaDB's parallel throughput on the list as built (wave 5: 0.11).
+In this block I limited the containers to 4 CPUs / 4 GiB myself and reset them afterwards.
+
+### NULL order check
+
+Question (user decision 2026-11-20): does the MySQL NULL order on every PG sort cost an index scan in real statements?
+Method: `ALTER DATABASE bench_pg SET log_min_duration_statement = 0`, one pass (`--runs 1 --stacks pg`, outside the timed runs) over the 7 scenarios, then `RESET`.
+The log held 1260 statements with `NULLS FIRST` or `NULLS LAST`, 39 distinct after replacing literals and ids (`null-order-statements.json`).
+For each distinct statement I ran `EXPLAIN (GENERIC_PLAN, COSTS OFF)` as sent and with the `NULLS ...` words removed (default order of PostgreSQL); the plans are in `null-order-generic-plans.json`.
+
+- 37 of 39 have a sort node with both variants (translation names through `COALESCE`, `MIN(...)` aggregates, `stock`, positions, priorities, `product_review.created_at`): the explicit order costs nothing there, no index could serve them.
+- 2 of 39 (76 + 3 executions) lose an index scan: `SELECT ... FROM product WHERE version_id = $1 AND stock >= $2 ORDER BY product.product_number ASC NULLS FIRST LIMIT 25 [OFFSET n]`, from the admin search scenario when the sort field is `productNumber`.
+  With the default order it uses `product.uniq.product.product_number__version_id` without a sort; with the explicit order PostgreSQL runs a bitmap heap scan on 1840 rows and a top-N sort.
+  `EXPLAIN (ANALYZE)` on `bench_pg`, page 5, `stock >= 4`, 5 runs each, run alone (`null-order-explain.txt`): explicit 18.7, 9.8, 9.3, 9.2, 9.2 ms, default 6.2, 8.4, 6.0, 6.1, 5.9 ms.
+  In the statement log the 76 executions of the page statement took 669.2 ms in total (8.8 ms each).
+- Index that serves the explicit order (checked inside a transaction and rolled back, not added): `CREATE INDEX ON product (product_number NULLS FIRST, version_id)`; the statement then runs in 0.11 to 0.26 ms with an index scan on it.
+  I did not find why the existing index with the default order needs 6 ms (141 buffers) against 0.1 ms for the new one, and I have no number for MySQL.
+- Cost in the benchmark: about 3 ms per request that sorts by product number (1 in 3 admin search requests, median 41.0 ms), which is below the spread of the run medians of the scenario (40.4 to 41.9 ms), so the timed run cannot show it.
+  On the 500k-row case of docs/23 the same effect is 0.06 to 34 ms, so it grows with the table; the catalog has 1840 product rows.
+
+### Settings and deviations of the wave 6 run
+
+- PostgreSQL after `scripts/benchmark.sh settings` (restart): `shared_buffers` 1GB, `effective_cache_size` 3GB, `work_mem` 16MB, `maintenance_work_mem` 256MB; MariaDB and MySQL `innodb_buffer_pool_size` 1 GiB, `sort_buffer_size`, `tmp_table_size` and `max_heap_table_size` 16 MiB (as found); `join_buffer_size` 262144 set with `SET GLOBAL` on both before the run; container limit 4 CPUs / 4 GiB during the runs; PgBouncer 1.26.1 transaction mode, pool 20 (started with `scripts/benchmark.sh pooler`).
+- Extra setup `pg-plancache` (stack port 8109, `DATABASE_PERSISTENT_CONNECTION=1`, `DATABASE_PLAN_CACHE=1`, `plan_cache_mode` auto), added to `scripts/benchmark-report.py` as label; `--stacks` listed the 8 setups.
+- Migrations: `database:migrate --all` and `database:migrate core.V6_8 --all` on all three databases, then `dal:refresh:index` (MariaDB 9 s, MySQL 9 s, PostgreSQL 19 s), `VACUUM (FULL, ANALYZE)` (`bench_pg` 179 MB to 68 MB) and `ANALYZE TABLE` on both MySQL engines.
+  `bench_pg` has 18 indexes with `lower(` in their definition, 16 of them named `idx.pg_*_lower`.
+- `install-times.txt` is empty, as in wave 5.
+- Experiment with the old B files: I copied the two files into `/tmp/bench-src` of the web container, restarted the stacks, measured, restored the HEAD files and compared them with `cmp`; the timed run had finished before that.
+- I did not rebuild the data; handoff P built it, so wave 5 and wave 6 milliseconds come from different database files of the same generator.
+
+### Still open
+
+- Storefront gap on PostgreSQL 1.19x to 2.20x; the search scenario shows no gain from persistent connections plus plan cache.
+- The bulk write is 2.18x of MariaDB; the lock path of B costs about 47 ms of sequential latency in the PostgreSQL stack, which statement causes it I did not isolate.
+- The `product_number` sort index with `NULLS FIRST` (above) is not added.

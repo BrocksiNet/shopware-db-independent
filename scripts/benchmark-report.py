@@ -12,7 +12,7 @@ from collections import defaultdict
 
 d = sys.argv[1] if len(sys.argv) > 1 else 'docs/benchmark-results'
 LABEL = {'mariadb': 'MariaDB', 'mysql': 'MySQL 8.4', 'pg': 'PostgreSQL', 'pgbouncer': 'PostgreSQL + PgBouncer',
-         'mariadb-persistent': 'MariaDB persistent', 'mysql-persistent': 'MySQL 8.4 persistent', 'pg-persistent': 'PostgreSQL persistent'}
+         'mariadb-persistent': 'MariaDB persistent', 'mysql-persistent': 'MySQL 8.4 persistent', 'pg-persistent': 'PostgreSQL persistent', 'pg-plancache': 'PostgreSQL persistent + plan cache'}
 
 
 def pct(values, q):
