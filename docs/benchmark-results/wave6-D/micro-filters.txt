@@ -1,0 +1,5 @@
+scratch table t(name, num) with the ci collation, 500000 rows, median of 5 EXPLAIN (ANALYZE, TIMING OFF) execution times in ms
+ci collation (before): equals 6.23, equalsAny(10) 7.48, prefix 224.4 (parallel seq scan), contains 1567.2 (parallel seq scan)
+lower() COLLATE ucs_basic without expression index: equals 56.1, equalsAny 48.4, prefix 57.1, contains 61.7 (parallel seq scans)
+lower() COLLATE ucs_basic with expression btree (equals, equalsAny, prefix) and gin_trgm_ops (contains): 0.068, 0.139, 6.32, 7.58
+ORDER BY num ASC LIMIT 25: 0.060; with NULLS FIRST 34.3; ORDER BY num DESC LIMIT 25: 0.034; with NULLS LAST 32.5
