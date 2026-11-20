@@ -126,3 +126,59 @@ The fix belongs to handoff B (keyword indexer): skip products that are not in th
   Both tests pass on PostgreSQL and MariaDB; existing rows with `[]` are corrected by `dal:refresh:index`.
 - Rerun at `f1b5f0db8f0`, default order: PostgreSQL 801 tests, 24 failures (5 errors, 19 failures), MariaDB 801 tests, 0 failures.
   The 24 contain the stale id group with 6 `RepositoryFacadeTest` failures, so the count moves by a few between runs.
+
+## Wave 6 (handoff C)
+
+Runs in default order against private copies of `shopware_test` (`shopware_w6c_test` on PostgreSQL and MariaDB), instance HEAD `f6a37fd183f` before and `a3770fd3f5e` after.
+MySQL has no `shopware_test` database in the lane, so the integration suite was not run on MySQL; the unit tests of the adapter and the DAL (1660 tests) ran on MySQL, MariaDB and PostgreSQL.
+
+| | Tests | Failures | Errors |
+| --- | --- | --- | --- |
+| PostgreSQL before | 801 | 13 | 5 |
+| PostgreSQL after | 802 | 1 | 4 |
+| MariaDB before | 801 | 0 | 0 |
+| MariaDB after | 802 | 0 | 0 |
+
+The 24 failures of the wave 5 recheck were 18 in this first run (the stale id tests passed in all three runs I did, so they are not reproducible here).
+
+### Fix per group
+
+| Group | Cause (verified) | Fix |
+| --- | --- | --- |
+| `EntityAggregatorTest` 7 of 8, `PriceFieldTest::testCashRoundingFilter` | The cash rounding expression `ROUND(x * m, 0) / m` returns scale 4 on MySQL (`div_precision_increment`) and 16 digits on PostgreSQL. The cash rounding filter failed for another reason: MySQL applies the currency factor to a DOUBLE (`text + 0.0`), PostgreSQL to an exact `numeric`, so `13.016666666666666 * 1.5` is 19.525 in double and 19.52499... exact, which rounds to the other cash step. | `SqlDialect::decimalDivisionScale($sql, 4)` (PostgreSQL `CAST(... AS NUMERIC(30, 4))`, MySQL unchanged) and `SqlDialect::castToFloat($sql)` (PostgreSQL `CAST(... AS double precision)`, MySQL unchanged) in `PriceFieldAccessorBuilder`. |
+| `MultiInsertQueryQueueTest::testAddUpdateFieldOnDuplicateKey` | Two rows with the same key in one `ON CONFLICT DO UPDATE` statement. | `MultiInsertQueryQueue::mergeCollidingRows()` merges rows with the same key (first row kept, update columns from the last row) before the statement is built. The key comes from `SqlDialect::upsertCollisionColumns()` (PostgreSQL: conflict target or primary key, other dialects: empty, nothing is merged, SQL unchanged). |
+| `CustomFieldTest::testStringEqualsCriteria` (2) | Case-sensitive `=` on the extracted JSON text. | `SqlQueryParser` wraps the accessor of a custom field with a text or html type (`LongTextField`, `StringField` mapping) in `SqlDialect::caseInsensitive()` and binds `SqlDialect::caseInsensitiveValue($value)`, for `EqualsFilter` and `EqualsAnyFilter`. MySQL and MariaDB SQL and parameters are unchanged. No index is lost: there is no index on `custom_fields` in the PostgreSQL schema (no `pg_indexes` entry mentions `custom_fields`), the filter was a sequential scan before. |
+| `TreeIndexerTest::testIndexTree` | The test resets the rows with `WHERE HEX(id) IN (:ids)`; `HEX()` is upper case, the ids are lower case, and only a case-insensitive collation matches. The `UPDATE` changed no row. | The test binds the ids through `IdBinding`. |
+| `RefreshIndexCommandTest::testExecuteWithSkipSeoUpdaterOption` | Test database, not code: the PostgreSQL `shopware_test` has one sales channel (headless), the MariaDB one also a storefront channel with a domain. Without a storefront channel the SEO URL updater has nothing to generate (`seo_url` stays empty). After `APP_ENV=test bin/console sales-channel:create:storefront` against `shopware_w6c_test` the test passes. | none in code; the private copy got a storefront sales channel. `shopware_test` on PostgreSQL still lacks it, the next run on a fresh copy needs the same command. |
+| `EntityDefinitionHasSinceTest::testAllDefinitionsHasSince` | Test database, not code: the PostgreSQL `shopware_test` held a leftover `custom_entity` row `custom_entity_test` (from a failed `CustomEntityLifecycleServiceTest` run, a custom entity registers a definition from that table). The row was gone after the next CustomEntity run and the test passed. MariaDB had no such row. | none in code. Cause of the leftover: `tests/integration/Core/System/CustomEntity` fails on PostgreSQL, first error `Unmapped MySQL type bytea for custom_entity_test.id` in `DdlRewriter.php:722` while the schema updater creates the custom entity table. |
+
+### Left
+
+| Tests | Count | Cause (verified) | Needed change | Owner |
+| --- | --- | --- | --- | --- |
+| `EntityAggregatorTest::testTermsAggregationWithSorting` | 1 | A terms aggregation sorted by `product.categories.name` DESC returns the NULL bucket first on PostgreSQL (`NULLS FIRST` is the default for DESC), the test expects it last as on MySQL. The DAL states no NULL order anywhere (`grep NULLS` finds nothing). | The same fix applies to every `ORDER BY` of `FieldSorting`: `NULLS LAST` for DESC and `NULLS FIRST` for ASC through the dialect. It changes the read path SQL shape and a default btree index can not serve `ASC NULLS FIRST`, so it needs a measurement first. Not done here. | handoff D (read path) |
+| `TranslatedVersionsTest` (3), `VersioningTest::testDeleteNoneExistingVersion` | 4 errors | `product_search_keyword` rows for a product version that was already removed, see the section above. | updater skips non-existing versions | handoff B |
+| `CustomEntityLifecycleServiceTest` (outside the DAL suite) | not counted | `Unmapped MySQL type bytea for custom_entity_test.id`, see above | `DdlRewriter` mapping for custom entity tables | handoff B or A (schema) |
+
+Stale id group (`AttributeEntityIntegrationTest::testTranslations`, `RepositoryFacadeTest`, `ManyToOneAssociationFieldResolverTest`): passed in all three default order runs on a private database, no failure to analyse.
+I did not bisect it, since it did not reproduce.
+
+### New SqlDialect methods
+
+| Method | MySQL, MariaDB | PostgreSQL | SQLite |
+| --- | --- | --- | --- |
+| `caseInsensitive($columnSql)` (existing) | column unchanged | `lower(col) COLLATE ucs_basic` | `lower(col)` |
+| `caseInsensitiveValue($value)` (new, the bound side of the same comparison) | value unchanged | `mb_strtolower($value)` | `mb_strtolower($value)` |
+| `decimalDivisionScale($sql, $scale)` | unchanged | `CAST($sql AS NUMERIC(30, $scale))` | unchanged |
+| `castToFloat($sql)` | unchanged | `CAST($sql AS double precision)` | unchanged |
+| `upsertCollisionColumns($table, $conflictColumns)` | `[]` | conflict columns or primary key | `[]` |
+
+Handoff D: the string filters for regular columns use the same pair, `$dialect->caseInsensitive($select)` on the column side and `$dialect->caseInsensitiveValue($value)` on the value side (an `IN` list maps each value).
+`SqlQueryParser::isCustomFieldString()` is the only place that decides that a column is compared case-insensitive today; D replaces that decision for regular string fields and keeps the two calls.
+
+### Checks
+
+- php-cs-fixer clean, PHPStan clean on the touched files (the unmatched ignore patterns of a partial run and the SQLite middleware errors belong to other work).
+- Unit tests: adapter and DAL (1660 tests) OK on MySQL, MariaDB and PostgreSQL; new unit tests for the five dialect methods and the queue merge, new integration test `testStringEqualsAnyCriteriaIsCaseInsensitive` (PostgreSQL and MariaDB OK).
+- Commit `87783e92dad` carries the message of this work but contains only a whitespace change of `composer.json` (a path mistake while committing, the file was another session's uncommitted change); the code is in `a3770fd3f5e`.
+- Database changes: created `shopware_w6c_test` on PostgreSQL and MariaDB, added a storefront sales channel to the PostgreSQL copy, dropped both at the end.
