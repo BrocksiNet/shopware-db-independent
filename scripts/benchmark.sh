@@ -175,7 +175,8 @@ env[APP_URL] = $APP_URL
 env[SHOPWARE_CACHE_ID] = bench_$K
 env[SHOPWARE_HTTP_CACHE_ENABLED] = 0
 $([ -n "$TIMING" ] && echo "env[SHOPWARE_PG_TIMING] = $TIMING")
-$([ "$PERSIST" = 1 ] && echo "env[DATABASE_PERSISTENT_CONNECTION] = 1")
+$([ "$PERSIST" -ge 1 ] && echo "env[DATABASE_PERSISTENT_CONNECTION] = 1")
+$([ "$PERSIST" = 2 ] && echo "env[DATABASE_PLAN_CACHE] = 1")
 CONF
 cat > /tmp/bench/$NAME/Caddyfile <<CONF
 {
@@ -205,7 +206,7 @@ maintenance() {
 }
 
 # name:port:url-key:cache-key:timing-file:persistent
-STACK_LIST="mariadb:8101:mariadb:mariadb mysql:8104:mysql:mysql pg:8102:pg:pg pgbouncer:8105:pgbouncer:pg mariadb-persistent:8106:mariadb:mariadb:-:1 mysql-persistent:8107:mysql:mysql:-:1 pg-persistent:8108:pg:pg:-:1 pg-timing:8103:pg:pg:/tmp/bench/timing.jsonl:0"
+STACK_LIST="mariadb:8101:mariadb:mariadb mysql:8104:mysql:mysql pg:8102:pg:pg pgbouncer:8105:pgbouncer:pg mariadb-persistent:8106:mariadb:mariadb:-:1 mysql-persistent:8107:mysql:mysql:-:1 pg-persistent:8108:pg:pg:-:1 pg-plancache:8109:pg:pg:-:2 pg-timing:8103:pg:pg:/tmp/bench/timing.jsonl:0"
 stacks() {
     PORTS=""
     for entry in $STACK_LIST; do

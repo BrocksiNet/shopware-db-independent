@@ -24,10 +24,10 @@ import time
 
 HOST = '127.0.0.1:8101'
 STACKS = {'mariadb': 8101, 'mysql': 8104, 'pg': 8102, 'pgbouncer': 8105,
-          'mariadb-persistent': 8106, 'mysql-persistent': 8107, 'pg-persistent': 8108, 'pg-timing': 8103}
+          'mariadb-persistent': 8106, 'mysql-persistent': 8107, 'pg-persistent': 8108, 'pg-plancache': 8109, 'pg-timing': 8103}
 # the data of a stack: the stacks of one database share its demo data
 DATABASE = {'mariadb': 'mariadb', 'mariadb-persistent': 'mariadb', 'mysql': 'mysql', 'mysql-persistent': 'mysql',
-            'pg': 'pg', 'pgbouncer': 'pg', 'pg-persistent': 'pg', 'pg-timing': 'pg'}
+            'pg': 'pg', 'pgbouncer': 'pg', 'pg-persistent': 'pg', 'pg-plancache': 'pg', 'pg-timing': 'pg'}
 DEFAULT_STACKS = 'mariadb,mysql,pg,pgbouncer,mariadb-persistent,mysql-persistent,pg-persistent'
 TIMING_FILE = '/tmp/bench/timing.jsonl'
 
