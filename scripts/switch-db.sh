@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Install Shopware from scratch on one database, load demo data, index, smoke test, print the time of every step.
-# usage: scripts/switch-db.sh mysql|mariadb|postgresql
+# usage: scripts/switch-db.sh mysql|mariadb|postgresql|sqlite
+# sqlite installs into the file var/switch/shopware_switch.sqlite of instance/ (inside instance-web-1, outside the lane database), the file is deleted first.
 # Writes tab separated results to docs/switch-results/<db>.tsv (run id, step, result, seconds, detail).
 # Never touches the lane database `shopware`: the target is always the separate database `shopware_switch`,
 # DATABASE_URL is passed with `podman exec -e`, the lane .env stays untouched.
@@ -16,7 +17,10 @@ case "$DB" in
               SQL() { podman exec instance-database-1 mariadb -uroot -proot -N -B shopware_switch -e "$1" 2>/dev/null; } ;;
   postgresql) URL='pgsql://shopware:shopware@postgres:5432/shopware_switch'; PORT=8094
               SQL() { podman exec instance-postgres-1 psql -U shopware -d shopware_switch -At -c "$1" 2>/dev/null; } ;;
-  *) echo "usage: $0 mysql|mariadb|postgresql"; exit 2 ;;
+  sqlite)     URL='sqlite:////var/www/html/var/switch/shopware_switch.sqlite'; PORT=8095
+              podman exec $WEB sh -c 'mkdir -p var/switch && rm -f var/switch/shopware_switch.sqlite*' >/dev/null 2>&1
+              SQL() { podman exec $WEB php -r '$p = new PDO("sqlite:/var/www/html/var/switch/shopware_switch.sqlite"); foreach ($p->query($argv[1]) as $r) { echo implode("\t", array_filter($r, "is_int", ARRAY_FILTER_USE_KEY)), "\n"; }' "$1" 2>/dev/null; } ;;
+  *) echo "usage: $0 mysql|mariadb|postgresql|sqlite"; exit 2 ;;
 esac
 APP_URL="http://localhost:$PORT"
 CACHE="/tmp/sw-switch-$DB"
@@ -40,7 +44,7 @@ run() { # step command...   (output goes to /tmp/switch-<db>-<step>.log)
   return $rc
 }
 console() { podman exec "${ENVS[@]}" $WEB bin/console "$@"; }
-stop_web() { podman exec $WEB pkill -f "php -S 127.0.0.1:$PORT" >/dev/null 2>&1 || true; }
+stop_web() { podman exec $WEB pkill -f "S 127.0.0.1:$PORT" >/dev/null 2>&1 || true; }
 trap stop_web EXIT
 
 echo "== $DB ($URL, run $RUN)"

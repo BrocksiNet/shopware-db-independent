@@ -1,0 +1,35 @@
+20261120-133002	system:install	PASS	25.4	
+20261120-133002	framework:demodata	FAIL	2.8	exit 1, see /tmp/switch-sqlite-framework:demodata.log:   0/10 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%12:30:31 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --
+20261120-133106	system:install	PASS	16.6	
+20261120-133106	framework:demodata	FAIL	3.4	exit 1, see /tmp/switch-sqlite-framework:demodata.log:   0/20 [░░░░░░░░░░░░░░░░░░░░░░░░░░░░]   0%12:31:27 CRITICAL  [console] Error thrown while running command "framework:demodata --reset-defaults --products 200 --
+20261120-133241	system:install	PASS	9.6	
+20261120-133241	framework:demodata	PASS	4.1	
+20261120-133241	dal:refresh:index	FAIL	1.5	exit 1, see /tmp/switch-sqlite-dal:refresh:index.log: 1/1 [▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓▓] 100% < 1 ms/< 1 ms 60.5 MiB12:32:57 CRITICAL  [console] Error thrown while running command "dal:refresh:index --no-interactio
+20261120-133317	system:install	PASS	10.1	
+20261120-133317	framework:demodata	PASS	5.9	
+20261120-133317	dal:refresh:index	PASS	2.5	
+20261120-133317	cache:clear	PASS	2.3	
+20261120-133317	web process start	PASS	0.7	php -S 127.0.0.1:8095
+20261120-133317	smoke: storefront home	PASS	0.5	http 200, 951949 bytes
+20261120-133317	smoke: storefront listing	PASS	0.1	http 200, 952037 bytes
+20261120-133317	smoke: storefront search	PASS	0.1	http 200, 959287 bytes
+20261120-133317	smoke: admin token	PASS	0.6	http 200
+20261120-133317	smoke: admin product search	PASS	0.0	total 471 products
+20261120-133317	smoke: admin product write	PASS	0.2	create 204, update 204, read back ok
+20261120-133317	smoke: admin sync api	PASS	0.0	http 200 
+20261120-133317	smoke: store api checkout	FAIL	0.2	product listing http 200 {'elements': [], 'aggregations': [], 'page': 1, 'limit': 10, 'entity': 'product', 'total': 0, 'states': [], 'apiAlias': 
+20261120-133317	total (install to smoke)	FAIL	24.1	1 failed steps
+20261120-133706	system:install	PASS	15.6	
+20261120-133706	framework:demodata	PASS	6.1	
+20261120-133706	dal:refresh:index	PASS	2.1	
+20261120-133706	cache:clear	PASS	2.2	
+20261120-133706	web process start	PASS	0.3	php -S 127.0.0.1:8095
+20261120-133706	smoke: storefront home	PASS	0.4	http 200, 886530 bytes
+20261120-133706	smoke: storefront listing	PASS	0.2	http 200, 886618 bytes
+20261120-133706	smoke: storefront search	PASS	0.1	http 200, 893868 bytes
+20261120-133706	smoke: admin token	PASS	0.5	http 200
+20261120-133706	smoke: admin product search	PASS	0.0	total 264 products
+20261120-133706	smoke: admin product write	PASS	0.2	create 204, update 204, read back ok
+20261120-133706	smoke: admin sync api	PASS	0.0	http 200 
+20261120-133706	smoke: store api checkout	PASS	0.4	order 10010, total 4322.31
+20261120-133706	total (install to smoke)	PASS	29.1	0 failed steps
