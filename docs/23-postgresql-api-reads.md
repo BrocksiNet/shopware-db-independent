@@ -95,7 +95,7 @@ Decision:
 
 - `SqlDialect::sortDirectionWithMySqlNulls()` (PostgreSQL: `ASC NULLS FIRST`, `DESC NULLS LAST`; other dialects unchanged) is applied to every DAL sort (`CriteriaQueryBuilder::build()`, `EntityAggregator`), instance commits `028d4c97a54` (aggregations) and `03e1d43300f` (all sorts).
 - The sorts seen in the captured statements are `COALESCE` of translation columns and `MIN()` of columns in grouped queries (`ORDER BY COALESCE(product.translation.name) ASC NULLS FIRST LIMIT 25`, `ORDER BY MIN(product.product_number) ASC NULLS FIRST LIMIT 500` in the PostgreSQL log), the benchmark shows no change (table above); whether an index served any of these sorts before was not checked.
-- A table that needs an index for a sort can get one on `(col ASC NULLS FIRST)` or `(col DESC NULLS LAST)`; none is created now.
+- A table that needs an index for a sort can get one on `(col ASC NULLS FIRST)` or `(col DESC NULLS LAST)`; none was created in wave 6; wave 7 L added the one for `product.product_number` ([docs/21](21-dal-failures-postgresql.md) "Wave 7").
 - `EntityReader` splits the sort parts of paginated to-many reads into expression, direction and NULL placement (`splitSortDirection()`); it used to cut the last four characters.
 - `CriteriaQueryHelperTest` compares the order parts with the dialect specific direction.
 
