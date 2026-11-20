@@ -33,3 +33,31 @@
 20261120-133706	smoke: admin sync api	PASS	0.0	http 200 
 20261120-133706	smoke: store api checkout	PASS	0.4	order 10010, total 4322.31
 20261120-133706	total (install to smoke)	PASS	29.1	0 failed steps
+20261120-153758	system:install	PASS	10.5	
+20261120-153758	framework:demodata	PASS	6.5	
+20261120-153758	dal:refresh:index	PASS	3.0	
+20261120-153758	cache:clear	PASS	2.2	
+20261120-153758	web process start	PASS	0.5	php -S 127.0.0.1:8095
+20261120-153758	smoke: storefront home	PASS	0.9	http 200, 1732312 bytes
+20261120-153758	smoke: storefront listing	PASS	0.2	http 200, 1732402 bytes
+20261120-153758	smoke: storefront search	PASS	0.2	http 200, 1112858 bytes
+20261120-153758	smoke: admin token	PASS	0.7	http 200
+20261120-153758	smoke: admin product search	PASS	0.1	total 240 products
+20261120-153758	smoke: admin product write	PASS	0.4	create 204, update 204, read back ok
+20261120-153758	smoke: admin sync api	PASS	0.1	http 200 
+20261120-153758	smoke: store api checkout	PASS	0.5	order 10010, total 4540.98
+20261120-153758	total (install to smoke)	PASS	26.6	0 failed steps
+20261120-153830	system:install	PASS	20.1	
+20261120-153830	framework:demodata	PASS	5.6	
+20261120-153830	dal:refresh:index	PASS	2.1	
+20261120-153830	cache:clear	PASS	1.8	
+20261120-153830	web process start	PASS	0.4	php -S 127.0.0.1:8095
+20261120-153830	smoke: storefront home	PASS	0.7	http 200, 1535478 bytes
+20261120-153830	smoke: storefront listing	PASS	0.2	http 200, 1535565 bytes
+20261120-153830	smoke: storefront search	PASS	0.1	http 200, 905794 bytes
+20261120-153830	smoke: admin token	PASS	0.5	http 200
+20261120-153830	smoke: admin product search	PASS	0.0	total 464 products
+20261120-153830	smoke: admin product write	PASS	0.2	create 204, update 204, read back ok
+20261120-153830	smoke: admin sync api	PASS	0.0	http 200 
+20261120-153830	smoke: store api checkout	PASS	0.4	order 10010, total 2964.14
+20261120-153830	total (install to smoke)	PASS	32.9	0 failed steps
