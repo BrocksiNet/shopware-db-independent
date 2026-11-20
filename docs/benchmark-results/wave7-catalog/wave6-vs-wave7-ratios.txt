@@ -1,0 +1,43 @@
+storefront home      1.71>1.53 | 1.42>1.32 | 1.37>1.33 | 1.19>1.13 | 1.00>1.04 | PG ms 162.9>145.6
+storefront listing w 1.85>1.79 | 1.50>1.39 | 1.19>1.26 | 1.12>1.14 | 1.07>1.06 | PG ms 106.5>101.0
+storefront search    2.20>1.84 | 1.80>1.41 | 1.67>1.38 | 1.63>1.46 | 1.03>0.99 | PG ms 130.7>148.3
+storefront product d 2.03>1.88 | 1.65>1.50 | 1.71>1.40 | 1.61>1.44 | 1.00>0.98 | PG ms 149.8>150.5
+store API product li 1.78>1.80 | 1.25>1.15 | 0.72>0.90 | 0.80>0.93 | 1.01>1.01 | PG ms 40.7>38.3
+admin API product se 1.85>2.01 | 1.26>1.29 | 1.15>1.06 | 1.16>1.01 | 1.04>1.04 | PG ms 41.0>45.5
+admin API bulk sync  2.18>1.97 | 2.23>2.11 | 2.03>1.91 | 1.97>1.88 | 1.21>1.41 | PG ms 555.3>520.3
+
+storefront hom mariadb             w6   95.1 [83.9..107.8] w7   94.9 [87.2..110.3] overlap
+storefront hom pg                  w6  162.9 [151.6..165.4] w7  145.6 [137.8..158.0] overlap
+storefront hom pg-persistent       w6  131.7 [120.2..142.9] w7  125.0 [107.4..163.3] overlap
+storefront hom pg-plancache        w6  114.3 [100.3..124.5] w7  106.4 [101.0..118.0] overlap
+storefront hom mariadb-persistent  w6   96.1 [86.9..96.8] w7   93.9 [84.9..104.8] overlap
+storefront lis mariadb             w6   57.5 [52.1..59.4] w7   56.4 [50.2..69.0] overlap
+storefront lis pg                  w6  106.5 [102.7..117.7] w7  101.0 [92.3..108.9] overlap
+storefront lis pg-persistent       w6   70.9 [69.6..79.2] w7   69.0 [63.1..89.0] overlap
+storefront lis pg-plancache        w6   66.8 [60.2..75.5] w7   62.3 [58.0..80.0] overlap
+storefront lis mariadb-persistent  w6   59.5 [50.5..64.3] w7   54.8 [50.0..64.3] overlap
+storefront sea mariadb             w6   59.5 [59.4..63.9] w7   80.4 [61.1..86.6] overlap
+storefront sea pg                  w6  130.7 [125.8..132.2] w7  148.3 [133.1..158.9] CLEAR
+storefront sea pg-persistent       w6   99.5 [97.6..101.0] w7  100.0 [86.4..153.6] overlap
+storefront sea pg-plancache        w6   97.1 [95.1..98.0] w7  106.1 [87.5..179.7] overlap
+storefront sea mariadb-persistent  w6   59.4 [58.3..64.3] w7   72.6 [66.9..80.4] CLEAR
+storefront pro mariadb             w6   73.8 [72.4..75.4] w7   80.3 [77.0..133.7] CLEAR
+storefront pro pg                  w6  149.8 [143.5..152.7] w7  150.5 [131.5..157.8] overlap
+storefront pro pg-persistent       w6  121.0 [114.7..141.0] w7  109.9 [100.2..131.1] overlap
+storefront pro pg-plancache        w6  114.1 [110.3..119.4] w7  112.9 [97.0..153.3] overlap
+storefront pro mariadb-persistent  w6   70.9 [69.6..73.0] w7   78.4 [73.4..99.7] CLEAR
+store API prod mariadb             w6   22.8 [21.3..29.8] w7   21.3 [19.8..25.5] overlap
+store API prod pg                  w6   40.7 [38.2..45.8] w7   38.3 [35.0..46.4] overlap
+store API prod pg-persistent       w6   20.3 [19.5..23.2] w7   19.0 [17.7..22.1] overlap
+store API prod pg-plancache        w6   22.6 [18.7..24.2] w7   19.5 [18.1..24.0] overlap
+store API prod mariadb-persistent  w6   28.2 [19.2..29.7] w7   21.1 [20.1..27.5] overlap
+admin API prod mariadb             w6   22.2 [21.4..23.2] w7   22.7 [22.0..38.9] overlap
+admin API prod pg                  w6   41.0 [40.4..41.9] w7   45.5 [39.2..58.5] overlap
+admin API prod pg-persistent       w6   24.9 [24.1..25.4] w7   25.0 [22.4..45.3] overlap
+admin API prod pg-plancache        w6   25.0 [24.1..25.8] w7   23.9 [22.2..43.2] overlap
+admin API prod mariadb-persistent  w6   21.5 [20.9..25.6] w7   23.5 [22.4..39.6] overlap
+admin API bulk mariadb             w6  254.2 [238.5..281.6] w7  263.7 [253.5..428.0] overlap
+admin API bulk pg                  w6  555.3 [514.3..563.8] w7  520.3 [485.4..1258.9] overlap
+admin API bulk pg-persistent       w6  510.6 [478.2..533.4] w7  503.9 [453.1..970.1] overlap
+admin API bulk pg-plancache        w6  497.0 [470.2..532.4] w7  496.3 [443.9..558.7] overlap
+admin API bulk mariadb-persistent  w6  251.7 [242.5..272.2] w7  263.4 [257.2..791.9] overlap

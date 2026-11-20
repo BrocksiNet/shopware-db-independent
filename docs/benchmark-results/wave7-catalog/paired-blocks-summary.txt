@@ -1,0 +1,40 @@
+w6cmp-home-index.json storefront home
+  mariadb-persistent   median   83.0  range   81.6..  84.8  runs [83.0, 83.9, 84.8, 81.6, 82.4]
+  pg-persistent        median  110.3  range  108.3.. 115.3  runs [111.8, 109.9, 115.3, 110.3, 108.3]
+  w6-pg-persistent     median  116.6  range  115.0.. 117.7  runs [116.6, 115.0, 117.6, 117.7, 115.1]
+  pg-plancache         median   97.8  range   96.5.. 102.6  runs [102.6, 97.8, 96.9, 98.4, 96.5]
+  w6-pg-plancache      median   95.6  range   94.2.. 115.0  runs [115.0, 95.6, 94.3, 95.7, 94.2]
+  pg                   median  141.1  range  139.3.. 141.8  runs [141.1, 139.3, 141.8, 141.1, 140.4]
+  w6-pg                median  145.1  range  143.8.. 147.7  runs [145.6, 143.8, 147.7, 145.1, 144.4]
+w6cmp-search-index.json storefront search
+  mariadb-persistent   median   69.1  range   58.5..  87.1  runs [58.5, 59.2, 69.1, 87.1, 80.1]
+  pg-persistent        median   93.5  range   82.2.. 112.6  runs [83.3, 82.2, 100.8, 112.6, 93.5]
+  w6-pg-persistent     median   90.5  range   87.9.. 105.2  runs [90.5, 88.3, 87.9, 105.2, 90.7]
+  pg-plancache         median   85.1  range   80.3.. 108.1  runs [85.1, 84.1, 80.3, 108.1, 89.6]
+  w6-pg-plancache      median   94.3  range   84.8.. 104.3  runs [86.6, 94.3, 84.8, 104.3, 100.1]
+  pg                   median  113.5  range  109.2.. 144.8  runs [112.2, 113.5, 109.2, 144.8, 140.9]
+  w6-pg                median  144.5  range  117.3.. 148.7  runs [118.7, 117.3, 144.5, 148.7, 147.0]
+w6cmp-search-noindex.json storefront search
+  mariadb-persistent   median   61.2  range   59.9..  73.1  runs [60.3, 73.1, 59.9, 61.2, 64.5]
+  pg-persistent        median  149.6  range  137.3.. 180.1  runs [147.8, 180.1, 137.3, 149.6, 150.3]
+  w6-pg-persistent     median  155.3  range  125.5.. 167.7  runs [152.6, 167.7, 125.5, 160.2, 155.3]
+  pg-plancache         median  152.0  range  124.3.. 158.9  runs [152.0, 158.9, 124.3, 151.9, 152.9]
+  w6-pg-plancache      median  161.9  range  123.6.. 190.1  runs [174.1, 161.9, 123.6, 152.1, 190.1]
+  pg                   median  187.8  range  159.1.. 213.2  runs [213.2, 187.8, 159.1, 184.7, 210.0]
+  w6-pg                median  189.9  range  157.8.. 216.3  runs [216.3, 189.9, 157.8, 187.1, 191.4]
+admin-nonf-1.json admin API product search with aggregations
+  mariadb-persistent   median   23.5  range   21.8..  37.8  runs [22.9, 25.8, 23.5, 21.8, 37.8]
+  pg-persistent        median   25.6  range   25.0..  32.6  runs [25.0, 25.3, 25.6, 25.7, 32.6]
+  pg-plancache         median   29.5  range   25.5..  43.4  runs [26.1, 25.5, 30.4, 29.5, 43.4]
+admin-nf-1.json admin API product search with aggregations
+  mariadb-persistent   median   23.2  range   21.4..  43.7  runs [43.7, 25.7, 21.4, 21.7, 23.2]
+  pg-persistent        median   25.4  range   25.1..  56.6  runs [56.6, 29.9, 25.4, 25.1, 25.2]
+  pg-plancache         median   24.8  range   24.4..  52.6  runs [52.6, 29.5, 24.6, 24.8, 24.4]
+admin-nonf-2.json admin API product search with aggregations
+  mariadb-persistent   median   22.5  range   21.1..  25.9  runs [21.3, 22.8, 21.1, 22.5, 25.9]
+  pg-persistent        median   25.9  range   25.1..  29.9  runs [25.4, 26.8, 25.1, 25.9, 29.9]
+  pg-plancache         median   26.8  range   25.5..  29.7  runs [26.6, 26.8, 25.5, 29.4, 29.7]
+admin-nf-2.json admin API product search with aggregations
+  mariadb-persistent   median   23.0  range   21.2..  26.6  runs [25.8, 23.0, 21.6, 26.6, 21.2]
+  pg-persistent        median   28.4  range   25.1..  29.8  runs [29.8, 28.4, 25.1, 29.8, 25.9]
+  pg-plancache         median   25.6  range   24.8..  30.5  runs [30.5, 25.8, 25.3, 25.6, 24.8]

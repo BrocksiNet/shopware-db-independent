@@ -1,13 +1,13 @@
-# Summary after wave 5: findings and architecture
+# Summary after wave 7: findings and architecture
 
-State: 2026-11-19, research repo at `d642c48`, instance branch `poc/db-independent` at `f6a37fd183f` (101 commits on trunk `ae0190f5892`, 460 files changed).
+State: 2026-11-20, research repo at `7624df5` plus the wave 7 benchmark rerun, instance branch `poc/db-independent` at `87e1768ce3a` (118 commits on trunk `ae0190f5892`, 479 files changed, 14,289 insertions and 2,515 deletions).
 Every number below comes from one of the numbered docs, the source is linked in each section.
 
 ## In one paragraph
 
-The same Shopware code now installs and runs on MySQL 8.4, MariaDB 10.11 and PostgreSQL 18, and gets through `system:install` and a few storefront and admin routes on SQLite.
+The same Shopware code now installs and runs on MySQL 8.4, MariaDB 10.11 and PostgreSQL 18, and on SQLite, where the DataAbstractionLayer integration suite now runs (795 of 804 tests pass, `docs/24`).
 SQL that differs per database goes through a `SqlDialect` per database, ids are hex strings above the connection, and the MySQL-to-PostgreSQL translator is left as a shim for old migrations and extension SQL.
-PostgreSQL was 2.6x to 3.6x slower than MariaDB on the storefront with realistic catalog data; wave 5 brought that to 1.8x to 2.0x (1.35x to 1.64x with persistent connections).
+PostgreSQL was 2.6x to 3.6x slower than MariaDB on the storefront with realistic catalog data; wave 5 brought that to 1.8x to 2.0x, and the wave 7 rerun measures 1.5x to 1.9x on the storefront with a new connection per request and 1.1x to 1.5x with persistent connections and the plan cache (`docs/13`, "Rerun after wave 7").
 The gap that is left is mostly a fixed cost per request (new backend, planning of wide DAL statements), not the translator and the id codec (1.9 % to 8.6 % and 0.3 % to 3.6 % of the wall time on the catalog run).
 
 ## Where we started
@@ -75,7 +75,7 @@ Each method exists because a concrete difference needed it:
 | `subqueryFence()` | forces PostgreSQL to compute `lower()` once per row in the keyword lookup | 18 |
 | `rowNumberPerPartition()` | `ROW_NUMBER() OVER (PARTITION BY ...)` on PostgreSQL and SQLite, MySQL keeps its `@n` session variable counter | code |
 
-Implementations are small: `MariaDbDialect` 19 lines (inherits from MySQL), `MySqlDialect` 144, `PostgreSqlDialect` 221, `SqliteDialect` 179.
+Implementations are small: `MariaDbDialect` 19 lines (inherits from MySQL), `MySqlDialect` 180, `PostgreSqlDialect` 258, `SqliteDialect` 222.
 
 ### Ids
 
@@ -147,8 +147,8 @@ sequenceDiagram
 | Empty many-to-many id fields stored `[]` instead of `NULL` | `CONCAT` ignores a `NULL` aggregate on PostgreSQL | fixed | 21 |
 | Keyword search is accent-sensitive on PostgreSQL | `lower()` replaces the accent-insensitive `ci` collation | accepted trade-off | 16 |
 
-DAL integration suite (801 tests) on PostgreSQL: 184 failures at the first measurement (docs/09), 167 at the start of wave 5, 24 now (MariaDB 0).
-The remaining 24 are grouped by cause in `docs/21-dal-failures-postgresql.md` and are wave 6, handoff C.
+DAL integration suite on PostgreSQL: 184 failures at the first measurement (docs/09, 801 tests), 167 at the start of wave 5, 804 tests with 0 failures after wave 7 handoff L (MariaDB 0 as well, `docs/21-dal-failures-postgresql.md`, "Wave 7").
+The Product DAL tests (72) pass on PostgreSQL, MariaDB and MySQL 8.4.
 
 ### Performance
 
@@ -173,23 +173,28 @@ flowchart TD
     class OPEN1,OPEN2,OPEN3 open
 ```
 
-Median latency, PostgreSQL divided by MariaDB, catalog data set (`docs/13-benchmark.md`, "Ratios before and after"):
+Median latency, PostgreSQL divided by MariaDB, catalog data set (`docs/13-benchmark.md`, "Ratios before and after" of the wave 5, wave 6 and wave 7 reruns):
 
-| Scenario | Before wave 5 | After wave 5 | After, both with persistent connections | PostgreSQL ms after |
-|---|---:|---:|---:|---:|
-| storefront home | 2.60 | 1.77 | 1.35 | 181.3 |
-| storefront listing with filter | 3.29 | 1.86 | 1.38 | 118.4 |
-| storefront search | 3.56 | 1.92 | 1.44 | 149.0 |
-| storefront product detail | 3.45 | 2.01 | 1.64 | 155.2 |
-| store API listing with aggregations | 1.63 | 1.69 | 1.06 | 38.3 |
-| admin API search with aggregations | 1.96 | 1.86 | 1.20 | 39.7 |
-| admin API bulk sync write (50 products) | 1.72 | 1.72 | 1.60 | 427.1 |
+| Scenario | Before wave 5 | After wave 5 | After wave 6 | After wave 7 | After wave 7, both with persistent connections | PostgreSQL ms after wave 7 |
+|---|---:|---:|---:|---:|---:|---:|
+| storefront home | 2.60 | 1.77 | 1.71 | 1.53 | 1.33 | 145.6 |
+| storefront listing with filter | 3.29 | 1.86 | 1.85 | 1.79 | 1.26 | 101.0 |
+| storefront search | 3.56 | 1.92 | 2.20 | 1.84 | 1.38 | 148.3 |
+| storefront product detail | 3.45 | 2.01 | 2.03 | 1.88 | 1.40 | 150.5 |
+| store API listing with aggregations | 1.63 | 1.69 | 1.79 | 1.80 | 0.90 | 38.3 |
+| admin API search with aggregations | 1.96 | 1.86 | 1.85 | 2.01 | 1.06 | 45.5 |
+| admin API bulk sync write (50 products) | 1.72 | 1.72 | 2.18 | 1.97 | 1.91 | 520.3 |
 
-MySQL 8.4 is 0.91x to 1.21x of MariaDB on the same scenarios.
+Most wave 6 to 7 changes in this table are not larger than the run-to-run spread; only four values are clear and all four are slower (MariaDB and PostgreSQL storefront search and detail, `docs/13`).
+The PostgreSQL ratios with persistent connections for search and detail fell because MariaDB got slower, not because PostgreSQL got faster.
+What is shown in paired runs on the same stack: the trigram index of wave 7 R takes storefront search on PostgreSQL persistent from 149.6 to 93.5 ms (ratio to MariaDB persistent 2.44 to 1.35); the translation cache (APCu) and the NULLS FIRST index have no effect larger than the spread, except 4 ms on the plain home page (`docs/13`, `docs/25`).
+The wave 6 table row "PG persistent + plan cache" is 1.13x to 1.46x of MariaDB persistent after wave 7.
 
-Parallel bulk writes, 4 workers, requests per second: MariaDB 12.2 to 13.4, PostgreSQL 1.36.
-With products that are visible in several channels removed from the list (`--dedupe`) PostgreSQL reaches 7.33, with `deadlock_timeout` at 100 ms 5.9 (`docs/19-postgresql-parallel-writes.md`).
-So the collapse is a few shared rows plus PostgreSQL's one second deadlock detection; the code that takes the rows in the wrong order is not found yet.
+MySQL 8.4 is 0.98x to 1.06x of MariaDB on the six read scenarios and 1.41x on the bulk write (wave 6: 1.21x on the bulk write).
+
+Parallel bulk writes, 4 workers, requests per second: MariaDB 12.5 (wave 7 rerun), PostgreSQL 3.89 with 0 deadlocks (wave 5: 1.36), with `--dedupe` 5.67 (`docs/19-postgresql-parallel-writes.md`, `docs/13`).
+The ordered row locks of wave 6 (`ProductIndexer`) removed the deadlock waits and cost about 40 ms of sequential latency per bulk request (`docs/26`).
+The sequential bulk write is 520 ms on PostgreSQL against 264 ms on MariaDB; the excess is spread over about 830 small statements with about 280 ms per request outside the database (against about 52 ms on MariaDB), no single statement dominates (`docs/26`).
 
 What the measurements ruled out (docs/13, docs/18): the translator and the id codec (at most about 12 % of a request together, on the bulk write; less on reads), PL/pgSQL functions (all used functions are inlinable SQL), `json` instead of `jsonb` (all 220 JSON columns are `jsonb`), missing foreign key indexes (none), more statements per request (same count as MariaDB within one).
 
@@ -200,9 +205,11 @@ All 9 runs passed; empty database to working shop takes about 35 to 50 seconds o
 
 ### SQLite
 
-`system:install` runs with 5 of 1,542 migrations missing; storefront home, login, admin token, product search and product write work (`docs/14-sqlite-spike.md`).
-It is not faster for the measured requests (PHP dominates), allows one writer at a time, and its `ALTER TABLE` limits make every migration a rewrite.
-Recommendation of the spike: keep SQLite out of the first supported set and revisit it once migrations have a database-neutral definition.
+Wave 3 spike: `system:install` ran with 5 of 1,542 migrations missing; storefront home, login, admin token, product search and product write worked (`docs/14-sqlite-spike.md`).
+It was not faster for the measured requests (PHP dominates), allows one writer at a time, and its `ALTER TABLE` limits make every migration a rewrite.
+Wave 7 S (`docs/24-sqlite-dal.md`): `SqliteDialect` was brought up to the current `SqlDialect`, `scripts/switch-db.sh sqlite` installs, indexes and passes the 8 smoke requests including admin write and checkout in 32.9 s, and the DataAbstractionLayer integration suite runs end to end: 804 tests, 10 failures in the final run (9 after one test expectation fix).
+The failures are a decimal scale convention in 7 aggregate tests (`'250.0000'` against `'250'`), two date normalisation cases in the read path and one group that depends on the full run (9 `Facade` tests that passed alone).
+Updated recommendation of `docs/24`: SQLite is realistic as a disposable local and single process CI database behind the same `SqlDialect`, and stays out of the supported set for production and for lanes with parallel workers; the migrations (`writable_schema` patch, five failing migrations of docs/14) did not change.
 
 ## Database differences that shaped the design
 
@@ -213,8 +220,8 @@ Recommendation of the spike: keep SQLite out of the first supported set and revi
 | Upsert | `ON DUPLICATE KEY UPDATE` | `ON CONFLICT (target)` | `ON CONFLICT (target)` | `upsert()` |
 | JSON | `JSON` / `LONGTEXT` | `jsonb` | text with JSON functions | `json*()` methods |
 | Error inside a transaction | transaction usable | transaction aborted | statement rolled back | savepoints |
-| Deadlock detection | immediate | after `deadlock_timeout` (1 s) | single writer | open, wave 6 B |
-| Connections | thread per connection | process per connection | in process | open, wave 6 A |
+| Deadlock detection | immediate | after `deadlock_timeout` (1 s) | single writer | lock order fixed in wave 6, 0 deadlocks (wave 7 rerun) |
+| Connections | thread per connection | process per connection | in process | persistent connections and plan cache measured in wave 6 |
 
 Full table: `docs/11-database-comparison.md`.
 
@@ -241,6 +248,9 @@ timeline
            : DAL failures 167 to 24
     Wave 6 : connection and planning cost, lock order
            : last DAL failures, API reads
+    Wave 7 : SQLite runs the DAL suite
+           : trigram index for search, translation cache
+           : bulk write cost split, DAL suite green on PostgreSQL
 ```
 
 ## Decisions
@@ -252,17 +262,18 @@ From `docs/02-decisions.md` and the wave handoffs:
 - `SqlDialect` per database in the core, the translator only as a shim for old migrations and extension SQL.
 - Code above the connection uses hex ids only, `IdBinding` binds them per database.
 - Id codec default stays `guess`.
-- SQLite is the third database to prove the abstraction, not a production target.
+- SQLite is the third database to prove the abstraction, now with the DAL suite running on it, still not a production target.
 - Custom field string equals is case-insensitive on every database, as on MySQL (decided for wave 6).
 
 ## Open
 
 | Topic | Numbers today | Next |
 |---|---|---|
-| Fixed cost per request on PostgreSQL | connect 7 ms, ICU 7.7 ms, planning 15 to 68 ms | wave 6 A, connection mode recommendation |
-| Parallel write deadlocks | 1.36 against 12 to 13 requests per second | wave 6 B, lock order |
-| DAL integration failures | 24 on PostgreSQL | wave 6 C |
-| Store API and admin search | 1.69x and 1.86x | wave 6 D, per statement analysis |
+| Fixed cost per request on PostgreSQL | storefront 1.13x to 1.46x of MariaDB with persistent connections and the plan cache, up to 1.9x with a new connection per request (wave 7 rerun); a new backend costs about 28 ms on its first pass (`docs/25`) | persistent connections or a pooler in the recommended setup, planning of wide DAL statements |
+| Storefront search on PostgreSQL | trigram index in place (149.6 to 93.5 ms persistent), 1.38x to 1.46x of MariaDB | seven aggregations repeat the keyword score subquery (`docs/25`), keywords below three characters scan sequentially |
+| Bulk write on PostgreSQL | 520 ms against 264 ms, 3.89 against 12.5 requests per second in parallel | fewer statements per request (475 `UPDATE product`), core change for every database (`docs/26`, `docs/core-findings.md`) |
+| DAL integration failures | 0 on PostgreSQL and MariaDB (804 tests), 10 on SQLite | SQLite: decimal scale of aggregates, datetime parameter normalisation |
+| Benchmark spread | wave 7 ranges of the run medians are wider than the wave 6 to 7 differences on most scenarios | quieter host or more paired repeats before claiming effects below 10 % |
 | `ci` collation on string filters | each `LIKE` about 50x slower than on `ucs_basic` | needs a decision on accent and case semantics |
 | Migrations | historic ones depend on the translator | a database-neutral migration API, also the precondition for SQLite |
 | Extensions with raw MySQL | run through the shim | deprecation path, public dialect service |

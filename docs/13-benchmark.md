@@ -733,3 +733,174 @@ For each distinct statement I ran `EXPLAIN (GENERIC_PLAN, COSTS OFF)` as sent an
 - Storefront gap on PostgreSQL 1.19x to 2.20x; the search scenario shows no gain from persistent connections plus plan cache.
 - The bulk write is 2.18x of MariaDB; the lock path of B costs about 47 ms of sequential latency in the PostgreSQL stack, which statement causes it I did not isolate.
 - The `product_number` sort index with `NULLS FIRST` (above) is not added.
+
+## Rerun after wave 7
+
+Same harness, same catalog data in `bench_mariadb`, `bench_mysql` and `bench_pg` and the same 8 setups as the wave 6 rerun, measured on the instance snapshot `87e1768ce3a` (wave 6: `03e1d43300f`), handoff F.
+Raw data in `docs/benchmark-results/wave7-catalog/` (`results.json`, `report.md`, `run.log`, `parallel-writes.txt`, `paired-blocks-summary.txt`, `wave6-vs-wave7-ratios.txt`, the `w6cmp-*` and `admin-*` JSON files).
+All 8 setups served all requests of all 7 scenarios without an error (0 non-200 responses in the latency, throughput and probe passes, `report.md` "Errors").
+Other lanes stopped: yes (46 containers of other sw-dev lanes stopped under `/tmp/wave7-timing.lock`, started again afterwards; wave 6 was measured with them running).
+Host load: `16:57 load averages: 6.58 10.85 13.98` at the start of the main run, `17:24 4.70 8.16 10.38` at its end; before I stopped the other lanes the host showed 9.13 14.13 15.70.
+The main run took 27 minutes and ran alone; the later blocks ran one after the other, never together.
+
+### Settings and state of this run
+
+- PostgreSQL after `scripts/benchmark.sh settings` (restart): `shared_buffers` 1GB, `effective_cache_size` 3GB, `work_mem` 16MB, `maintenance_work_mem` 256MB (wave 7 W ran on the defaults, this run does not).
+  MariaDB and MySQL `innodb_buffer_pool_size` 1 GiB, `sort_buffer_size`, `tmp_table_size`, `max_heap_table_size` 16 MiB (as found, `settings-before.txt`), `join_buffer_size` 262144 set with `SET GLOBAL` on both before the run.
+  Container limit 4 CPUs / 4 GiB during the main run (`benchmark.sh run`) and the parallel writes, PgBouncer 1.26.1 transaction mode, pool 20.
+- Maintenance before measuring: `VACUUM (FULL, ANALYZE)` on `bench_pg` (605 MB to 113 MB, the bulk write runs of W and R had bloated it again), `ANALYZE TABLE` on both MySQL engines.
+- Indexes of `bench_pg` at the start: the trigram index `product_search_keyword.idx.pg_keyword_trgm` (migration 1795000201) existed, the product number NULLS FIRST index `product.idx.pg_product_number_nulls_first` (migration 1795000200) did not.
+  I created it with the definition of the migration (`CREATE INDEX ... ON "product" ("product_number" NULLS FIRST, "version_id")`) before the main run.
+  Both indexes existed during the main run, the paired home and search block, and the parallel writes.
+  During the "without index" blocks below I dropped them and created them again with the same definitions; both exist at the end (checked in `pg_indexes`).
+- The wave 6 code runs in a second snapshot `/tmp/bench-src-w6` (`git archive 03e1d43300f src` plus the same vendor tree and config), on its own php-fpm and caddy processes and ports (8117 new connection, 8118 persistent, 8119 persistent + plan cache), same databases; `instance/` was not switched.
+  The load script is a copy of `scripts/benchmark-load.py` that only adds these three names (`/tmp/f7-load.py`, not committed); the wave 6 snapshot and processes were removed afterwards.
+- Note for the wave 6 comparison: the databases changed between wave 6 and 7 as well (VACUUM FULL, indexes), so "wave 6 code" below always means the code on the current database.
+
+### Result in short
+
+- The PostgreSQL median ratios to MariaDB moved down on 5 of 7 scenarios in the plain setup (home 1.71 to 1.53, search 2.20 to 1.84, detail 2.03 to 1.88, bulk write 2.18 to 1.97, listing 1.85 to 1.79) and up on admin search (1.85 to 2.01) and store API listing (1.79 to 1.80).
+  Those changes are mostly not larger than the spread: the ranges of the 5 run medians of wave 6 and wave 7 overlap for 31 of the 35 setup and scenario values compared (5 setups, 7 scenarios); the 4 that do not overlap are listed below.
+- Storefront search and detail ratios with persistent connections fell (search 1.68 to 1.38, detail 1.71 to 1.40) but only because MariaDB persistent got slower (search 59.4 to 72.6 ms, detail 70.9 to 78.4 ms, both clear), PostgreSQL persistent stayed where it was (search 99.5 to 100.0 ms, detail 121.0 to 109.9 ms with overlapping ranges).
+  I did not find why MariaDB got slower.
+- Trigram index on the search keyword scan: verified effect on the same stack and the same code in paired blocks, PostgreSQL persistent 149.6 ms without the index and 93.5 ms with it (clear, ranges 137.3..180.1 and 82.2..112.6), details below.
+  In the main run search PG persistent is 100.0 ms (ratio to MariaDB persistent 1.38) against 99.5 ms in wave 6, so the main run shows no gain over wave 6 on search; I did not find why, see the search section below.
+- The APCu translation cache and the wave 7 code in general: no change larger than the spread in paired runs, except one (home, plain PostgreSQL, 141.1 against 145.1 ms).
+- Bulk write: PG 520.3 ms (wave 6 555.3), MariaDB 263.7 (254.2); ranges overlap (PG 485.4..1258.9, one slow run), the 2.18x to 1.97x is not outside the spread.
+  The sequential cost is the same as wave 6 in the parallel-writes rows (below).
+- NULLS FIRST index: no effect visible in the admin search scenario (below).
+- MySQL 8.4 is 0.98x to 1.06x of MariaDB on the 6 read scenarios and 1.41x on the bulk write (wave 6: 1.21x; MySQL plain 371.2 ms, range 297.5..551.0, MariaDB 263.7).
+
+### Ratios before and after
+
+Ratio of the median latency; "before" is wave 6 (`wave6-catalog/report.md`), "after" this run (`wave7-catalog/report.md`), PostgreSQL against MariaDB of the same setting, MySQL against MariaDB of the plain setting.
+
+| Scenario | PG/MariaDB before | after | PG + PgBouncer/MariaDB before | after | PG pers./MariaDB pers. before | after | PG pers. + plan cache/MariaDB pers. before | after | MySQL/MariaDB before | after | PG ms before | PG ms after |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| storefront home | 1.71 | 1.53 | 1.42 | 1.32 | 1.37 | 1.33 | 1.19 | 1.13 | 1.00 | 1.04 | 162.9 | 145.6 |
+| storefront listing with filter | 1.85 | 1.79 | 1.50 | 1.39 | 1.19 | 1.26 | 1.12 | 1.14 | 1.07 | 1.06 | 106.5 | 101.0 |
+| storefront search | 2.20 | 1.84 | 1.80 | 1.41 | 1.68 | 1.38 | 1.63 | 1.46 | 1.03 | 0.99 | 130.7 | 148.3 |
+| storefront product detail | 2.03 | 1.88 | 1.65 | 1.50 | 1.71 | 1.40 | 1.61 | 1.44 | 1.00 | 0.98 | 149.8 | 150.5 |
+| store API product listing with aggregations | 1.79 | 1.80 | 1.25 | 1.15 | 0.72 | 0.90 | 0.80 | 0.93 | 1.01 | 1.01 | 40.7 | 38.3 |
+| admin API product search with aggregations | 1.85 | 2.01 | 1.26 | 1.29 | 1.16 | 1.06 | 1.16 | 1.01 | 1.04 | 1.04 | 41.0 | 45.5 |
+| admin API bulk sync write (50 products) | 2.18 | 1.97 | 2.23 | 2.11 | 2.03 | 1.91 | 1.97 | 1.88 | 1.21 | 1.41 | 555.3 | 520.3 |
+
+Median latency in ms of this run (median of 5 run medians): MariaDB 94.9 / 56.4 / 80.4 / 80.3 / 21.3 / 22.7 / 263.7, MariaDB persistent 93.9 / 54.8 / 72.6 / 78.4 / 21.1 / 23.5 / 263.4, PostgreSQL 145.6 / 101.0 / 148.3 / 150.5 / 38.3 / 45.5 / 520.3, PostgreSQL persistent 125.0 / 69.0 / 100.0 / 109.9 / 19.0 / 25.0 / 503.9, PostgreSQL persistent + plan cache 106.4 / 62.3 / 106.1 / 112.9 / 19.5 / 23.9 / 496.3 (scenarios in the table order).
+Per-run ranges are in `report.md` and `wave6-vs-wave7-ratios.txt`.
+
+### Which wave 6 to 7 differences are larger than the spread
+
+A difference counts as clear when the ranges of the 5 run medians of the two runs do not overlap (the criterion of `benchmark-report.py`).
+Of the 35 setup and scenario pairs compared (MariaDB, PostgreSQL, PostgreSQL persistent, PostgreSQL persistent + plan cache, MariaDB persistent, times 7 scenarios) 4 are clear:
+
+| Value | Wave 6 median (range) | Wave 7 median (range) |
+|---|---|---|
+| storefront search, PostgreSQL | 130.7 (125.8..132.2) | 148.3 (133.1..158.9), slower |
+| storefront search, MariaDB persistent | 59.4 (58.3..64.3) | 72.6 (66.9..80.4), slower |
+| storefront detail, MariaDB | 73.8 (72.4..75.4) | 80.3 (77.0..133.7), slower |
+| storefront detail, MariaDB persistent | 70.9 (69.6..73.0) | 78.4 (73.4..99.7), slower |
+
+All four are slower in wave 7, none is faster; none of the faster PostgreSQL values (home 162.9 to 145.6, listing, store API, bulk write) is outside the spread.
+The wave 7 ranges are wider than the wave 6 ones for MariaDB and PostgreSQL alike (for example bulk write PostgreSQL 485.4..1258.9 against 514.3..563.8), the host was shared and its load varied during the blocks, so I treat every ratio change above that is not in this table as unproven.
+
+### Paired runs against the wave 6 code
+
+Method: both code states run in the same interleaved run (`benchmark-load.py` alternates the stacks inside every run), same database state, same minute; 5 runs of the scenario, median of the 5 run medians with the range.
+Block 1 (home, then search) with both indexes present, `w6cmp-*-index.json`, host load `17:25 3.50 7.09 9.80` at the start and `17:30 5.97 5.49 8.19` at the end of the block:
+
+| Scenario, setup | Wave 6 code ms (range) | Wave 7 code ms (range) | Clear |
+|---|---|---|---|
+| home, new connection | 145.1 (143.8..147.7) | 141.1 (139.3..141.8) | yes, 4 ms (2.8 %) |
+| home, persistent | 116.6 (115.0..117.7) | 110.3 (108.3..115.3) | no, ranges overlap |
+| home, persistent + plan cache | 95.6 (94.2..115.0) | 97.8 (96.5..102.6) | no |
+| search, new connection | 144.5 (117.3..148.7) | 113.5 (109.2..144.8) | no, ranges overlap (runs 4 and 5 of both jumped to 140 to 149 ms) |
+| search, persistent | 90.5 (87.9..105.2) | 93.5 (82.2..112.6) | no |
+| search, persistent + plan cache | 94.3 (84.8..104.3) | 85.1 (80.3..108.1) | no |
+
+MariaDB persistent in the same block: home 83.0 (81.6..84.8), search 69.1 (58.5..87.1).
+Ratios in this block, PG persistent over MariaDB persistent: home 1.33 (wave 7 code) against 1.40 (wave 6 code), search 1.35 against 1.31.
+
+So of the wave 7 code changes with an expected effect on page time (APCu translation cache, NULLS FIRST index, the DAL and custom entity fixes) I can show only the 4 ms on plain home; in wave 7 R's probe numbers the translator layer fell from 10 to 19 ms to about 3 ms per request, but that is a small part of a 140 ms request and below the spread of the run medians here.
+
+### Search: the trigram index
+
+Same block layout with the keyword trigram index dropped (and the NULLS FIRST index dropped, irrelevant for search), `w6cmp-search-noindex.json`, host load `17:31 5.74 5.47 8.09` at its start; the index block above is block 1.
+
+| Setup | No trigram index ms (range) | With trigram index ms (range) | Clear |
+|---|---|---|---|
+| PG new connection, wave 7 code | 187.8 (159.1..213.2) | 113.5 (109.2..144.8) | yes |
+| PG persistent, wave 7 code | 149.6 (137.3..180.1) | 93.5 (82.2..112.6) | yes |
+| PG persistent + plan cache, wave 7 code | 152.0 (124.3..158.9) | 85.1 (80.3..108.1) | yes |
+| PG persistent, wave 6 code | 155.3 (125.5..167.7) | 90.5 (87.9..105.2) | yes |
+| MariaDB persistent | 61.2 (59.9..73.1) | 69.1 (58.5..87.1) | no |
+
+Without the index (the wave 6 database state) wave 6 code and wave 7 code are the same (149.6 against 155.3 ms persistent, ranges overlap), so the APCu cache does not show here either.
+Ratio PG persistent over MariaDB persistent: 2.44 without the index, 1.35 with it.
+The index also exists in the main run, where search PG persistent is 100.0 ms (range 86.4..153.6) and 1.38 of MariaDB persistent.
+The main run shows no gain over wave 6 on search (99.5 ms), although the paired blocks show a clear gain against the state without the index; I cannot say why, the wave 6 database state cannot be rebuilt cheaply and I did not re-measure it, and one of the 5 run medians of the main run is 153.6 ms.
+The index was used in the main run (`pg_stat_user_indexes.idx_scan` 40,563 at the end of the main run).
+
+### NULLS FIRST index (admin search sorted by product number)
+
+Paired runs ABAB on the admin search scenario (sort field rotates `name`, `productNumber`, `stock`; stacks MariaDB persistent, PG persistent, PG persistent + plan cache), index dropped, present, dropped, present:
+
+| Run | PG persistent ms (range) | PG persistent + plan cache ms (range) | MariaDB persistent ms |
+|---|---|---|---|
+| no index 1 | 25.6 (25.0..32.6) | 29.5 (25.5..43.4) | 23.5 |
+| with index 1 | 25.4 (25.1..56.6) | 24.8 (24.4..52.6) | 23.2 |
+| no index 2 | 25.9 (25.1..29.9) | 26.8 (25.5..29.7) | 22.5 |
+| with index 2 | 28.4 (25.1..29.8) | 25.6 (24.8..30.5) | 23.0 |
+
+No difference larger than the spread, as expected from the wave 6 estimate (about 3 ms in 1 of 3 requests on 1840 product rows, below the spread).
+The index matters for larger tables (docs/23, 500k rows).
+The main run's admin search ratio of 2.01 on the plain setup (45.5 against 22.7 ms, ranges 39.2..58.5 and 22.0..38.9) I did not find a cause for; the persistent setups are 1.06 and 1.01.
+
+### Throughput, 4 parallel connections, median of 5 runs (requests per second)
+
+| Scenario | MariaDB rps before | after | PG rps before | after | PG persistent rps before | after | PG pers. + plan cache before | after |
+|---|---|---|---|---|---|---|---|---|
+| storefront home | 36.6 | 40.5 | 21.6 | 24.7 | 27.0 | 31.3 | 31.0 | 38.4 |
+| storefront listing with filter | 60.5 | 58.1 | 32.3 | 34.0 | 44.4 | 47.7 | 52.0 | 56.3 |
+| storefront search | 55.3 | 51.7 | 25.0 | 27.8 | 32.3 | 36.2 | 33.5 | 38.8 |
+| storefront product detail | 45.5 | 48.0 | 22.7 | 26.1 | 28.1 | 34.2 | 29.3 | 35.6 |
+| store API product listing with aggregations | 110.8 | 104.2 | 68.5 | 66.5 | 108.8 | 105.0 | 114.2 | 109.5 |
+| admin API product search with aggregations | 140.5 | 149.1 | 78.0 | 90.1 | 138.5 | 151.7 | 130.0 | 152.0 |
+| admin API bulk sync write (50 products) | 11.5 | 11.7 | 3.8 | 3.7 | 3.8 | 3.7 | 3.6 | 3.8 |
+
+The ranges of the 5 runs are in `report.md`.
+PostgreSQL persistent storefront throughput is 12 to 22 % higher than in wave 6 (home 27.0 to 31.3, search 32.3 to 36.2, detail 28.1 to 34.2), MariaDB's own values moved between -7 and +11 %; I did not compare against the wave 6 ranges and do not attribute the rise to a code change.
+
+### Parallel bulk write and deadlocks (separate rows)
+
+`scripts/parallel-writes.py`, same payload and method as wave 6 (10 sequential and 20 parallel requests with 4 workers, 3 repeats as separate calls, MariaDB and PostgreSQL alternating), DB containers limited to 4 CPUs / 4 GiB, `deadlock_timeout` 1 s, all responses 200 (33 per run).
+Deadlocks are the difference of `pg_stat_database.deadlocks` of `bench_pg` before and after each run.
+Host load: `17:37 6.78 7.02 7.93` at the start, `17:39 5.11 6.48 7.61` at the end (`parallel-writes.txt`).
+
+| Row | Setting | Sequential median ms (3 repeats) | Parallel requests per second (3 repeats, median) | Deadlocks per run | Wave 6 parallel median |
+|---|---|---|---|---|---|
+| MariaDB | product list as the benchmark builds it | 257.3, 251.6, 245.2 | 12.21, 12.73, 12.52 (12.52) | n/a | 12.8 |
+| MariaDB | `--dedupe` | 263.5, 234.8, 235.8 | 12.06, 12.68, 12.65 (12.65) | n/a | 12.78 |
+| PostgreSQL | product list as the benchmark builds it | 533.8, 511.3, 526.7 | 3.84, 3.89, 3.92 (3.89) | 0, 0, 0 | 3.97 |
+| PostgreSQL | `--dedupe` | 503.0, 507.7, 515.7 | 5.73, 5.64, 5.67 (5.67) | 0, 0, 0 | 5.99 |
+
+PostgreSQL is 0.31 times MariaDB's parallel throughput on the list as built (wave 6: 0.31), 0.45 with `--dedupe`.
+The values are within 3 % to 6 % of wave 6 (the wave 6 repeats of the PostgreSQL rows were 3.91 to 3.98 and 5.94 to 6.12 requests per second), the bulk write has no code change in wave 7 and shows no change here.
+Sequential latency of the bulk write is the same as wave 6 (PostgreSQL 511 to 534 ms against 508 to 528 ms).
+
+### Resets of the wave 7 run
+
+All verified after the last block:
+
+- `ALTER SYSTEM RESET ALL` and a restart of `instance-postgres-1`: `postgresql.auto.conf` holds no entry, `shared_buffers` 128MB, `log_min_duration_statement` -1, `pg_db_role_setting` has 0 rows.
+- Databases in the PostgreSQL server: `bench_pg`, `postgres`, `shopware`, `shopware_switch`, `shopware_test` (no extra databases); the lane database `shopware` was not touched.
+- `join_buffer_size` 1073741824 on MariaDB and MySQL 8.4; MariaDB `long_query_time` 10, `slow_query_log` 0.
+- Containers `instance-postgres-1`, `instance-database-1`, `instance-mysql-1` at 8 CPUs / 16 GiB (`NanoCpus` 8000000000, `Memory` 17179869184).
+- PgBouncer container stopped and removed, benchmark php-fpm and caddy processes stopped, `/tmp/bench-src-w6` removed.
+- The other lanes (46 containers) started again from the saved list, `/tmp/wave7-timing.lock` and `/tmp/wave7-stopped-containers.txt` removed.
+- Left in place on purpose: `bench_pg` indexes `product_search_keyword.idx.pg_keyword_trgm` and `product.idx.pg_product_number_nulls_first` (both as the migrations define them), `/tmp/bench-src` at `87e1768ce3a` and the benchmark stacks directory `/tmp/bench` in the web container.
+
+### Still open
+
+- Storefront gap on PostgreSQL with persistent connections and the plan cache is 1.13x to 1.46x of MariaDB persistent in this run; search and detail are the largest (1.46x and 1.44x), and what is left is planning and the repeated keyword score subquery (`docs/25`, not changed in wave 7).
+- Run-to-run drift of the host (MariaDB search 59.5 to 80.4 ms between wave 6 and 7 with the same code) is larger than most wave 6 to 7 differences; a decision about a quieter benchmark host or a fixed number of paired repeats is needed before an effect below 10 % is claimed.
+- Bulk write 1.97x of MariaDB, 475 `UPDATE product` per request (`docs/26`), not changed.

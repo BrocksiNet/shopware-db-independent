@@ -1,0 +1,38 @@
+host load at start: 17:37  up 3 days,  9:31, 10 users, load averages: 6.78 7.02 7.93
+MariaDB port 8101 repeat 1
+{"dedupe": false, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [257.3], "par_rps": [12.21], "par_rps_median": 12.21, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+PostgreSQL port 8102 repeat 1
+{"dedupe": false, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [533.8], "par_rps": [3.84], "par_rps_median": 3.84, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+MariaDB port 8101 --dedupe repeat 1
+{"dedupe": true, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [263.5], "par_rps": [12.06], "par_rps_median": 12.06, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+PostgreSQL port 8102 --dedupe repeat 1
+{"dedupe": true, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [503.0], "par_rps": [5.73], "par_rps_median": 5.73, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+MariaDB port 8101 repeat 2
+{"dedupe": false, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [251.6], "par_rps": [12.73], "par_rps_median": 12.73, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+PostgreSQL port 8102 repeat 2
+{"dedupe": false, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [511.3], "par_rps": [3.89], "par_rps_median": 3.89, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+MariaDB port 8101 --dedupe repeat 2
+{"dedupe": true, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [234.8], "par_rps": [12.68], "par_rps_median": 12.68, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+PostgreSQL port 8102 --dedupe repeat 2
+{"dedupe": true, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [507.7], "par_rps": [5.64], "par_rps_median": 5.64, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+MariaDB port 8101 repeat 3
+{"dedupe": false, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [245.2], "par_rps": [12.52], "par_rps_median": 12.52, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+PostgreSQL port 8102 repeat 3
+{"dedupe": false, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [526.7], "par_rps": [3.92], "par_rps_median": 3.92, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+MariaDB port 8101 --dedupe repeat 3
+{"dedupe": true, "port": 8101, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [235.8], "par_rps": [12.65], "par_rps_median": 12.65, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+PostgreSQL port 8102 --dedupe repeat 3
+{"dedupe": true, "port": 8102, "payload": "both", "size": 50, "workers": 4, "seq_median_ms": [515.7], "par_rps": [5.67], "par_rps_median": 5.67, "statuses": {"200": 33}}
+deadlocks_delta 0 (bench_pg counter, shared by all runs of this host)
+host load at end: 17:39  up 3 days,  9:33, 10 users, load averages: 5.11 6.48 7.61

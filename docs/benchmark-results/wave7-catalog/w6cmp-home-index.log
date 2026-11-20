@@ -1,0 +1,6 @@
+== storefront home
+  latency run 1 {'mariadb-persistent': 83.0, 'pg-persistent': 111.8, 'w6-pg-persistent': 116.6, 'pg-plancache': 102.6, 'w6-pg-plancache': 115.0, 'pg': 141.1, 'w6-pg': 145.6}
+  latency run 2 {'pg-persistent': 109.9, 'w6-pg-persistent': 115.0, 'pg-plancache': 97.8, 'w6-pg-plancache': 95.6, 'pg': 139.3, 'w6-pg': 143.8, 'mariadb-persistent': 83.9}
+  latency run 3 {'w6-pg-persistent': 117.6, 'pg-plancache': 96.9, 'w6-pg-plancache': 94.3, 'pg': 141.8, 'w6-pg': 147.7, 'mariadb-persistent': 84.8, 'pg-persistent': 115.3}
+  latency run 4 {'pg-plancache': 98.4, 'w6-pg-plancache': 95.7, 'pg': 141.1, 'w6-pg': 145.1, 'mariadb-persistent': 81.6, 'pg-persistent': 110.3, 'w6-pg-persistent': 117.7}
+  latency run 5 {'w6-pg-plancache': 94.2, 'pg': 140.4, 'w6-pg': 144.4, 'mariadb-persistent': 82.4, 'pg-persistent': 108.3, 'w6-pg-persistent': 115.1, 'pg-plancache': 96.5}

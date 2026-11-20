@@ -1,0 +1,6 @@
+== admin API product search with aggregations
+  latency run 1 {'mariadb-persistent': 25.8, 'pg-persistent': 29.8, 'pg-plancache': 30.5}
+  latency run 2 {'pg-persistent': 28.4, 'pg-plancache': 25.8, 'mariadb-persistent': 23.0}
+  latency run 3 {'pg-plancache': 25.3, 'mariadb-persistent': 21.6, 'pg-persistent': 25.1}
+  latency run 4 {'mariadb-persistent': 26.6, 'pg-persistent': 29.8, 'pg-plancache': 25.6}
+  latency run 5 {'pg-persistent': 25.9, 'pg-plancache': 24.8, 'mariadb-persistent': 21.2}

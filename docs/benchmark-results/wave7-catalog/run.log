@@ -1,0 +1,85 @@
+== storefront home
+  latency run 1 {'mariadb': 87.2, 'mysql': 90.1, 'pg': 137.8, 'pgbouncer': 116.2, 'mariadb-persistent': 84.9, 'mysql-persistent': 85.0, 'pg-persistent': 107.4, 'pg-plancache': 106.4}
+  latency run 2 {'mysql': 85.4, 'pg': 140.4, 'pgbouncer': 125.1, 'mariadb-persistent': 93.9, 'mysql-persistent': 94.4, 'pg-persistent': 123.1, 'pg-plancache': 101.0, 'mariadb': 92.8}
+  latency run 3 {'pg': 145.6, 'pgbouncer': 123.5, 'mariadb-persistent': 89.0, 'mysql-persistent': 89.1, 'pg-persistent': 135.8, 'pg-plancache': 117.0, 'mariadb': 109.1, 'mysql': 105.1}
+  latency run 4 {'pgbouncer': 135.0, 'mariadb-persistent': 99.6, 'mysql-persistent': 99.8, 'pg-persistent': 125.0, 'pg-plancache': 104.8, 'mariadb': 94.9, 'mysql': 105.6, 'pg': 158.0}
+  latency run 5 {'mariadb-persistent': 104.8, 'mysql-persistent': 130.5, 'pg-persistent': 163.3, 'pg-plancache': 118.0, 'mariadb': 110.3, 'mysql': 99.0, 'pg': 157.4, 'pgbouncer': 129.2}
+  throughput run 1 {'mariadb': 38.66, 'mysql': 35.73, 'pg': 24.66, 'pgbouncer': 28.96, 'mariadb-persistent': 37.98, 'mysql-persistent': 35.55, 'pg-persistent': 30.4, 'pg-plancache': 36.37}
+  throughput run 2 {'mysql': 36.68, 'pg': 23.51, 'pgbouncer': 30.11, 'mariadb-persistent': 40.17, 'mysql-persistent': 39.74, 'pg-persistent': 32.05, 'pg-plancache': 37.61, 'mariadb': 40.76}
+  throughput run 3 {'pg': 25.23, 'pgbouncer': 28.37, 'mariadb-persistent': 40.79, 'mysql-persistent': 39.49, 'pg-persistent': 31.27, 'pg-plancache': 38.5, 'mariadb': 40.51, 'mysql': 38.19}
+  throughput run 4 {'pgbouncer': 30.02, 'mariadb-persistent': 40.77, 'mysql-persistent': 39.11, 'pg-persistent': 31.72, 'pg-plancache': 38.6, 'mariadb': 40.07, 'mysql': 39.25, 'pg': 23.66}
+  throughput run 5 {'mariadb-persistent': 41.2, 'mysql-persistent': 39.75, 'pg-persistent': 29.91, 'pg-plancache': 38.36, 'mariadb': 40.78, 'mysql': 39.28, 'pg': 25.32, 'pgbouncer': 29.53}
+  probes {"errors": 0, "requests": 30, "latency_median_ms": 138.09452099667396, "wall_ms": {"median": 137.753963, "mean": 140.07114516666667, "p95": 152.672052}, "driver_ms": {"median": 67.048779, "mean": 68.0254312, "p95": 75.398314}, "translator_ms": {"median": 1.9792575000000001, "mean": 2.0501602, "p95":
+== storefront listing with filter
+  latency run 1 {'mariadb': 50.2, 'mysql': 61.4, 'pg': 92.3, 'pgbouncer': 75.1, 'mariadb-persistent': 50.0, 'mysql-persistent': 50.5, 'pg-persistent': 64.7, 'pg-plancache': 58.0}
+  latency run 2 {'mysql': 52.0, 'pg': 93.7, 'pgbouncer': 83.8, 'mariadb-persistent': 51.2, 'mysql-persistent': 50.4, 'pg-persistent': 63.1, 'pg-plancache': 80.0, 'mariadb': 69.0}
+  latency run 3 {'pg': 101.0, 'pgbouncer': 78.5, 'mariadb-persistent': 54.8, 'mysql-persistent': 54.9, 'pg-persistent': 69.0, 'pg-plancache': 59.6, 'mariadb': 54.2, 'mysql': 53.3}
+  latency run 4 {'pgbouncer': 74.7, 'mariadb-persistent': 64.3, 'mysql-persistent': 60.9, 'pg-persistent': 89.0, 'pg-plancache': 78.0, 'mariadb': 62.7, 'mysql': 65.5, 'pg': 108.9}
+  latency run 5 {'mariadb-persistent': 60.7, 'mysql-persistent': 61.7, 'pg-persistent': 76.6, 'pg-plancache': 62.3, 'mariadb': 56.4, 'mysql': 59.9, 'pg': 104.6, 'pgbouncer': 80.5}
+  throughput run 1 {'mariadb': 61.52, 'mysql': 62.14, 'pg': 35.82, 'pgbouncer': 39.87, 'mariadb-persistent': 61.15, 'mysql-persistent': 61.51, 'pg-persistent': 47.65, 'pg-plancache': 55.04}
+  throughput run 2 {'mysql': 62.18, 'pg': 34.82, 'pgbouncer': 43.5, 'mariadb-persistent': 60.07, 'mysql-persistent': 62.26, 'pg-persistent': 48.19, 'pg-plancache': 58.81, 'mariadb': 55.26}
+  throughput run 3 {'pg': 32.09, 'pgbouncer': 39.84, 'mariadb-persistent': 60.54, 'mysql-persistent': 60.99, 'pg-persistent': 47.67, 'pg-plancache': 57.88, 'mariadb': 58.08, 'mysql': 57.91}
+  throughput run 4 {'pgbouncer': 42.11, 'mariadb-persistent': 59.56, 'mysql-persistent': 58.1, 'pg-persistent': 46.79, 'pg-plancache': 56.28, 'mariadb': 57.1, 'mysql': 57.4, 'pg': 32.68}
+  throughput run 5 {'mariadb-persistent': 56.36, 'mysql-persistent': 60.71, 'pg-persistent': 48.45, 'pg-plancache': 50.83, 'mariadb': 60.38, 'mysql': 60.95, 'pg': 34.04, 'pgbouncer': 43.42}
+  probes {"errors": 0, "requests": 40, "latency_median_ms": 121.94568949053064, "wall_ms": {"median": 121.5704675, "mean": 123.965560875, "p95": 141.381025}, "driver_ms": {"median": 57.301986, "mean": 58.618015225, "p95": 67.050285}, "translator_ms": {"median": 2.3143675, "mean": 2.288140075, "p95": 2.681854
+== storefront search
+  latency run 1 {'mariadb': 81.1, 'mysql': 79.6, 'pg': 133.1, 'pgbouncer': 114.0, 'mariadb-persistent': 74.0, 'mysql-persistent': 75.6, 'pg-persistent': 109.4, 'pg-plancache': 103.3}
+  latency run 2 {'mysql': 80.5, 'pg': 134.8, 'pgbouncer': 107.9, 'mariadb-persistent': 71.4, 'mysql-persistent': 74.1, 'pg-persistent': 99.0, 'pg-plancache': 106.3, 'mariadb': 80.4}
+  latency run 3 {'pg': 158.9, 'pgbouncer': 113.2, 'mariadb-persistent': 72.6, 'mysql-persistent': 68.5, 'pg-persistent': 86.4, 'pg-plancache': 87.5, 'mariadb': 61.1, 'mysql': 63.8}
+  latency run 4 {'pgbouncer': 103.8, 'mariadb-persistent': 66.9, 'mysql-persistent': 64.3, 'pg-persistent': 100.0, 'pg-plancache': 106.1, 'mariadb': 75.8, 'mysql': 76.2, 'pg': 153.8}
+  latency run 5 {'mariadb-persistent': 80.4, 'mysql-persistent': 119.3, 'pg-persistent': 153.6, 'pg-plancache': 179.7, 'mariadb': 86.6, 'mysql': 81.1, 'pg': 148.3, 'pgbouncer': 129.0}
+  throughput run 1 {'mariadb': 43.98, 'mysql': 40.88, 'pg': 24.71, 'pgbouncer': 32.57, 'mariadb-persistent': 52.99, 'mysql-persistent': 46.39, 'pg-persistent': 36.06, 'pg-plancache': 38.78}
+  throughput run 2 {'mysql': 48.25, 'pg': 27.13, 'pgbouncer': 31.69, 'mariadb-persistent': 53.01, 'mysql-persistent': 49.48, 'pg-persistent': 35.07, 'pg-plancache': 36.95, 'mariadb': 51.66}
+  throughput run 3 {'pg': 27.89, 'pgbouncer': 34.21, 'mariadb-persistent': 56.33, 'mysql-persistent': 53.18, 'pg-persistent': 36.17, 'pg-plancache': 39.08, 'mariadb': 51.12, 'mysql': 49.26}
+  throughput run 4 {'pgbouncer': 34.64, 'mariadb-persistent': 52.47, 'mysql-persistent': 52.29, 'pg-persistent': 37.2, 'pg-plancache': 39.42, 'mariadb': 54.15, 'mysql': 51.84, 'pg': 27.83}
+  throughput run 5 {'mariadb-persistent': 53.52, 'mysql-persistent': 51.14, 'pg-persistent': 37.83, 'pg-plancache': 38.84, 'mariadb': 53.69, 'mysql': 51.53, 'pg': 28.33, 'pgbouncer': 31.79}
+  probes {"errors": 0, "requests": 40, "latency_median_ms": 169.78347199619748, "wall_ms": {"median": 169.43287800000002, "mean": 179.13331945, "p95": 243.505001}, "driver_ms": {"median": 93.15052349999999, "mean": 97.7033286, "p95": 138.935455}, "translator_ms": {"median": 4.312313, "mean": 4.697872425, "p9
+== storefront product detail
+  latency run 1 {'mariadb': 78.6, 'mysql': 87.0, 'pg': 150.5, 'pgbouncer': 120.5, 'mariadb-persistent': 78.4, 'mysql-persistent': 79.6, 'pg-persistent': 109.9, 'pg-plancache': 109.7}
+  latency run 2 {'mysql': 78.7, 'pg': 140.0, 'pgbouncer': 124.1, 'mariadb-persistent': 81.3, 'mysql-persistent': 77.0, 'pg-persistent': 111.7, 'pg-plancache': 131.7, 'mariadb': 95.9}
+  latency run 3 {'pg': 157.3, 'pgbouncer': 139.7, 'mariadb-persistent': 99.7, 'mysql-persistent': 91.6, 'pg-persistent': 131.1, 'pg-plancache': 112.9, 'mariadb': 80.3, 'mysql': 77.8}
+  latency run 4 {'pgbouncer': 119.5, 'mariadb-persistent': 73.4, 'mysql-persistent': 69.8, 'pg-persistent': 100.2, 'pg-plancache': 153.3, 'mariadb': 133.7, 'mysql': 182.4, 'pg': 157.8}
+  latency run 5 {'mariadb-persistent': 73.6, 'mysql-persistent': 72.5, 'pg-persistent': 107.0, 'pg-plancache': 97.0, 'mariadb': 77.0, 'mysql': 73.7, 'pg': 131.5, 'pgbouncer': 115.7}
+  throughput run 1 {'mariadb': 43.01, 'mysql': 45.81, 'pg': 26.1, 'pgbouncer': 30.93, 'mariadb-persistent': 48.71, 'mysql-persistent': 47.51, 'pg-persistent': 33.99, 'pg-plancache': 31.6}
+  throughput run 2 {'mysql': 45.94, 'pg': 25.46, 'pgbouncer': 31.43, 'mariadb-persistent': 46.37, 'mysql-persistent': 47.56, 'pg-persistent': 33.22, 'pg-plancache': 35.1, 'mariadb': 48.44}
+  throughput run 3 {'pg': 25.12, 'pgbouncer': 31.6, 'mariadb-persistent': 48.98, 'mysql-persistent': 49.13, 'pg-persistent': 34.17, 'pg-plancache': 35.64, 'mariadb': 48.86, 'mysql': 48.68}
+  throughput run 4 {'pgbouncer': 31.86, 'mariadb-persistent': 48.58, 'mysql-persistent': 48.21, 'pg-persistent': 34.16, 'pg-plancache': 36.03, 'mariadb': 48.04, 'mysql': 48.61, 'pg': 26.08}
+  throughput run 5 {'mariadb-persistent': 49.06, 'mysql-persistent': 49.33, 'pg-persistent': 34.83, 'pg-plancache': 36.52, 'mariadb': 47.58, 'mysql': 49.2, 'pg': 26.6, 'pgbouncer': 32.43}
+  probes {"errors": 0, "requests": 40, "latency_median_ms": 134.98379300290253, "wall_ms": {"median": 134.659528, "mean": 137.076985325, "p95": 153.712987}, "driver_ms": {"median": 67.71545850000001, "mean": 68.758255175, "p95": 76.983367}, "translator_ms": {"median": 2.5094835, "mean": 2.574553375, "p95": 3
+== store API product listing with aggregations
+  latency run 1 {'mariadb': 22.8, 'mysql': 24.0, 'pg': 38.0, 'pgbouncer': 23.5, 'mariadb-persistent': 20.5, 'mysql-persistent': 22.6, 'pg-persistent': 18.0, 'pg-plancache': 19.8}
+  latency run 2 {'mysql': 21.0, 'pg': 35.0, 'pgbouncer': 24.5, 'mariadb-persistent': 21.9, 'mysql-persistent': 21.1, 'pg-persistent': 19.4, 'pg-plancache': 18.3, 'mariadb': 19.8}
+  latency run 3 {'pg': 46.4, 'pgbouncer': 28.6, 'mariadb-persistent': 20.1, 'mysql-persistent': 22.7, 'pg-persistent': 19.0, 'pg-plancache': 24.0, 'mariadb': 20.8, 'mysql': 21.5}
+  latency run 4 {'pgbouncer': 23.1, 'mariadb-persistent': 27.5, 'mysql-persistent': 29.4, 'pg-persistent': 22.1, 'pg-plancache': 19.5, 'mariadb': 25.5, 'mysql': 21.6, 'pg': 39.8}
+  latency run 5 {'mariadb-persistent': 21.1, 'mysql-persistent': 19.6, 'pg-persistent': 17.7, 'pg-plancache': 18.1, 'mariadb': 21.3, 'mysql': 23.4, 'pg': 38.3, 'pgbouncer': 24.9}
+  throughput run 1 {'mariadb': 111.1, 'mysql': 105.76, 'pg': 71.29, 'pgbouncer': 94.47, 'mariadb-persistent': 116.11, 'mysql-persistent': 110.68, 'pg-persistent': 105.88, 'pg-plancache': 109.48}
+  throughput run 2 {'mysql': 89.05, 'pg': 64.9, 'pgbouncer': 88.76, 'mariadb-persistent': 89.98, 'mysql-persistent': 89.11, 'pg-persistent': 99.08, 'pg-plancache': 91.78, 'mariadb': 93.04}
+  throughput run 3 {'pg': 56.26, 'pgbouncer': 82.15, 'mariadb-persistent': 78.35, 'mysql-persistent': 80.92, 'pg-persistent': 89.25, 'pg-plancache': 94.38, 'mariadb': 94.32, 'mysql': 92.51}
+  throughput run 4 {'pgbouncer': 91.16, 'mariadb-persistent': 99.44, 'mysql-persistent': 93.93, 'pg-persistent': 104.96, 'pg-plancache': 114.98, 'mariadb': 104.21, 'mysql': 97.88, 'pg': 66.54}
+  throughput run 5 {'mariadb-persistent': 110.0, 'mysql-persistent': 100.88, 'pg-persistent': 109.05, 'pg-plancache': 118.75, 'mariadb': 105.96, 'mysql': 98.2, 'pg': 68.57, 'pgbouncer': 96.27}
+  probes {"errors": 0, "requests": 60, "latency_median_ms": 44.69343301025219, "wall_ms": {"median": 44.1040985, "mean": 57.381530133333335, "p95": 85.986137}, "driver_ms": {"median": 23.8726975, "mean": 30.560716933333335, "p95": 47.830601}, "translator_ms": {"median": 0.49327750000000004, "mean": 0.6662265
+== admin API product search with aggregations
+  latency run 1 {'mariadb': 38.9, 'mysql': 43.2, 'pg': 58.5, 'pgbouncer': 43.0, 'mariadb-persistent': 39.6, 'mysql-persistent': 42.4, 'pg-persistent': 45.3, 'pg-plancache': 43.2}
+  latency run 2 {'mysql': 40.3, 'pg': 45.9, 'pgbouncer': 31.3, 'mariadb-persistent': 23.5, 'mysql-persistent': 23.4, 'pg-persistent': 25.1, 'pg-plancache': 25.0, 'mariadb': 25.3}
+  latency run 3 {'pg': 42.8, 'pgbouncer': 29.4, 'mariadb-persistent': 23.9, 'mysql-persistent': 23.3, 'pg-persistent': 22.6, 'pg-plancache': 22.2, 'mariadb': 22.7, 'mysql': 22.9}
+  latency run 4 {'pgbouncer': 26.5, 'mariadb-persistent': 22.4, 'mysql-persistent': 25.5, 'pg-persistent': 25.0, 'pg-plancache': 23.9, 'mariadb': 22.2, 'mysql': 23.7, 'pg': 45.5}
+  latency run 5 {'mariadb-persistent': 23.5, 'mysql-persistent': 21.8, 'pg-persistent': 22.4, 'pg-plancache': 22.4, 'mariadb': 22.0, 'mysql': 22.1, 'pg': 39.2, 'pgbouncer': 26.5}
+  throughput run 1 {'mariadb': 149.14, 'mysql': 137.04, 'pg': 90.12, 'pgbouncer': 131.87, 'mariadb-persistent': 148.77, 'mysql-persistent': 136.68, 'pg-persistent': 152.81, 'pg-plancache': 147.67}
+  throughput run 2 {'mysql': 129.67, 'pg': 89.96, 'pgbouncer': 129.72, 'mariadb-persistent': 150.96, 'mysql-persistent': 137.64, 'pg-persistent': 150.87, 'pg-plancache': 151.69, 'mariadb': 149.6}
+  throughput run 3 {'pg': 90.43, 'pgbouncer': 131.66, 'mariadb-persistent': 149.32, 'mysql-persistent': 137.94, 'pg-persistent': 144.79, 'pg-plancache': 152.3, 'mariadb': 148.53, 'mysql': 137.82}
+  throughput run 4 {'pgbouncer': 131.32, 'mariadb-persistent': 151.47, 'mysql-persistent': 138.46, 'pg-persistent': 151.78, 'pg-plancache': 151.98, 'mariadb': 149.26, 'mysql': 134.54, 'pg': 89.71}
+  throughput run 5 {'mariadb-persistent': 145.16, 'mysql-persistent': 131.21, 'pg-persistent': 151.7, 'pg-plancache': 152.27, 'mariadb': 143.74, 'mysql': 136.12, 'pg': 90.41, 'pgbouncer': 129.14}
+  probes {"errors": 0, "requests": 60, "latency_median_ms": 53.36246799561195, "wall_ms": {"median": 52.365541, "mean": 55.18075975, "p95": 77.553033}, "driver_ms": {"median": 23.772004, "mean": 25.291115816666668, "p95": 39.606379}, "translator_ms": {"median": 0.5650245, "mean": 0.6071189166666666, "p95": 1
+== admin API bulk sync write (50 products)
+  latency run 1 {'mariadb': 428.0, 'mysql': 551.0, 'pg': 1258.9, 'pgbouncer': 1702.2, 'mariadb-persistent': 791.9, 'mysql-persistent': 758.9, 'pg-persistent': 970.1, 'pg-plancache': 558.7}
+  latency run 2 {'mysql': 371.2, 'pg': 520.3, 'pgbouncer': 557.2, 'mariadb-persistent': 263.4, 'mysql-persistent': 314.5, 'pg-persistent': 515.3, 'pg-plancache': 496.0, 'mariadb': 263.7}
+  latency run 3 {'pg': 526.2, 'pgbouncer': 513.1, 'mariadb-persistent': 263.6, 'mysql-persistent': 307.7, 'pg-persistent': 485.7, 'pg-plancache': 532.3, 'mariadb': 309.7, 'mysql': 405.4}
+  latency run 4 {'pgbouncer': 646.6, 'mariadb-persistent': 257.8, 'mysql-persistent': 312.7, 'pg-persistent': 503.9, 'pg-plancache': 496.3, 'mariadb': 253.5, 'mysql': 308.7, 'pg': 485.4}
+  latency run 5 {'mariadb-persistent': 257.2, 'mysql-persistent': 306.6, 'pg-persistent': 453.1, 'pg-plancache': 443.9, 'mariadb': 254.3, 'mysql': 297.5, 'pg': 496.9, 'pgbouncer': 516.1}
+  throughput run 1 {'mariadb': 10.52, 'mysql': 7.6, 'pg': 3.91, 'pgbouncer': 3.43, 'mariadb-persistent': 12.62, 'mysql-persistent': 9.44, 'pg-persistent': 3.51, 'pg-plancache': 4.38}
+  throughput run 2 {'mysql': 8.99, 'pg': 3.7, 'pgbouncer': 3.7, 'mariadb-persistent': 10.14, 'mysql-persistent': 8.49, 'pg-persistent': 3.67, 'pg-plancache': 3.76, 'mariadb': 12.01}
+  throughput run 3 {'pg': 3.31, 'pgbouncer': 3.24, 'mariadb-persistent': 12.36, 'mysql-persistent': 8.89, 'pg-persistent': 3.27, 'pg-plancache': 3.6, 'mariadb': 11.59, 'mysql': 8.75}
+  throughput run 4 {'pgbouncer': 3.9, 'mariadb-persistent': 11.89, 'mysql-persistent': 8.99, 'pg-persistent': 4.11, 'pg-plancache': 4.23, 'mariadb': 12.42, 'mysql': 9.74, 'pg': 3.77}
+  throughput run 5 {'mariadb-persistent': 12.65, 'mysql-persistent': 9.41, 'pg-persistent': 3.73, 'pg-plancache': 3.66, 'mariadb': 11.72, 'mysql': 9.67, 'pg': 3.12, 'pgbouncer': 3.53}
+  probes {"errors": 0, "requests": 10, "latency_median_ms": 558.9471534913173, "wall_ms": {"median": 558.454513, "mean": 567.4522155, "p95": 630.570173}, "driver_ms": {"median": 396.3595255, "mean": 398.905215, "p95": 456.839018}, "translator_ms": {"median": 33.047873499999994, "mean": 34.1182537, "p95": 40.
+done
