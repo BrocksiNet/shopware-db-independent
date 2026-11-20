@@ -573,3 +573,44 @@ The channel was set back to EUR afterwards.
 
 - The storefront gap on PostgreSQL is 1.77x to 2.01x of MariaDB, 1.35x to 1.64x with persistent connections; I did not analyse the remaining part.
 - The bulk write on PostgreSQL is serialised by product row deadlocks (docs/19), not fixed in code.
+
+## Data set rebuild for wave 6
+
+Handoff P rebuilt `bench_mariadb`, `bench_mysql` and `bench_pg` from the catalog generator before the wave 6 measurements.
+
+- Instance snapshot: `f6a37fd183f` (`scripts/benchmark.sh snapshot f6a37fd183f`, also written to `docs/benchmark-results/snapshot-sha.txt`).
+- Generator: https://github.com/shopwareLabs/shopware-catalog-generator at commit `5d71970e1c5234872cee764941741ca5942d5f68`, checked out in `/tmp/catgen`, `bun install`.
+- Command: `DATASET=catalog RUNS=1 scripts/benchmark.sh prepare` with `OUT=/tmp/p-out`, so the install ran once per database instead of 5 times and the raw files are not in the repo.
+- Host load average at the start 5.61, at the end 9.45 (other lanes' containers were running, and handoff C ran the DAL suite on `shopware_test` at the same time).
+
+| Step (seconds, reported by the script) | MariaDB 10.11 | MySQL 8.4 | PostgreSQL 18.7 |
+|---|---|---|---|
+| `system:install --basic-setup` | 10.7 | 20.6 | 10.5 |
+| Catalog upload of the 6 templates | 35.0 | 35.6 | 53.3 |
+| `dal:refresh:index` (first run, after the upload) | 8.0 | 10.4 | 14.5 |
+
+The whole `prepare` took about 18 minutes including the snapshot copy (wall clock, 1065 s).
+
+| Item | MariaDB | MySQL 8.4 | PostgreSQL |
+|---|---|---|---|
+| Products without parent | 542 | 542 | 542 |
+| Variants | 1298 | 1298 | 1298 |
+| Categories | 503 | 503 | 503 |
+| Media | 2206 | 2206 | 2206 |
+| Product media | 2781 | 2781 | 2781 |
+| Property options | 1113 | 1113 | 1113 |
+| SEO urls | 6811 | 6811 | 6811 |
+| Sales channels / domains | 8 / 14 | 8 / 14 | 8 / 14 |
+| Size after upload (MB) | 86.9 | 49.6 | 137.1 |
+
+After the upload I ran, on all three: `database:migrate core.V6_8 --all` (19 migrations each), an update of `sales_channel.currency_id` and `sales_channel_domain.currency_id` from USD to EUR (the 6 template channels and their 12 domains, 0 USD rows left), `dal:refresh:index` again, `ANALYZE TABLE` on all 250 tables of both MySQL engines (250 of 250 status OK) and `VACUUM (FULL, ANALYZE)` on `bench_pg` (67 MB afterwards).
+`category.path` on `bench_pg` uses `ucs_basic` and three `lower(...)` expression indexes exist.
+
+Deviations:
+
+- Every template upload exits with 1 (6 of 6 on each database): the only error is the known theme compile failure, `Error [GENERATE_FAILED]: 1 post-processor error(s): theme (1)`; the data is complete.
+- `scripts/compare-schema.py check bench_pg` reports 6 differences against `scripts/expected-catalog.json`, all explained: `category.path` is `ucs_basic` instead of `ci` and three `lower(...)` indexes exist (wave 5 changes, the expected file is older), and `state_machine_transition` has the unique index `(action_name, state_machine_id, from_state_id)` instead of the 4 column one (V6_8 migration `Migration1787763662`, run by `core.V6_8 --all`).
+- `scripts/benchmark.sh stacks` returned 200 on the 7 stacks of the three databases for the default Storefront host and 500 on the PgBouncer stack (port 8105), because no PgBouncer container runs (`scripts/benchmark.sh pooler` was not run).
+- Smoke check with the template channel hosts `beauty.localhost:18101` and `electronics-de.localhost:18101`: 200 on the MariaDB, MySQL and PostgreSQL stacks.
+- `join_buffer_size` is still 1 GiB on MariaDB and MySQL (container command line); I did not change it, measuring handoffs must `SET GLOBAL join_buffer_size = 262144` first.
+- The stacks are stopped (`stop-stacks`).
