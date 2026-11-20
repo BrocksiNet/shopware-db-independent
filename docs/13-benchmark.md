@@ -688,7 +688,7 @@ The plan cache setup has the highest PostgreSQL value in 5 of the 7 rows (home 3
 
 `scripts/parallel-writes.py` (docs/19), payload of the benchmark bulk write, 10 sequential and 20 parallel requests with 4 workers, 3 repeats run one after the other (one `--repeats 1` call each), DB containers limited to 4 CPUs / 4 GiB, `deadlock_timeout` 1 s (default), all responses 200 (33 per run).
 Deadlock count is the difference of `pg_stat_database.deadlocks` of `bench_pg` before and after each run.
-Host load at start and end of the block is in `parallel-writes.txt` (end: `4.49 3.81 4.51`).
+Host load: `12:44 load averages: 2.65 3.34 4.47` at the start, `12:46 4.49 3.81 4.51` at the end (`parallel-writes.txt`).
 
 | Row | Setting | Sequential median ms (3 repeats) | Parallel requests per second (3 repeats, median) | Deadlocks per run | Wave 5 parallel median |
 |---|---|---|---|---|---|
