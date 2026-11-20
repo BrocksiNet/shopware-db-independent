@@ -31,6 +31,7 @@ The instance is the `sw-dev` lane `pg`: http://pg.localhost:8088 (admin: http://
 ## Start reading
 
 0. [docs/summary.md](docs/summary.md): findings and architecture after wave 5, with diagrams
+0. [docs/core-findings.md](docs/core-findings.md): findings useful for the Shopware core, independent of PostgreSQL
 1. [docs/00-plan.md](docs/00-plan.md)
 2. [docs/02-decisions.md](docs/02-decisions.md)
 3. [docs/10-architecture.md](docs/10-architecture.md): current state, target architecture and the change list
