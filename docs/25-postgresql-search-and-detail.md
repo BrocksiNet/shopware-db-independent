@@ -92,7 +92,7 @@ The wave 5 snapshot and settings cannot be rebuilt cheaply, so I could not check
 
 ### 1. Trigram index for the keyword scan
 
-Migration `Migration1795000200PostgreSqlSearchKeywordTrigramIndex` (PG only, no-op elsewhere or when `pg_trgm` cannot be created):
+Migration `Migration1795000201PostgreSqlSearchKeywordTrigramIndex` (PG only, no-op elsewhere or when `pg_trgm` cannot be created):
 
 ```sql
 CREATE INDEX "product_search_keyword.idx.pg_keyword_trgm" ON product_search_keyword
