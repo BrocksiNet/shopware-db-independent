@@ -77,3 +77,81 @@ No code in `instance/` changed in this handoff.
 - Incident: a `pkill psql` inside `instance-postgres-1` sent PostgreSQL into crash recovery at about 15:34 UTC.
   The server recovered by itself and was healthy afterwards, but queries of other sessions at that time may have failed.
 - No translator rules were added.
+
+## Wave 6 (handoff B): lock order and fix
+
+Instance commits (local, `instance/` is never pushed): `38f1d41ac6c` lock order fix, `e0e6f3d3fae` versioning fix (docs/21).
+
+### Method
+
+Private copy `bench_pg_b` of the catalog data, own PHP processes, 4 workers, `log_lock_waits = on`, `deadlock_timeout` at the default 1 s, `log_statement = mod` for single runs, deadlock counter from `pg_stat_database.deadlocks`.
+The statement sequence of each backend was read from the log together with the two statements of each `deadlock detected` report.
+
+### The deadlock pairs
+
+The row that two requests share is a `product` row; the benchmark list has two products that are visible in all 6 sales channels, so concurrent requests of the list as built hit them.
+The indexer statements that took part, with their PHP origin (all verified in the code):
+
+| Statement | PHP origin | Locks rows |
+|---|---|---|
+| bulk `UPDATE product SET ... WHERE id IN (...)` for inheritance (`canonicalProduct`, `media`, `properties`, ...) | `InheritanceUpdater` (`UPDATE #root# ...`) | in the order of the query plan |
+| bulk `UPDATE` of the many to many id fields | `ManyToManyIdFieldUpdater` | in the order of the query plan |
+| bulk `UPDATE product SET available/stock ...` | `StockStorage::index` | in the order of the query plan |
+| `UPDATE product SET category_tree = :tree WHERE id = :id AND version_id = :version`, one statement per product | `ProductCategoryDenormalizer`, loop inside one `RetryableTransaction` | one product after the other, in the order of the category map |
+| `UPDATE product SET cheapest_price = :price WHERE id = :id ...`, `cheapest_price_accessor` | `CheapestPriceUpdater`, prepared statement per product | one product after the other |
+| `UPDATE product SET rating_average = :average WHERE id = :id ...` | `RatingAverageUpdater` | one product after the other |
+| the writer's own `UPDATE product` of the payload | `EntityWriteGateway` | in payload order |
+
+The updaters run in autocommit mode or in short transactions of their own, after the write transaction has committed.
+So two requests that share a product interleave on this sequence: one holds the lock of product A from a per-product loop statement or from a bulk statement that has finished its A row and waits for B, the other the other way round.
+Example from the log of a baseline run: a bulk `UPDATE product SET "properties" = ...` (`InheritanceUpdater`) of one backend waited for a backend that was inside the `category_tree` loop of `ProductCategoryDenormalizer`, and that backend waited for the first one (`process 270 waits for ShareLock on transaction 6036313; blocked by process 268`, 268 waits for 270).
+Sorting the commands of the writer and `ksort` on the category map (wave 5) did not help because the other statements still lock in plan order or in a different loop order; the pair is never between two sorted statements.
+
+### Fix
+
+`ProductIndexer::withProductRowLocks()` (PostgreSQL only): in one `RetryableTransaction` around `update()` (inheritance and stock) and around the updaters of `handle()`, the first statement is
+
+```sql
+SELECT id FROM product WHERE version_id = :version AND id IN (ids, their children, their parents) ORDER BY id FOR UPDATE
+```
+
+Rows are therefore taken once in primary key order before the first updater statement runs, so concurrent indexers queue on the first shared row and no cycle can form among the product rows of one message.
+The updaters keep their own statements; they only run inside this transaction on PostgreSQL.
+Other databases run the closure as it is.
+
+Why PostgreSQL only: InnoDB detects a deadlock at once and the retry is cheap, so MariaDB and MySQL do not collapse (docs/13), and the extra `SELECT ... FOR UPDATE` would only add work there.
+On PostgreSQL every deadlock waits for `deadlock_timeout`, so avoiding the cycle is the fix; `deadlock_timeout` is not changed.
+
+Tests: `ProductIndexerTest::testUpdateLocksTheProductRowsInIdOrderOnPostgreSql` and `testUpdateTakesNoRowLocksOnMySql` (unit).
+
+Test runs (private test databases `shopware_w6b_test`, dropped afterwards):
+
+- Unit tests `tests/unit/Core/Content/Product/DataAbstractionLayer` and `tests/unit/Core/Framework/Adapter/Database`: 274 tests green on PostgreSQL and on MariaDB.
+- `tests/integration/Core/Content/Product/DataAbstractionLayer`: MariaDB 72 tests green; PostgreSQL 5 errors and 2 failures (`VariantListingIndexerTest` x4 GROUP BY, `VariantListingUpdaterTest::testUpdateAppliesSha256DisplayGroupForListingGroupConfiguration` uuid against text, `ProductSearchConfigFieldExceptionHandlerTest::testDuplicateInsert`, `CheapestPriceTest::testAggregation`).
+  These 7 are pre-existing: the same 7 fail with the old `ProductIndexer` and `SearchKeywordUpdater` loaded in front of the autoloader (files of the commit before `38f1d41ac6c`), and no stack trace of the whole PostgreSQL run contains `ProductIndexer.php` or `SearchKeywordUpdater.php`.
+  They belong to the DAL failure list of docs/21 (handoff C).
+- One run showed an additional foreign key error in `SearchKeywordUpdaterTest` (a data set whose `product_manufacturer_translation` insert referenced a language id missing in the test database, raised in the writer, not in the indexer); it did not reproduce in 3 reruns of the class and did not occur in the two full runs with the old code.
+
+### Result
+
+Same session, same stacks, DB containers limited to 4 CPUs / 4 GiB (restored to 8 CPUs / 16 GiB), payload and settings as in docs/13 "Parallel bulk write and deadlocks", 93 requests per row, all HTTP 200.
+"Before" is the code without `38f1d41ac6c` and `e0e6f3d3fae` on the same stack, run right before.
+Load average (1 min / 5 min / 15 min) from `uptime` after each row; the machine was busier than in the wave 5 runs, so the absolute numbers are lower than in docs/13.
+
+| Row | Deadlocks (counter) | Sequential median ms (3 repeats) | Parallel requests per second (3 repeats, median) | Load average |
+|---|---|---|---|---|
+| PostgreSQL, list as built, before | 31 | 783.8, 688.4, 658.7 | 1.89, 1.59, 1.07 (1.59) | 6.86 / 7.46 / 11.21 |
+| PostgreSQL, list as built, after | 0 | 650.6, 749.5, 664.1 | 3.41, 2.86, 3.09 (3.09) | 5.49 / 7.49 / 11.86 |
+| PostgreSQL, `--dedupe`, before | 0 | 642.6, 640.8, 650.6 | 4.75, 5.02, 5.26 (5.02) | 6.44 / 7.29 / 11.00 |
+| PostgreSQL, `--dedupe`, after | 0 | 632.0, 596.0, 593.8 | 4.79, 6.01, 5.72 (5.72) | 6.59 / 7.53 / 11.72 |
+| MariaDB, list as built, after | not read | 309.6, 273.1, 354.7 | 10.52, 9.24, 10.82 (10.52) | 6.92 / 7.54 / 11.63 |
+
+- Deadlocks on the list as built go from 31 to 0, and the throughput is 1.9 times the before value in the same session.
+  The first session's informal check (baseline 1.14 rps with 45 deadlocks, about 2.3 times after the fix, load 16 to 19) points the same way but was not recorded.
+- The list as built does not reach the `--dedupe` value (3.09 against 5.72): requests that share the two hot products now wait for each other on those rows.
+- MariaDB: the code path is unchanged on MariaDB (`withProductRowLocks()` calls the closure directly; the keyword updater filter only runs in a non-live version), and it was run once after the change, not before; 10.52 is lower than the wave 5 value of 12.17 at a higher load.
+- Sequential latency on PostgreSQL (about 650 ms) is the same with and without the fix in this session, and above the 430 ms of docs/13 because of the load at the time.
+
+### Not done
+
+- The lock covers the `product` rows only. The deadlocks seen in wave 5 and 6 were on `product`; the older catalog run (docs/13) also named `product_keyword_dictionary`, which this fix does not touch and which was not looked at again.

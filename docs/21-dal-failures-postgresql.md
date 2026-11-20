@@ -157,7 +157,7 @@ The 24 failures of the wave 5 recheck were 18 in this first run (the stale id te
 | Tests | Count | Cause (verified) | Needed change | Owner |
 | --- | --- | --- | --- | --- |
 | `EntityAggregatorTest::testTermsAggregationWithSorting` | 1 | A terms aggregation sorted by `product.categories.name` DESC returns the NULL bucket first on PostgreSQL (`NULLS FIRST` is the default for DESC), the test expects it last as on MySQL. The DAL states no NULL order anywhere (`grep NULLS` finds nothing). | The same fix applies to every `ORDER BY` of `FieldSorting`: `NULLS LAST` for DESC and `NULLS FIRST` for ASC through the dialect. It changes the read path SQL shape and a default btree index can not serve `ASC NULLS FIRST`, so it needs a measurement first. Not done here. | handoff D (read path) |
-| `TranslatedVersionsTest` (3), `VersioningTest::testDeleteNoneExistingVersion` | 4 errors | `product_search_keyword` rows for a product version that was already removed, see the section above. | updater skips non-existing versions | handoff B |
+| `TranslatedVersionsTest` (3), `VersioningTest::testDeleteNoneExistingVersion` | 4 errors | `product_search_keyword` rows for a product version that was already removed, see the section above. | fixed in wave 6 B (below) | done |
 | `CustomEntityLifecycleServiceTest` (outside the DAL suite) | not counted | `Unmapped MySQL type bytea for custom_entity_test.id`, see above | `DdlRewriter` mapping for custom entity tables | handoff B or A (schema) |
 
 Stale id group (`AttributeEntityIntegrationTest::testTranslations`, `RepositoryFacadeTest`, `ManyToOneAssociationFieldResolverTest`): passed in all three default order runs on a private database, no failure to analyse.
@@ -182,3 +182,9 @@ Handoff D: the string filters for regular columns use the same pair, `$dialect->
 - Unit tests: adapter and DAL (1660 tests) OK on MySQL, MariaDB and PostgreSQL; new unit tests for the five dialect methods and the queue merge, new integration test `testStringEqualsAnyCriteriaIsCaseInsensitive` (PostgreSQL and MariaDB OK).
 - Commit `87783e92dad` carries the message of this work but contains only a whitespace change of `composer.json` (a path mistake while committing, the file was another session's uncommitted change); the code is in `a3770fd3f5e`.
 - Database changes: created `shopware_w6c_test` on PostgreSQL and MariaDB, added a storefront sales channel to the PostgreSQL copy, dropped both at the end.
+
+## Wave 6 (handoff B): versioning failures fixed
+
+Instance commit `e0e6f3d3fae`: `SearchKeywordUpdater::update()` now drops the products that have no row in a non-live version (`filterProductsOfVersion()`, one `SELECT id FROM product WHERE id IN (:ids) AND version_id = :version`) before it indexes keywords, so no keyword row is written for a version the product is not in.
+MySQL dropped those rows through `INSERT IGNORE`, PostgreSQL raised the foreign key error (mechanism above).
+Checked on PostgreSQL with `TranslatedVersionsTest` and `VersioningTest`: without the commit 4 errors (1 in `VersioningTest`, 3 in `TranslatedVersionsTest`), with it both classes pass (38 and 7 tests); on MariaDB both classes pass as well.
