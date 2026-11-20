@@ -1,0 +1,8 @@
+storefront home same 12 diff 0 None
+storefront listing with filter same 12 diff 0 None
+storefront search same 12 diff 0 None
+storefront product detail same 12 diff 0 None
+storefront home same 12 diff 0 None
+storefront listing with filter same 12 diff 0 None
+storefront search same 12 diff 0 None
+storefront product detail same 12 diff 0 None

@@ -1,0 +1,99 @@
+MODE auto
+load 14.89 14.23 15.52
+{"stack": "pg-persistent", "scenario": "storefront home", "requests": 308, "median_ms": 201.2, "plan_ms_per_request": 27.49, "exec_ms_per_request": 26.71, "statements_per_request": 76.2, "plans_per_request": 73.9}
+errors {'storefront home': {'pg-persistent': 0}}
+load 17.65 14.84 15.62
+{"stack": "pg-plancache", "scenario": "storefront home", "requests": 308, "median_ms": 255.9, "plan_ms_per_request": 9.82, "exec_ms_per_request": 31.04, "statements_per_request": 76.2, "plans_per_request": 25.1}
+errors {'storefront home': {'pg-plancache': 0}}
+load 18.05 15.85 15.93
+{"stack": "pg-persistent", "scenario": "storefront home", "requests": 308, "median_ms": 147.1, "plan_ms_per_request": 22.38, "exec_ms_per_request": 22.68, "statements_per_request": 76.2, "plans_per_request": 73.9}
+errors {'storefront home': {'pg-persistent': 0}}
+load 14.07 15.24 15.70
+{"stack": "pg-plancache", "scenario": "storefront home", "requests": 308, "median_ms": 140.2, "plan_ms_per_request": 2.36, "exec_ms_per_request": 19.06, "statements_per_request": 76.2, "plans_per_request": 16.3}
+errors {'storefront home': {'pg-plancache': 0}}
+load 12.08 14.44 15.37
+{"stack": "pg-persistent", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 174.2, "plan_ms_per_request": 22.86, "exec_ms_per_request": 5.93, "statements_per_request": 66.4, "plans_per_request": 64.2}
+errors {'storefront listing with filter': {'pg-persistent': 0}}
+load 13.87 14.48 15.31
+{"stack": "pg-plancache", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 117.6, "plan_ms_per_request": 4.22, "exec_ms_per_request": 5.38, "statements_per_request": 66.4, "plans_per_request": 14.3}
+errors {'storefront listing with filter': {'pg-plancache': 0}}
+load 11.11 13.62 14.93
+{"stack": "pg-persistent", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 90.7, "plan_ms_per_request": 13.01, "exec_ms_per_request": 3.39, "statements_per_request": 66.4, "plans_per_request": 64.2}
+errors {'storefront listing with filter': {'pg-persistent': 0}}
+load 8.51 12.55 14.46
+{"stack": "pg-plancache", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 75.9, "plan_ms_per_request": 2.26, "exec_ms_per_request": 3.19, "statements_per_request": 66.4, "plans_per_request": 12.7}
+errors {'storefront listing with filter': {'pg-plancache': 0}}
+load 7.87 11.83 14.11
+{"stack": "pg-persistent", "scenario": "storefront search", "requests": 408, "median_ms": 111.3, "plan_ms_per_request": 19.11, "exec_ms_per_request": 7.84, "statements_per_request": 67.3, "plans_per_request": 65.1}
+errors {'storefront search': {'pg-persistent': 0}}
+load 6.51 10.91 13.65
+{"stack": "pg-plancache", "scenario": "storefront search", "requests": 408, "median_ms": 109.1, "plan_ms_per_request": 13.35, "exec_ms_per_request": 7.98, "statements_per_request": 67.3, "plans_per_request": 28.2}
+errors {'storefront search': {'pg-plancache': 0}}
+load 10.81 11.34 13.65
+{"stack": "pg-persistent", "scenario": "storefront search", "requests": 408, "median_ms": 134.8, "plan_ms_per_request": 23.4, "exec_ms_per_request": 9.18, "statements_per_request": 67.3, "plans_per_request": 65.1}
+errors {'storefront search': {'pg-persistent': 0}}
+load 12.33 11.49 13.53
+{"stack": "pg-plancache", "scenario": "storefront search", "requests": 408, "median_ms": 112.9, "plan_ms_per_request": 13.24, "exec_ms_per_request": 8.64, "statements_per_request": 67.3, "plans_per_request": 34.1}
+errors {'storefront search': {'pg-plancache': 0}}
+load 9.75 10.96 13.21
+{"stack": "pg-persistent", "scenario": "storefront product detail", "requests": 408, "median_ms": 128.8, "plan_ms_per_request": 20.11, "exec_ms_per_request": 4.55, "statements_per_request": 87.6, "plans_per_request": 85.4}
+errors {'storefront product detail': {'pg-persistent': 0}}
+load 6.65 9.99 12.71
+{"stack": "pg-plancache", "scenario": "storefront product detail", "requests": 408, "median_ms": 131.4, "plan_ms_per_request": 14.39, "exec_ms_per_request": 4.19, "statements_per_request": 87.6, "plans_per_request": 49.3}
+errors {'storefront product detail': {'pg-plancache': 0}}
+load 6.34 9.28 12.26
+{"stack": "pg-persistent", "scenario": "storefront product detail", "requests": 408, "median_ms": 141.7, "plan_ms_per_request": 22.65, "exec_ms_per_request": 5.16, "statements_per_request": 87.6, "plans_per_request": 85.4}
+errors {'storefront product detail': {'pg-persistent': 0}}
+load 7.80 9.06 11.95
+{"stack": "pg-plancache", "scenario": "storefront product detail", "requests": 408, "median_ms": 120.5, "plan_ms_per_request": 12.17, "exec_ms_per_request": 3.82, "statements_per_request": 87.6, "plans_per_request": 44.9}
+errors {'storefront product detail': {'pg-plancache': 0}}
+MODE generic
+load 7.24 8.53 11.46
+{"stack": "pg-persistent", "scenario": "storefront home", "requests": 308, "median_ms": 152.4, "plan_ms_per_request": 18.84, "exec_ms_per_request": 19.6, "statements_per_request": 76.2, "plans_per_request": 73.9}
+errors {'storefront home': {'pg-persistent': 0}}
+load 8.11 8.54 11.27
+{"stack": "pg-plancache", "scenario": "storefront home", "requests": 308, "median_ms": 114.4, "plan_ms_per_request": 1.14, "exec_ms_per_request": 14.43, "statements_per_request": 76.2, "plans_per_request": 9.6}
+errors {'storefront home': {'pg-plancache': 0}}
+load 6.72 8.11 10.99
+{"stack": "pg-persistent", "scenario": "storefront home", "requests": 308, "median_ms": 140.6, "plan_ms_per_request": 16.12, "exec_ms_per_request": 17.76, "statements_per_request": 76.2, "plans_per_request": 73.9}
+errors {'storefront home': {'pg-persistent': 0}}
+load 6.26 7.73 10.70
+{"stack": "pg-plancache", "scenario": "storefront home", "requests": 308, "median_ms": 118.2, "plan_ms_per_request": 0.44, "exec_ms_per_request": 14.15, "statements_per_request": 76.2, "plans_per_request": 7.5}
+errors {'storefront home': {'pg-plancache': 0}}
+load 7.56 7.88 10.61
+{"stack": "pg-persistent", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 91.4, "plan_ms_per_request": 11.72, "exec_ms_per_request": 3.26, "statements_per_request": 66.4, "plans_per_request": 64.2}
+errors {'storefront listing with filter': {'pg-persistent': 0}}
+load 6.63 7.59 10.38
+{"stack": "pg-plancache", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 76.8, "plan_ms_per_request": 0.95, "exec_ms_per_request": 3.2, "statements_per_request": 66.4, "plans_per_request": 7.7}
+errors {'storefront listing with filter': {'pg-plancache': 0}}
+load 6.86 7.54 10.25
+{"stack": "pg-persistent", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 84.6, "plan_ms_per_request": 10.84, "exec_ms_per_request": 3.0, "statements_per_request": 66.4, "plans_per_request": 64.2}
+errors {'storefront listing with filter': {'pg-persistent': 0}}
+load 5.54 7.13 9.97
+{"stack": "pg-plancache", "scenario": "storefront listing with filter", "requests": 408, "median_ms": 65.8, "plan_ms_per_request": 0.54, "exec_ms_per_request": 2.76, "statements_per_request": 66.4, "plans_per_request": 6.8}
+errors {'storefront listing with filter': {'pg-plancache': 0}}
+load 5.72 7.02 9.83
+{"stack": "pg-persistent", "scenario": "storefront search", "requests": 408, "median_ms": 109.6, "plan_ms_per_request": 16.03, "exec_ms_per_request": 8.42, "statements_per_request": 67.3, "plans_per_request": 65.1}
+errors {'storefront search': {'pg-persistent': 0}}
+load 6.96 7.08 9.69
+{"stack": "pg-plancache", "scenario": "storefront search", "requests": 408, "median_ms": 97.0, "plan_ms_per_request": 6.01, "exec_ms_per_request": 8.37, "statements_per_request": 67.3, "plans_per_request": 16.4}
+errors {'storefront search': {'pg-plancache': 0}}
+load 7.66 7.28 9.63
+{"stack": "pg-persistent", "scenario": "storefront search", "requests": 408, "median_ms": 104.6, "plan_ms_per_request": 15.87, "exec_ms_per_request": 8.38, "statements_per_request": 67.3, "plans_per_request": 65.1}
+errors {'storefront search': {'pg-persistent': 0}}
+load 6.56 7.06 9.42
+{"stack": "pg-plancache", "scenario": "storefront search", "requests": 408, "median_ms": 86.1, "plan_ms_per_request": 5.62, "exec_ms_per_request": 7.36, "statements_per_request": 67.3, "plans_per_request": 23.0}
+errors {'storefront search': {'pg-plancache': 0}}
+load 4.77 6.51 9.11
+{"stack": "pg-persistent", "scenario": "storefront product detail", "requests": 408, "median_ms": 117.2, "plan_ms_per_request": 17.64, "exec_ms_per_request": 4.48, "statements_per_request": 87.6, "plans_per_request": 85.4}
+errors {'storefront product detail': {'pg-persistent': 0}}
+load 3.42 5.86 8.72
+{"stack": "pg-plancache", "scenario": "storefront product detail", "requests": 408, "median_ms": 121.7, "plan_ms_per_request": 7.16, "exec_ms_per_request": 4.54, "statements_per_request": 87.6, "plans_per_request": 28.0}
+errors {'storefront product detail': {'pg-plancache': 0}}
+load 3.97 5.54 8.42
+{"stack": "pg-persistent", "scenario": "storefront product detail", "requests": 408, "median_ms": 152.4, "plan_ms_per_request": 23.49, "exec_ms_per_request": 6.09, "statements_per_request": 87.6, "plans_per_request": 85.4}
+errors {'storefront product detail': {'pg-persistent': 0}}
+load 14.18 7.84 9.02
+{"stack": "pg-plancache", "scenario": "storefront product detail", "requests": 408, "median_ms": 128.5, "plan_ms_per_request": 7.53, "exec_ms_per_request": 5.01, "statements_per_request": 87.6, "plans_per_request": 27.6}
+errors {'storefront product detail': {'pg-plancache': 0}}
+FINISHED

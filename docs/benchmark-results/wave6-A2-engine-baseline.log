@@ -1,0 +1,61 @@
+RUN 1 oltp_point_select mariadb load 11.84 10.56 9.09
+ transactions: 7112708 (237071.40 per sec.)  queries: 7112708 (237071.40 per sec.)  avg: 0.03  95th percentile: 0.09 
+RUN 1 oltp_point_select mysql load 17.34 12.13 9.71
+ transactions: 9696264 (323171.69 per sec.)  queries: 9696264 (323171.69 per sec.)  avg: 0.02  95th percentile: 0.04 
+RUN 1 oltp_point_select pg load 16.62 12.45 9.91
+ transactions: 8571608 (285646.80 per sec.)  queries: 8571608 (285646.80 per sec.)  avg: 0.03  95th percentile: 0.05 
+RUN 1 oltp_read_only mariadb load 16.56 12.80 10.12
+ transactions: 365762 (12190.80 per sec.)  queries: 5852192 (195052.83 per sec.)  avg: 0.66  95th percentile: 1.25 
+RUN 1 oltp_read_only mysql load 15.93 12.99 10.29
+ transactions: 414393 (13809.95 per sec.)  queries: 6630288 (220959.18 per sec.)  avg: 0.58  95th percentile: 1.23 
+RUN 1 oltp_read_only pg load 16.85 13.52 10.58
+ transactions: 343099 (11433.21 per sec.)  queries: 5489584 (182931.42 per sec.)  avg: 0.70  95th percentile: 1.25 
+RUN 2 oltp_point_select mariadb load 17.25 13.98 10.85
+ transactions: 9328300 (310918.10 per sec.)  queries: 9328300 (310918.10 per sec.)  avg: 0.03  95th percentile: 0.06 
+RUN 2 oltp_point_select mysql load 17.20 14.31 11.08
+ transactions: 10470112 (348977.33 per sec.)  queries: 10470112 (348977.33 per sec.)  avg: 0.02  95th percentile: 0.04 
+RUN 2 oltp_point_select pg load 16.17 14.31 11.19
+ transactions: 9000634 (299933.72 per sec.)  queries: 9000634 (299933.72 per sec.)  avg: 0.03  95th percentile: 0.05 
+RUN 2 oltp_read_only mariadb load 16.83 14.65 11.42
+ transactions: 343587 (11434.59 per sec.)  queries: 5497392 (182953.42 per sec.)  avg: 0.70  95th percentile: 1.47 
+RUN 2 oltp_read_only mysql load 19.81 15.52 11.85
+ transactions: 298062 (9930.67 per sec.)  queries: 4768992 (158890.67 per sec.)  avg: 0.80  95th percentile: 1.96 
+RUN 2 oltp_read_only pg load 23.31 16.79 12.43
+ transactions: 253556 (8450.27 per sec.)  queries: 4056896 (135204.29 per sec.)  avg: 0.95  95th percentile: 2.14 
+RUN 3 oltp_point_select mariadb load 26.00 18.02 13.02
+ transactions: 7543922 (251424.20 per sec.)  queries: 7543922 (251424.20 per sec.)  avg: 0.03  95th percentile: 0.07 
+RUN 3 oltp_point_select mysql load 29.89 19.94 13.93
+ transactions: 10007592 (333550.46 per sec.)  queries: 10007592 (333550.46 per sec.)  avg: 0.02  95th percentile: 0.04 
+RUN 3 oltp_point_select pg load 26.03 20.01 14.17
+ transactions: 7710736 (256989.92 per sec.)  queries: 7710736 (256989.92 per sec.)  avg: 0.03  95th percentile: 0.06 
+RUN 3 oltp_read_only mariadb load 26.32 20.64 14.59
+ transactions: 329172 (10970.35 per sec.)  queries: 5266752 (175525.58 per sec.)  avg: 0.73  95th percentile: 1.61 
+RUN 3 oltp_read_only mysql load 30.07 22.07 15.32
+ transactions: 352349 (11743.04 per sec.)  queries: 5637584 (187888.63 per sec.)  avg: 0.68  95th percentile: 1.55 
+RUN 3 oltp_read_only pg load 29.29 22.68 15.78
+ transactions: 275970 (9192.96 per sec.)  queries: 4415520 (147087.42 per sec.)  avg: 0.87  95th percentile: 2.03 
+PGBENCH 1 S load 31.26 23.75 16.40
+number of failed transactions: 0 (0.000%) latency average = 0.091 ms tps = 87433.271713 (without initial connection time) 
+PGBENCH 1 SC load 28.88 23.99 16.78
+number of failed transactions: 0 (0.000%) latency average = 58.097 ms tps = 137.699810 (including reconnection times) 
+PGBENCH 1 tpcb load 28.78 24.42 17.19
+number of failed transactions: 0 (0.000%) latency average = 2.264 ms tps = 3534.014775 (without initial connection time) 
+PGBENCH 1 tpcbC load 46.77 28.82 19.01
+number of failed transactions: 0 (0.000%) latency average = 54.500 ms tps = 146.788607 (including reconnection times) 
+PGBENCH 2 S load 55.53 33.58 21.18
+number of failed transactions: 0 (0.000%) latency average = 0.077 ms tps = 104486.101941 (without initial connection time) 
+PGBENCH 2 SC load 42.69 32.56 21.23
+number of failed transactions: 0 (0.000%) latency average = 54.006 ms tps = 148.130840 (including reconnection times) 
+PGBENCH 2 tpcb load 33.66 31.36 21.19
+number of failed transactions: 0 (0.000%) latency average = 1.167 ms tps = 6853.854921 (without initial connection time) 
+PGBENCH 2 tpcbC load 25.97 29.73 20.95
+number of failed transactions: 0 (0.000%) latency average = 49.785 ms tps = 160.692042 (including reconnection times) 
+PGBENCH 3 S load 22.87 28.66 20.87
+number of failed transactions: 0 (0.000%) latency average = 0.083 ms tps = 96942.000417 (without initial connection time) 
+PGBENCH 3 SC load 19.30 27.22 20.61
+number of failed transactions: 0 (0.000%) latency average = 52.383 ms tps = 152.721586 (including reconnection times) 
+PGBENCH 3 tpcb load 17.21 25.93 20.37
+number of failed transactions: 0 (0.000%) latency average = 1.467 ms tps = 5451.544270 (without initial connection time) 
+PGBENCH 3 tpcbC load 19.09 25.43 20.38
+number of failed transactions: 0 (0.000%) latency average = 67.150 ms tps = 119.136583 (including reconnection times) 
+FINISHED
