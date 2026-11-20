@@ -208,7 +208,8 @@ All 9 runs passed; empty database to working shop takes about 35 to 50 seconds o
 Wave 3 spike: `system:install` ran with 5 of 1,542 migrations missing; storefront home, login, admin token, product search and product write worked (`docs/14-sqlite-spike.md`).
 It was not faster for the measured requests (PHP dominates), allows one writer at a time, and its `ALTER TABLE` limits make every migration a rewrite.
 Wave 7 S (`docs/24-sqlite-dal.md`): `SqliteDialect` was brought up to the current `SqlDialect`, `scripts/switch-db.sh sqlite` installs, indexes and passes the 8 smoke requests including admin write and checkout in 32.9 s, and the DataAbstractionLayer integration suite runs end to end: 804 tests, 10 failures in the final run (9 after one test expectation fix).
-The failures are a decimal scale convention in 7 aggregate tests (`'250.0000'` against `'250'`), two date normalisation cases in the read path and one group that depends on the full run (9 `Facade` tests that passed alone).
+The 10 failures of the final run are a decimal scale convention in 7 aggregate tests (`'250.0000'` against `'250'`), two date normalisation cases in the read path and one accent expectation in `SqlQueryParserTest` (fixed afterwards, suite not rerun).
+A group of 9 `Facade` tests failed once in an earlier run and passed alone and in the final run; it is listed as flaky.
 Updated recommendation of `docs/24`: SQLite is realistic as a disposable local and single process CI database behind the same `SqlDialect`, and stays out of the supported set for production and for lanes with parallel workers; the migrations (`writable_schema` patch, five failing migrations of docs/14) did not change.
 
 ## Database differences that shaped the design
