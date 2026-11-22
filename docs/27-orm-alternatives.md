@@ -3,7 +3,7 @@
 State: 2026-11-22, research before wave 8.
 Question: the experiment put a `SqlDialect` under the DAL (`docs/10-architecture.md`).
 We never checked how much effort it would be to replace the DAL with an existing ORM or data mapper instead, and what that would bring for developer experience (DX) and performance.
-This doc holds the research; the PoC of wave 8 (`docs/28` to `docs/30`) measures it, and the conclusion section at the end is written by wave 8 E.
+This doc holds the research; the PoC of wave 8 (`docs/28` to `docs/31`) measures three candidates (Doctrine ORM, Cycle ORM and an improved DAL v2), and the conclusion section at the end is written by wave 8 E.
 
 Raw notes of the research (not versioned): `handoffs/wave8-notes/orm-landscape.md`, `handoffs/wave8-notes/dal-inventory.md`.
 
@@ -38,6 +38,31 @@ Not in the PoC, with the reason:
 - Atlas.Orm (last release 2021) and Tempest DB (marked experimental, PHP 8.5 only).
 
 The "no ORM" variant, hand-written DBAL SQL per use case, is in the PoC as the lower bound for time and the upper bound for code.
+
+## Candidate 3: DAL v2
+
+The third candidate keeps the DAL's concepts and public API (definitions, `EntityRepository`, `Criteria`, translations, inheritance, versioning, extensions, events, Admin/Sync/Store API) and changes what makes it slow or awkward.
+So the comparison at the end has three candidates: Doctrine ORM, Cycle ORM and DAL v2, each against the trunk DAL and hand-written DBAL.
+
+What v2 builds on (checked on `87e1768ce3a`):
+
+- `EntityRepository` already has `@template TEntityCollection` generics.
+- `Criteria::addFields()` already does partial loading.
+- Attribute entities (`Framework/DataAbstractionLayer/Attribute/`, 26 attributes incl. `Translations`, `Inherited`, `Version`) exist, but only 2 core entities use them.
+
+What v2 targets, each tied to a measured finding:
+
+| Lever | Target | Source |
+|---|---|---|
+| Read shape | The detail read is one statement with 19 joins and 9 translation subqueries; try a root query plus batched by-id reads and one join per language with `COALESCE` | `core-findings.md` row 9, `docs/22`, `docs/25` |
+| Compiled hydrators | One generated hydrator per definition instead of the generic field loop of `EntityHydrator`, only if the profile shows hydration matters | profile in wave 8 V |
+| DTO projections | Readonly DTOs whose properties define the field list (automatic partial loading, typed results, no "maybe loaded" nullable properties) | `docs/08-dto-slice.md` |
+| Write batching | Fewer statements per write (multi-row upserts through `SqlDialect`); one 50 product sync runs about 475 single row `UPDATE product` statements in the indexers | `core-findings.md` row 29, `docs/26` |
+| SQL hygiene | Strict `GROUP BY`, `ROW_NUMBER()`, stated NULL order, typed numeric binds | `core-findings.md` rows 2, 6, 14, 27 |
+| One source of truth | Attribute entities instead of definition + entity + collection classes | DX |
+| Typed criteria | Field paths are strings (`'manufacturer.translations.name'`); generated constants or a typed builder, plus a PHPStan rule for unknown paths | DX |
+
+Every lever is measured alone and combined with the same harness and scenarios as the ORMs, and labelled internal, additive or breaking for plugins and apps (`docs/31`).
 
 ## Performance data found
 
