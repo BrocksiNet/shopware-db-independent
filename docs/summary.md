@@ -266,6 +266,13 @@ From `docs/02-decisions.md` and the wave handoffs:
 - SQLite is the third database to prove the abstraction, now with the DAL suite running on it, still not a production target.
 - Custom field string equals is case-insensitive on every database, as on MySQL (decided for wave 6).
 
+## Wave 8: replace the DAL with an ORM?
+
+Wave 8 measured three candidates on a PoC slice (listing, detail, search, bulk write, criteria from JSON) on MySQL, MariaDB, PostgreSQL and SQLite: Doctrine ORM 3.8, Cycle ORM 2.19 and DAL v2 (the DAL kept and improved), against the trunk DAL and hand-written DBAL.
+The question, the probes and the "Conclusion" with the probe table, the developer experience table, the effort estimate per candidate and the variants are in `docs/29-orm-alternatives.md`; the per-candidate results are in `docs/31` to `docs/33`.
+Both ORMs pass the scenarios only with hand-written translation fallback, inheritance and version merge, neither batches writes, and Doctrine fails the plugin-field probe; the effort for a full replacement is judged at 100 to 230 person-weeks with a break of the plugin and app API, against 11 to 27 for the internal and additive levers of DAL v2.
+Pending: the final performance table (`docs/34-orm-spike-final-timings.md`) and the recommendation; the draft in `docs/29` rests on probes, DX and effort only and is labelled "draft, pending doc 34".
+
 ## Open
 
 | Topic | Numbers today | Next |
