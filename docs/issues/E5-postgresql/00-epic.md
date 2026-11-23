@@ -57,6 +57,7 @@ Core platform: connection setup, dialect, DAL, migrations; CI; developer and hos
 
 ## Research notes (not for upstream)
 
+- Core developer feedback (2026-11-23): not worth the effort; benchmarks favouring PostgreSQL are mostly synthetic, ports from MySQL or MariaDB were reported to get slower, and the ecosystem is MySQL-based. Recorded as a risk in `docs/27-final-report.md`; it weighs on the go decision this epic depends on.
 - Source: `docs/27-final-report.md` (TL;DR, "Required core changes" rows 6 and 7, phase 3, risks), `docs/core-findings.md` rows 11, 16, 17, 19, 30, `docs/22`, `docs/23`.
 - Known risk: write and import performance on PostgreSQL is about 2x MySQL (`docs/27`).
 - Branch `poc/db-independent` holds the working implementation.

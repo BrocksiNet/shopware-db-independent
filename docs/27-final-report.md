@@ -95,3 +95,5 @@ The phases follow the release rhythm: non-breaking work in minors, breaking work
 - Write and import performance on PostgreSQL (about 2x) matters for large catalogs and ERP syncs.
 - Behaviour that MySQL users get without asking: accent-insensitive search, lenient `GROUP BY`, implicit casts, NULL order.
 - The PoC branch is far from trunk; landing it means re-doing the work in reviewable steps, not merging the branch.
+- Value for the effort is doubtful (feedback from a core developer, 2026-11-23, reported, not measured here): PostgreSQL maintainers told them years ago that database benchmarks are mostly synthetic and that several applications got slower after a port from MySQL or MariaDB, and the extension, hosting and tooling ecosystem around Shopware is built on MySQL.
+  The measurements here point the same way: in the storefront and write runs PostgreSQL stayed slower than MariaDB (storefront 1.13x to 1.46x, writes about 2x).
