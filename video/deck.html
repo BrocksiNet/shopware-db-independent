@@ -1,0 +1,214 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  :root {
+    --bg: #0b1020; --panel: #141b30; --line: #26304d; --text: #eef2fb; --muted: #8e9ab8;
+    --blue: #189eff; --green: #35d49a; --red: #ff6b6b; --amber: #ffb84d; --violet: #a78bfa;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--bg); }
+  body { font-family: -apple-system, "SF Pro Display", "Helvetica Neue", sans-serif; color: var(--text); }
+  .scene { display: none; position: absolute; inset: 0; padding: 110px 140px; flex-direction: column;
+    background: radial-gradient(1200px 700px at 85% -10%, #18306055, transparent), var(--bg); }
+  .scene.on { display: flex; }
+  [data-s] { transition: none; }
+  .hide { opacity: 0 !important; }
+  .kicker { color: var(--blue); font-size: 30px; font-weight: 700; letter-spacing: 4px; text-transform: uppercase; margin-bottom: 26px; }
+  h1 { font-size: 110px; line-height: 1.02; font-weight: 800; letter-spacing: -2px; }
+  h2 { font-size: 72px; line-height: 1.08; font-weight: 800; letter-spacing: -1px; margin-bottom: 56px; }
+  .sub { font-size: 40px; color: var(--muted); margin-top: 40px; line-height: 1.35; }
+  .accent { color: var(--blue); } .green { color: var(--green); } .red { color: var(--red); } .amber { color: var(--amber); }
+  .q { display: flex; gap: 36px; align-items: flex-start; background: var(--panel); border: 1px solid var(--line);
+    border-radius: 24px; padding: 44px 52px; margin-bottom: 32px; font-size: 46px; line-height: 1.3; }
+  .q .n { flex: none; width: 84px; height: 84px; border-radius: 50%; background: var(--blue); color: #fff;
+    font-weight: 800; font-size: 46px; display: grid; place-items: center; }
+  .note { font-size: 38px; color: var(--muted); margin-top: 24px; }
+  .grid { display: grid; gap: 32px; }
+  .g2 { grid-template-columns: 1fr 1fr; } .g3 { grid-template-columns: repeat(3, 1fr); } .g4 { grid-template-columns: repeat(4, 1fr); }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 24px; padding: 40px 44px; }
+  .big { font-size: 92px; font-weight: 800; letter-spacing: -2px; line-height: 1; }
+  .lbl { font-size: 32px; color: var(--muted); margin-top: 16px; line-height: 1.3; }
+  .db { text-align: center; padding: 44px 20px; }
+  .db .name { font-size: 46px; font-weight: 800; } .db .ver { font-size: 32px; color: var(--muted); margin-top: 8px; }
+  .db .ok { font-size: 30px; color: var(--green); margin-top: 22px; font-weight: 700; }
+  .bullets { list-style: none; } .bullets li { font-size: 44px; line-height: 1.3; margin-bottom: 34px; padding-left: 64px; position: relative; }
+  .bullets li::before { content: ""; position: absolute; left: 0; top: 18px; width: 26px; height: 26px; border-radius: 7px; background: var(--blue); }
+  .bars { display: flex; flex-direction: column; gap: 26px; }
+  .bar { display: grid; grid-template-columns: 420px 1fr 260px; align-items: center; gap: 28px; font-size: 36px; }
+  .bar .track { height: 58px; background: #1b2440; border-radius: 12px; overflow: hidden; }
+  .bar .fill { height: 100%; border-radius: 12px; }
+  .bar .val { font-weight: 800; font-size: 40px; } .bar .val small { font-weight: 500; color: var(--muted); font-size: 28px; display: block; }
+  .callout { margin-top: 48px; font-size: 46px; font-weight: 700; line-height: 1.3; border-left: 10px solid var(--amber); padding-left: 36px; }
+  .vs { display: grid; grid-template-columns: 1fr 1fr; gap: 40px; }
+  .vs .card h3 { font-size: 48px; margin-bottom: 30px; }
+  .vs .card li { font-size: 36px; line-height: 1.35; margin-bottom: 18px; list-style: none; padding-left: 50px; position: relative; }
+  .vs .card li::before { position: absolute; left: 0; font-weight: 800; }
+  .bad li::before { content: "✕"; color: var(--red); } .good li::before { content: "✓"; color: var(--green); }
+  .bad { border-color: #ff6b6b55; } .good { border-color: #35d49a88; background: #13261f; }
+  .foot { position: absolute; left: 140px; bottom: 56px; font-size: 26px; color: #5d6886; }
+  .center { justify-content: center; }
+  .chip { display: inline-block; font-size: 30px; padding: 10px 22px; border-radius: 40px; background: #1b2440; color: var(--muted); margin-right: 14px; }
+</style>
+</head>
+<body>
+
+<!-- 1 title -->
+<section class="scene center" id="s1">
+  <div class="kicker">A Shopware experiment</div>
+  <h1>What if we just<br><span class="accent">threw out the database?</span></h1>
+  <div class="sub" data-s="1">And then the DAL too.<br>Being a bit crazy, on purpose, to find what really slows us down.</div>
+</section>
+
+<!-- 2 two questions -->
+<section class="scene" id="s2">
+  <div class="kicker">The idea</div>
+  <h2>Two slightly crazy questions</h2>
+  <div class="q" data-s="1"><div class="n">1</div><div>Can Shopware run on <b class="accent">PostgreSQL</b> and <b class="accent">SQLite</b>, not just MySQL, without a rewrite?</div></div>
+  <div class="q" data-s="2"><div class="n">2</div><div>Do we even need our own <b class="accent">DAL</b>? Would Doctrine, Cycle ORM or plain SQL do better?</div></div>
+  <div class="note" data-s="3">Nobody planned to ship this. The goal: break things and see where it hurts.</div>
+</section>
+
+<!-- 3 how -->
+<section class="scene" id="s3">
+  <div class="kicker">How we ran it</div>
+  <h2>Small bets, fast waves, hard numbers</h2>
+  <ul class="bullets">
+    <li data-s="1"><b>8 waves in 6 days</b> <span class="accent">(Nov 18 – 23)</span></li>
+    <li data-s="2">AI agents in <b>parallel lanes</b>, every wave split into handoffs</li>
+    <li data-s="3">Every claim backed by a <b>measurement</b>: 4 databases, same machine, same data</li>
+    <li data-s="4"><b>118 commits</b> on the proof-of-concept branch, 479 files touched</li>
+  </ul>
+</section>
+
+<!-- 4 it runs -->
+<section class="scene" id="s4">
+  <div class="kicker">Crazy idea #1 · Result</div>
+  <h2>It runs. On all four.</h2>
+  <div class="grid g4" data-s="0">
+    <div class="card db"><div class="name">MySQL</div><div class="ver">8.4</div><div class="ok">✓ runs</div></div>
+    <div class="card db"><div class="name">MariaDB</div><div class="ver">10.11</div><div class="ok">✓ runs</div></div>
+    <div class="card db" style="border-color:#189eff"><div class="name accent">PostgreSQL</div><div class="ver">18</div><div class="ok">✓ runs</div></div>
+    <div class="card db"><div class="name">SQLite</div><div class="ver">embedded</div><div class="ok">✓ installs, DAL suite</div></div>
+  </div>
+  <div class="grid g3" style="margin-top:36px">
+    <div class="card" data-s="1"><div class="big green">910</div><div class="lbl">core migrations on PostgreSQL,<br>0 schema differences to MySQL</div></div>
+    <div class="card" data-s="2"><div class="big green">804 / 804</div><div class="lbl">DAL integration tests green<br>on PostgreSQL and MariaDB</div></div>
+    <div class="card" data-s="3"><div class="big amber">795 / 804</div><div class="lbl">DAL tests green on SQLite,<br>with just a dialect and shims</div></div>
+  </div>
+</section>
+
+<!-- 5 pg perf -->
+<section class="scene" id="s5">
+  <div class="kicker">Crazy idea #1 · Performance</div>
+  <h2>PostgreSQL storefront, relative to MariaDB</h2>
+  <div class="bars">
+    <div class="bar" data-s="0"><div>MariaDB (baseline)</div><div class="track"><div class="fill" style="width:27.8%;background:#5d6886"></div></div><div class="val">1.0x</div></div>
+    <div class="bar" data-s="1"><div>PostgreSQL, first run</div><div class="track"><div class="fill" style="width:100%;background:var(--red)"></div></div><div class="val red">2.6 – 3.6x<small>slower</small></div></div>
+    <div class="bar" data-s="2"><div>PostgreSQL, after wave 7</div><div class="track"><div class="fill" style="width:40.6%;background:var(--green)"></div></div><div class="val green">1.13 – 1.46x</div></div>
+  </div>
+  <div class="grid g2" style="margin-top:56px">
+    <div class="card" data-s="3"><div class="big green">149.6 → 93.5 ms</div><div class="lbl">search with a trigram index</div></div>
+    <div class="card" data-s="4"><div class="big red">520 vs 264 ms</div><div class="lbl">bulk write, PostgreSQL vs MariaDB: writes stay the weak spot</div></div>
+  </div>
+</section>
+
+<!-- 6 remove the DAL -->
+<section class="scene" id="s6">
+  <div class="kicker">Crazy idea #2</div>
+  <h2>Now remove the DAL</h2>
+  <div class="grid g3" data-s="1">
+    <div class="card"><div class="name" style="font-size:44px;font-weight:800">DAL</div><div class="lbl">what we ship today</div></div>
+    <div class="card"><div class="name" style="font-size:44px;font-weight:800">Plain SQL</div><div class="lbl">hand-written DBAL</div></div>
+    <div class="card"><div class="name" style="font-size:44px;font-weight:800">Doctrine ORM</div><div class="lbl">idiomatic + optimized</div></div>
+    <div class="card"><div class="name" style="font-size:44px;font-weight:800">Cycle ORM</div><div class="lbl">idiomatic + optimized</div></div>
+    <div class="card" style="border-color:#189eff;grid-column: span 2"><div class="name accent" style="font-size:44px;font-weight:800">DAL v2</div><div class="lbl">our DAL with measured improvements switched on one by one</div></div>
+  </div>
+  <div style="margin-top:44px" data-s="2">
+    <span class="chip">5 scenarios</span><span class="chip">9 configurations</span><span class="chip">4 databases</span><span class="chip">every result verified against the DAL</span>
+  </div>
+</section>
+
+<!-- 7 bottleneck -->
+<section class="scene" id="s7">
+  <div class="kicker">What removing it showed</div>
+  <h2>Writing 50 products on MySQL</h2>
+  <div class="bars">
+    <div class="bar" data-s="0"><div>DAL today</div><div class="track"><div class="fill" style="width:100%;background:var(--red)"></div></div><div class="val">90.1 ms<small>371 statements</small></div></div>
+    <div class="bar" data-s="1"><div>Doctrine ORM (opt.)</div><div class="track"><div class="fill" style="width:48.3%;background:var(--violet)"></div></div><div class="val">43.5 ms<small>351 statements</small></div></div>
+    <div class="bar" data-s="1"><div>Cycle ORM</div><div class="track"><div class="fill" style="width:49.6%;background:var(--violet)"></div></div><div class="val">44.7 ms<small>350 statements</small></div></div>
+    <div class="bar" data-s="2"><div>DAL v2</div><div class="track"><div class="fill" style="width:59.3%;background:var(--blue)"></div></div><div class="val">53.4 ms<small>23 statements</small></div></div>
+    <div class="bar" data-s="3"><div>Plain SQL</div><div class="track"><div class="fill" style="width:7.9%;background:var(--green)"></div></div><div class="val green">7.2 ms<small>5 statements</small></div></div>
+  </div>
+  <div class="callout" data-s="4">The database was never the problem.<br><span class="amber">371 statements</span> and the writer PHP around them were.</div>
+</section>
+
+<!-- 8 reads -->
+<section class="scene" id="s8">
+  <div class="kicker">Reads</div>
+  <h2>Product listing: DAL vs DAL v2</h2>
+  <div class="grid g2">
+    <div class="card" data-s="0"><div class="lbl" style="margin:0 0 18px">MySQL</div><div class="big">12.4 → <span class="green">3.8 ms</span></div><div class="lbl">0.30x of today's DAL</div></div>
+    <div class="card" data-s="1"><div class="lbl" style="margin:0 0 18px">PostgreSQL</div><div class="big">21.4 → <span class="green">10.1 ms</span></div><div class="lbl">0.47x of today's DAL</div></div>
+  </div>
+  <div class="callout" data-s="2">Surprise: on PostgreSQL, hand-written SQL was <span class="red">slower</span> than the DAL<br><span style="color:var(--muted);font-weight:500">33.3 ms vs 21.4 ms. "Hand-written" is not automatically "fast".</span></div>
+</section>
+
+<!-- 9 verdict -->
+<section class="scene" id="s9">
+  <div class="kicker">The verdict</div>
+  <h2>Keep the DAL. Make it better.</h2>
+  <div class="vs">
+    <div class="card bad" data-s="1"><h3>Replace it with an ORM</h3><ul>
+      <li>100 – 230 person-weeks <span style="color:var(--muted)">(estimate)</span></li>
+      <li>breaks every plugin and app</li>
+      <li>no translations, inheritance, versioning out of the box</li>
+      <li>still one statement per row on writes</li></ul></div>
+    <div class="card good" data-s="2"><h3>Build DAL v2 step by step</h3><ul>
+      <li>11 – 27 person-weeks <span style="color:var(--muted)">(estimate)</span></li>
+      <li>no breaking change</li>
+      <li>every lever measured on 4 databases</li>
+      <li>next target: the write path</li></ul></div>
+  </div>
+</section>
+
+<!-- 10 side effects -->
+<section class="scene" id="s10">
+  <div class="kicker">Side effects</div>
+  <h2>The crazy idea paid off for MySQL, today</h2>
+  <div class="grid g3">
+    <div class="card" data-s="1"><div class="big green">34</div><div class="lbl">core findings that help Shopware on MySQL as it is: performance, robustness, bugs</div></div>
+    <div class="card" data-s="2"><div class="big accent">3,747</div><div class="lbl">store plugins scanned: 55% use raw SQL, 9.4% would break on PostgreSQL today</div></div>
+    <div class="card" data-s="3"><div class="big amber">Epics</div><div class="lbl">core work cut into upstream-ready epics and sub-issues</div></div>
+  </div>
+</section>
+
+<!-- 11 lessons -->
+<section class="scene" id="s11">
+  <div class="kicker">Why experiments matter now</div>
+  <h2>What we take away</h2>
+  <ul class="bullets">
+    <li data-s="1"><b>Crazy questions got cheap.</b> With AI agents, a big what-if fits into a week.</li>
+    <li data-s="2"><b>Removing something shows the bottleneck.</b> Without the DAL we saw 371 statements.</li>
+    <li data-s="3"><b>A "no" is a result.</b> We won't replace the DAL, and now we know why, in numbers.</li>
+    <li data-s="4"><b>Side findings pay off right away.</b> 34 fixes for today's MySQL setup.</li>
+    <li data-s="5"><b>Measure, don't guess.</b> Our intuition was wrong more than once.</li>
+  </ul>
+</section>
+
+<!-- 12 close -->
+<section class="scene center" id="s12">
+  <h1>Be a bit crazy.<br><span class="accent">Measure everything.</span><br>Keep what's true.</h1>
+  <div class="sub" data-s="1">Shopware database independent · experiment, Nov 2026</div>
+</section>
+
+<script>
+  // URL hash: #<scene>-<step>; elements with data-s > step are hidden
+  const [scene, step] = (location.hash.slice(1) || '1-0').split('-').map(Number);
+  const el = document.getElementById('s' + scene);
+  el.classList.add('on');
+  el.querySelectorAll('[data-s]').forEach(n => { if (Number(n.dataset.s) > step) n.classList.add('hide'); });
+</script>
+</body>
+</html>
