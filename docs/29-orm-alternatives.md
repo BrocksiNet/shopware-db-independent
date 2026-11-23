@@ -306,14 +306,51 @@ Gain: read paths only, up to the DBAL numbers above; writes must stay on the DAL
 
 ### Performance per engine (from doc 34)
 
-TODO (E1 or the user): fill from `docs/34-orm-spike-final-timings.md` once the final timing block is done.
-One table per engine with median, p95, statements and peak memory per implementation and scenario, ratios against the DAL, and the cold-cache cost per implementation.
+All numbers are from one timing block in `docs/34-orm-spike-final-timings.md` (50 iterations, 5 warm-up, other lanes stopped, every verify cell equal to the DAL).
+Host load was high and falling (1-minute load 16.4 on MySQL down to 7.3 on SQLite), so compare implementations within one engine, not engines with each other.
+Median ms / statements per run; the full tables with all nine configurations, peak memory and ratios are in doc 34.
+
+| Engine | Impl | S1 listing | S2 detail | S3 search | S4 write | S5 JSON |
+|---|---|---|---|---|---|---|
+| MySQL | DAL | 12.42/4 | 4.60/5 | 56.67/7 | 90.11/371 | 28.24/4 |
+| MySQL | DBAL | 2.21/1 | 0.55/4 | 20.29/3 | 7.16/5 | 19.47/1 |
+| MySQL | Doctrine optimized | 2.83/1 | 0.78/4 | 20.23/3 | 43.48/351 | 23.78/1 |
+| MySQL | Cycle optimized | 6.14/13 | 2.98/18 | 48.80/11 | 52.29/350 | 12.54/4 |
+| MySQL | DAL v2 all levers | 3.78/2 | 1.90/5 | 32.67/4 | 57.49/23 | 14.11/2 |
+| MariaDB | DAL | 11.91/4 | 6.26/5 | 41.72/7 | 94.01/371 | 29.33/4 |
+| MariaDB | DBAL | 2.68/1 | 0.56/4 | 23.21/3 | 6.22/5 | 18.83/1 |
+| MariaDB | Doctrine optimized | 2.97/1 | 0.77/4 | 23.01/3 | 41.59/351 | 21.65/1 |
+| MariaDB | Cycle optimized | 4.49/13 | 2.34/18 | 29.24/11 | 41.68/350 | 12.65/4 |
+| MariaDB | DAL v2 all levers | 4.48/2 | 2.52/5 | 23.83/4 | 54.87/23 | 14.51/2 |
+| PostgreSQL | DAL | 21.35/4 | 12.07/5 | 68.39/7 | 84.65/123 | 41.24/4 |
+| PostgreSQL | DBAL | 33.34/1 | 2.98/4 | 34.64/3 | 12.72/5 | 28.48/1 |
+| PostgreSQL | Doctrine optimized | 31.88/1 | 4.57/4 | 36.23/3 | 57.22/351 | 23.35/1 |
+| PostgreSQL | Cycle optimized | 11.03/13 | 4.02/18 | 40.82/11 | 59.07/350 | 32.91/4 |
+| PostgreSQL | DAL v2 all levers | 10.05/2 | 5.61/5 | 35.57/4 | 89.15/123 | 17.33/2 |
+| SQLite | DAL | 62.34/4 | 17.02/5 | 130.22/7 | 339.01/371 | 62.44/4 |
+| SQLite | DBAL | 19.03/1 | 0.27/4 | 17.42/3 | 5.81/5 | 12.63/1 |
+| SQLite | Doctrine optimized | 19.72/1 | 0.44/4 | 18.53/3 | 125.83/351 | 13.63/1 |
+| SQLite | Cycle optimized | 5.34/13 | 1.14/18 | 23.10/11 | 16.86/350 | 8.98/4 |
+| SQLite | DAL v2 all levers | 33.46/2 | 10.08/5 | 67.84/4 | 287.10/23 | 22.47/2 |
+
+What the table shows:
+
+- Reads: DAL v2 with all levers is 1.7 to 3.3 times faster than the DAL on S1, S2, S3 and S5 on MySQL, MariaDB and PostgreSQL, and 1.7 to 2.8 times on SQLite.
+- Optimized Doctrine reaches DBAL level on reads, but only by leaving the entity model (scalar DQL or native SQL with array results, doc 31), so it no longer provides what the ORM was chosen for.
+- Cycle is the fastest implementation on SQLite S1 and S5 and beats the DAL and DBAL on PostgreSQL S1 (DAL v2 is slightly faster there), with 11 to 18 statements per read.
+- Hand-written DBAL is slower than the DAL on PostgreSQL S1 (33.34 against 21.35 ms); the DBAL plan analysis in doc 34 shows a join filter on `COALESCE` that cannot use an index and a window count before the top-N sort, the DAL plan could not be captured.
+- Writes are the weak spot of DAL v2: it is slower than both ORMs on S4 on every engine, although it sends far fewer statements (23 against 350).
+  The ORM write paths skip what the DAL write does (validation, write protection, the written events), so the comparison is not like for like, but on SQLite Cycle writes the 50 products in 16.86 ms against 287.10 ms for DAL v2, which says the DAL write cost on SQLite is not the statement count.
+- On PostgreSQL the batched update of DAL v2 does not engage (123 statements, as the DAL): an earlier spike run of the batched update failed there with `column "stock" is of type integer but expression is of type text`, so the `CASE` needs a cast per column type there.
+- Cold cache: one S2 call after `cache:clear --no-warmup` takes about 1.0 to 1.1 s for DBAL, Doctrine and Cycle and 1.6 to 1.8 s for the DAL and DAL v2 on every engine (warm 0.2 to 0.35 s, wall time including the kernel boot).
 
 ### Recommendation
 
-TODO (user): final pick, after `docs/34` is in.
+Keep the DAL as the public API and build DAL v2 step by step; do not replace the DAL with Doctrine ORM or Cycle ORM, and do not put either underneath it.
+Doc 34 does not change the draft below: no optimized ORM variant is ahead of DAL v2 on reads on all four engines while keeping its entity model, and the ORMs' write advantage comes from skipping DAL behaviour, not from batching.
+It adds one point: the write path is the next DAL v2 lever to work on (writer PHP is 58 to 59 percent of S4 per doc 33, the SQLite write cost is unexplained, the PostgreSQL batched update needs typed `CASE` expressions).
 
-Draft recommendation, draft, pending doc 34 (rests only on the probe, DX and effort evidence above, no performance claim):
+Recommendation (originally drafted from the probe, DX and effort evidence, confirmed against doc 34):
 
 1. Do not replace the DAL with Doctrine or Cycle.
    Neither provides translations, inheritance, versioning or events, so every probe passed only with hand-written code; Doctrine fails the plugin field probe, Cycle's runtime fields are invisible to typed code; both write one statement per row; the effort is 100 to 230 person-weeks (judgement) and breaks every plugin and app.
