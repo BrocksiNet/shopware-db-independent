@@ -13,7 +13,7 @@ Where a lever needs a changed DAL class the class is copied into `DalV2/` and na
 
 Profile, levers C1, A1, R3 and W1, the DX results X1 to X3, the probes and one timing block are done and verified.
 R2 (compiled hydrators) is not built because the profile does not justify it.
-R1 (read shape) is not built, see its section.
+R1 (read shape) is built as two options and measured, see its section.
 
 ## Method
 
@@ -154,13 +154,143 @@ Verified findings while building it:
 BC: additive.
 An existing criteria without `addFields()` behaves as before.
 
-## Lever R1: read shape, not built
+## Lever R1: read shape (join and batch)
 
-R1 would replace the derived-table translation subselects with direct per-language joins and read associations in batched by-id queries.
-It was not built.
-The profile shows SQL as 84 to 92 percent of S3 and S5 on all four engines, and statement counts are already low there (3 to 7 statements).
-A different join shape would only be justified by an `EXPLAIN` comparison per engine, which was not done in this spike.
-R1 is therefore neither measured nor claimed.
+R1 changes how the DAL reads a product page.
+It has two options of `DalV2Implementation`, each a copy of the DAL classes (the DAL classes themselves are untouched).
+
+- `shape=join` rewrites the derived-table translation subselects into direct `LEFT JOIN`s per language with `COALESCE`.
+  `FlatTranslationQueryBuilder` (91 lines) overrides `getTranslationQueryBuilder()` of the DAL query builder, so reader and searcher both get it, plus 10 changed lines in `WindowCountSearcher` (the copy of `EntitySearcher`) to switch it on.
+- `shape=batch` skips the depth-0 to-one joins of the product (manufacturer, unit, cover, tax, delivery time) and reads them afterwards with one `WHERE id IN (...)` statement per association.
+  It is `ShapeEntityReader`, a copy of `EntityReader` with about 130 changed lines, of which about 100 are `isBatched()` and `loadBatchedToOne()`.
+- `shape=join+batch` does both.
+
+BC label: internal.
+No public signature changes; the SQL text changes (the aliases of the derived translation tables disappear) and with `batch` the statement count of S1, S2, S3 and S5 goes from 4/5/7/4 to 8/10/11/8.
+Partial loading, associations below the root, extensions, self references and to-one associations without a foreign key field on the entity are not batched and still use the joins.
+
+The SQL was captured per engine with `sqllog=<file>` (a wrapper around the driver connection that writes SQL, parameters and timing as JSONL, `Capture/`), so the plans below run the exact statements the DAL sends (after the engine's translator).
+
+### Verify
+
+`shape=join`, `shape=batch` and `shape=join+batch` pass `--verify` for S1 to S5 on MySQL, MariaDB, PostgreSQL and SQLite.
+The timing block repeated the verify for both shape configs with the levers on every engine (24 verify runs, all five scenarios equal to the DAL).
+
+### Plans
+
+Main read of S1 (S2, S3 and S5 show the same picture, see `scripts/orm-spike-r1-plans.sh`).
+Plan nodes are counted per engine (MySQL `->` lines, MariaDB `table` blocks, PostgreSQL nodes, SQLite plan rows), so compare within an engine.
+Execution is the top node's actual time on MySQL and MariaDB, `Execution Time` on PostgreSQL and a timed run of the statement on SQLite.
+Median of 7 runs.
+
+| Engine | Shape | S1 joins | derived tables | plan nodes | planning ms | execution ms |
+|---|---|---|---|---|---|---|
+| mysql | default | 19 | 6 | 56 | n/a | 0.443 |
+| mysql | join | 19 | 0 | 56 | n/a | 0.355 |
+| mysql | batch | 5 | 2 | 16 | n/a | 0.216 |
+| mysql | join+batch | 5 | 0 | 16 | n/a | 0.243 |
+| mariadb | default | 19 | 6 | 20 | 0.485 | 0.33 |
+| mariadb | join | 19 | 0 | 20 | 0.299 | 0.336 |
+| mariadb | batch | 5 | 2 | 6 | 0.349 | 0.306 |
+| mariadb | join+batch | 5 | 0 | 6 | 0.132 | 0.172 |
+| postgresql | default | 19 | 6 | 50 | 3.592 | 1.508 |
+| postgresql | join | 19 | 0 | 52 | 3.948 | 1.957 |
+| postgresql | batch | 5 | 2 | 11 | 0.718 | 0.358 |
+| postgresql | join+batch | 5 | 0 | 11 | 0.707 | 0.414 |
+| sqlite | default | 19 | 6 | 38 | n/a | 16.526 |
+| sqlite | join | 19 | 0 | 20 | n/a | 1.292 |
+| sqlite | batch | 5 | 2 | 12 | n/a | 14.672 |
+| sqlite | join+batch | 5 | 0 | 6 | n/a | 0.658 |
+
+- MySQL and MariaDB already merge the derived translation tables: `shape=join` leaves the plan the same size (56 and 20 nodes), execution does not move and MariaDB's optimizer time drops from 0.49 to 0.30 ms.
+- PostgreSQL flattens them as well (50 against 52 nodes); `shape=join` does not shorten planning (3.6 ms against 3.9 ms, execution 1.5 against 2.0 ms).
+- `shape=batch` shrinks the main statement from 19 to 5 joins and PostgreSQL planning from 3.6 to 0.7 ms; the four extra statements are narrow primary key reads.
+- SQLite materializes each derived translation table (6 materialize steps in the plan); the flat join removes them, and the main read goes from 16.5 to 1.3 ms.
+
+Planning share on PostgreSQL (`EXPLAIN (ANALYZE)` of every statement of one scenario run, sum of the median over 5 runs, without the plan cache of doc 22):
+
+| Scenario | Planning ms | Execution ms | Planning share |
+|---|---|---|---|
+| S1 | 7.2 | 4.6 | 61 percent |
+| S2 | 3.8 | 0.9 | 80 percent |
+| S3 | 8.4 | 44.0 | 16 percent |
+| S5 | 6.4 | 30.6 | 17 percent |
+
+With `shape=join+batch` the planning sum drops to 4.5, 1.9, 6.1 and 3.4 ms.
+These are server side numbers, the timings below include the PHP side.
+
+### Detail read probe
+
+The storefront product detail request of core finding 9 is not reproduced: the `orm-spike:bench` harness has the reads S1 to S5 but no storefront page request, and the page measurements of docs 22 and 25 come from the lane databases, which this work does not touch.
+The S1 main read has the same structure (19 joins: parent self-join, to-one associations, 6 translation subqueries instead of 9) and is measured in its place; its PostgreSQL planning of 3.4 to 3.9 ms matches the 5 ms warm figure of the finding.
+
+### Timings
+
+One block under the lock letter R, other lanes stopped (48 containers), `--scenario=all --iterations=50 --warmup=5`, `APP_ENV=prod`, one `--output-dir` per engine and config (`/tmp/r1-results/orm-spike-r1/bench/<engine>/c<n>`).
+The host load average stayed at 7.6 to 10.0 (1 minute) during the block even with the lanes stopped (start 9.99, MySQL 9.99, MariaDB 8.11, PostgreSQL 9.59, SQLite 7.63, end 8.53), so the noise note applies: "DAL v2 untouched" differs from the DAL by up to 20 percent here, and gains below that are not claimed.
+
+MySQL 8.4, median ms (statements per run):
+
+| Config | S1 | S2 | S3 | S4 | S5 |
+|---|---|---|---|---|---|
+| DAL | 12.5 (4) | 6.0 (5) | 57.3 (7) | 97.0 (371) | 30.2 (4) |
+| DAL v2 default | 13.6 (4) | 7.0 (5) | 62.7 (7) | 120.6 (371) | 32.0 (4) |
+| `shape=join` | 13.7 (4) | 7.1 (5) | 60.2 (7) | 95.3 (371) | 30.0 (4) |
+| `shape=batch` | 11.9 (8) | 6.6 (10) | 59.1 (11) | 98.5 (371) | 29.4 (8) |
+| `shape=join+batch` | 11.6 (8) | 6.1 (10) | 58.1 (11) | 98.5 (371) | 31.2 (8) |
+| levers `count=window agg=stats write=key+upd proj=1` | 5.1 (2) | 2.6 (5) | 33.3 (4) | 57.4 (23) | 14.2 (2) |
+| `shape=join+batch` with the levers | 7.3 (2) | 5.8 (5) | 33.9 (4) | 54.1 (23) | 13.3 (2) |
+
+MariaDB, median ms (statements per run):
+
+| Config | S1 | S2 | S3 | S4 | S5 |
+|---|---|---|---|---|---|
+| DAL | 10.8 (4) | 6.1 (5) | 44.4 (7) | 97.1 (371) | 30.3 (4) |
+| DAL v2 default | 12.0 (4) | 7.6 (5) | 48.8 (7) | 106.9 (371) | 30.1 (4) |
+| `shape=join` | 11.5 (4) | 6.5 (5) | 47.4 (7) | 101.8 (371) | 30.5 (4) |
+| `shape=batch` | 10.7 (8) | 5.7 (10) | 43.0 (11) | 109.4 (371) | 33.8 (8) |
+| `shape=join+batch` | 14.6 (8) | 7.8 (10) | 47.9 (11) | 114.0 (371) | 31.8 (8) |
+| levers `count=window agg=stats write=key+upd proj=1` | 5.5 (2) | 2.9 (5) | 27.4 (4) | 59.0 (23) | 14.0 (2) |
+| `shape=join+batch` with the levers | 3.8 (2) | 2.1 (5) | 22.1 (4) | 55.8 (23) | 15.3 (2) |
+
+PostgreSQL, median ms (statements per run):
+
+| Config | S1 | S2 | S3 | S4 | S5 |
+|---|---|---|---|---|---|
+| DAL | 22.5 (4) | 11.6 (5) | 60.8 (7) | 91.6 (123) | 43.5 (4) |
+| DAL v2 default | 22.0 (4) | 14.0 (5) | 60.0 (7) | 82.8 (123) | 40.9 (4) |
+| `shape=join` | 24.2 (4) | 14.0 (5) | 70.0 (7) | 83.8 (123) | 42.4 (4) |
+| `shape=batch` | 18.8 (8) | 9.5 (10) | 59.5 (11) | 88.7 (123) | 35.1 (8) |
+| `shape=join+batch` | 16.4 (8) | 9.0 (10) | 59.7 (11) | 83.9 (123) | 38.9 (8) |
+| levers `count=window agg=stats write=key+upd proj=1` | 11.1 (2) | 6.2 (5) | 40.2 (4) | 88.1 (123) | 17.2 (2) |
+| `shape=join+batch` with the levers | 9.9 (2) | 5.7 (5) | 36.3 (4) | 90.9 (123) | 20.1 (2) |
+
+SQLite, median ms (statements per run):
+
+| Config | S1 | S2 | S3 | S4 | S5 |
+|---|---|---|---|---|---|
+| DAL | 69.5 (4) | 18.5 (5) | 144.6 (7) | 376.4 (371) | 73.7 (4) |
+| DAL v2 default | 64.0 (4) | 17.2 (5) | 124.6 (7) | 363.5 (371) | 62.6 (4) |
+| `shape=join` | 35.0 (4) | 5.7 (5) | 102.9 (7) | 351.2 (371) | 38.9 (4) |
+| `shape=batch` | 64.9 (8) | 18.1 (10) | 135.6 (11) | 374.8 (371) | 64.0 (8) |
+| `shape=join+batch` | 35.6 (8) | 5.3 (10) | 101.9 (11) | 370.1 (371) | 38.7 (8) |
+| levers `count=window agg=stats write=key+upd proj=1` | 34.6 (2) | 10.9 (5) | 69.0 (4) | 314.3 (23) | 23.6 (2) |
+| `shape=join+batch` with the levers | 16.0 (2) | 1.5 (5) | 46.8 (4) | 323.3 (23) | 17.5 (2) |
+
+Gain against DAL v2 default of the same block:
+
+- MySQL and MariaDB: nothing outside the noise for `join`, `batch` or `join+batch` (all within 20 percent in both directions, MariaDB `join+batch` S1 is 22 percent slower).
+- PostgreSQL: `batch` and `join+batch` lower S1 by 15 and 25 percent and S2 by 32 and 36 percent; S3 is unchanged and S5 moves 5 to 14 percent (inside the noise).
+  `join` alone does nothing (S3 is 17 percent slower, inside the noise).
+  This matches the planning share (S1 61 percent, S2 80 percent, S3 and S5 about 17 percent).
+  It is measured without the plan cache; with the plan cache of doc 22 the planning part is mostly gone, so the PostgreSQL gain would be smaller, which was not measured here.
+- SQLite: `join` and `join+batch` lower S1 by 45 percent, S2 by 67 percent, S3 by 17 percent (inside the noise) and S5 by 38 percent; `batch` alone does nothing.
+- With the other levers on top (`join+batch` with levers against levers only): SQLite S1 34.6 to 16.0 ms, S2 10.9 to 1.5 ms, S3 69.0 to 46.8 ms, S5 23.6 to 17.5 ms; PostgreSQL S1 11.1 to 9.9 ms and S2 6.2 to 5.7 ms (inside the noise), S5 17.2 to 20.1 ms (slower, inside the noise); MySQL S1 and S2 are slower with the shape (7.3 against 5.1 and 5.8 against 2.6 ms) and MariaDB S1 is faster (3.8 against 5.5 ms), which contradicts the neutral results without levers, so I read them as noise of a 2 to 7 ms call.
+- S4 does not read through R1 and does not move.
+
+Reading: the statement shape only matters where the engine's planner does not already flatten the derived tables.
+On MySQL and MariaDB it does not matter, on PostgreSQL only the batched read helps (through planning time) and on SQLite the flat join is the fix.
+`shape=batch` costs four more statements per request; the saved planning pays for them on PostgreSQL only.
 
 ## Lever R2: compiled hydrators, not built
 
@@ -338,7 +468,7 @@ Reading the numbers:
 | R3 projections | S1 and S2 about 15 to 50 percent, nothing on S3 and S5 | 128 for the mechanism, 121 for the DTOs | additive | one to two weeks to cover more entities and the `parentId` rule |
 | W1a key fix | S4 on MySQL, MariaDB and SQLite 371 to 121 statements | about 5 lines in `getCurrentState` | internal bug fix | hours, plus a regression test |
 | W1b update batching | S4 371 to 23 statements on MySQL and MariaDB, no effect on PostgreSQL and SQLite time | about 130 changed lines in a copy of the gateway | internal | one to two weeks (casts on PostgreSQL, events, tests) |
-| R1 read shape | not measured | not built | internal | unknown, needs `EXPLAIN` work first |
+| R1 read shape | `join`: SQLite S1 45, S2 67, S5 38 percent, nothing on MySQL, MariaDB, PostgreSQL; `batch`: PostgreSQL S1 15 to 25, S2 32 to 36 percent, nothing on MySQL, MariaDB, SQLite | about 91 (flat join builder) plus about 130 (reader copy) plus 10 | internal | one to two weeks (translation join in `QueryBuilder`, to-one batching with its exceptions, tests per engine), judgement |
 | R2 compiled hydrators | at most the hydration share (3 to 15 percent) | not built | internal | not justified by the profile |
 
 The effort column is an estimate from the size of the changes, not a measurement.
