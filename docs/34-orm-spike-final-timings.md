@@ -152,6 +152,8 @@ None.
 ## Notes
 
 - The ORM and DBAL S4 rows here skip validation, write protection and the written events; [doc 35](35-orm-spike-fair-write.md) re-runs S4 with all paths doing the same work.
+- The S4 columns were measured before the review round 2 fixes (savepoint per batch, unique and changed key columns no longer batched, id codec cache on PostgreSQL); the current S4 numbers are in [doc 35, "Rerun after review round 2"](35-orm-spike-fair-write.md#rerun-after-review-round-2), with 27 instead of 23 statements for DAL v2 with the write levers (29 on PostgreSQL after doc 36).
+  S1 to S3 and S5 do not write and were not rerun.
 
 All 32 verify cells (8 non-dal configurations times 4 engines, S1 to S5) pass against the DAL.
 No benchmark cell failed, so no cell was rerun.

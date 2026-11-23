@@ -33,7 +33,8 @@ Problem: one `UPDATE ... CASE` checks unique indexes row by row in the order the
 With `a = 1, b = 2`, "b to 3, a to 2" succeeds one by one but fails as one statement when `a` is changed first; "a to 2, b to 3" fails one by one but can succeed as one statement.
 The order inside one statement is not stable: on SQLite it differed between bound parameters and literal values.
 
-Fix (`poc/orm-spike` commits `9cbb0be4f9e` and `c8c6866ac19`): an update that changes a column of a unique index or of the primary key is never batched.
+Fix (`poc/orm-spike` commits `9cbb0be4f9e`, `c8c6866ac19` and `46a47f1a7c9`): an update that changes a column of a unique index or of the primary key is never batched.
+A key column that the payload repeats with the value of its own WHERE key does not count as a change (`46a47f1a7c9`): the DAL sends `version_id`, and `product_id` for translations, with every update, and without this rule nothing was batched any more (found by the S4 rerun below).
 The unique columns are read once per table and process through the DBAL schema manager.
 DBAL skips the internal `sqlite_autoindex_*` indexes (`SQLiteSchemaManager::selectIndexColumns()`, `NOT LIKE 'sqlite_%'`), which back inline `UNIQUE` constraints such as `product.product_number`; on SQLite the gateway reads `pragma_index_list` itself.
 
@@ -52,6 +53,8 @@ The command that triggered the flush is no longer marked.
 | Test | What it checks |
 |---|---|
 | `testNonUniqueColumnsAreStillBatched` | three stock updates are one `UPDATE` |
+| `testKeyColumnsRepeatedWithTheirOwnValueAreStillBatched` | three stock updates whose payload repeats the primary key are one `UPDATE` |
+| `testChangingAKeyColumnIsSentOneByOne` | two updates that change the primary key are two statements |
 | `testUpdatesOfAUniqueColumnAreSentOneByOne` | three updates of an inline `UNIQUE` column are three statements |
 | `testUniqueSwapThatSucceedsOneByOneSucceedsWithBatching` | "b to 3, a to 2" succeeds with and without batching |
 | `testUniqueSwapThatFailsOneByOneFailsWithBatching` | "a to 2, b to 4" fails on `a` with and without batching, rows unchanged |
@@ -59,14 +62,17 @@ The command that triggered the flush is no longer marked.
 
 - Old gateway: 3 of the first 4 tests fail on SQLite, MySQL 8.4, MariaDB 10.11 and PostgreSQL 18.
   `testUpdatesOfAUniqueColumnAreSentOneByOne` was added afterwards and failed on SQLite with the first fix (1 statement instead of 3); the replay had hidden the missing detection in the other tests.
-- New gateway: 5 tests, 16 assertions pass on all four engines.
+- New gateway: 5 tests, 16 assertions pass on all four engines; with `46a47f1a7c9` 7 tests, 19 assertions pass on all four engines, and `testKeyColumnsRepeatedWithTheirOwnValueAreStillBatched` fails on the gateway before that commit.
 - The reviewer's reproduction script matches the one-by-one behaviour on SQLite, MySQL and MariaDB.
 - `tests/integration/Core/Framework/OrmSpike` and `tests/unit/Core/Framework/OrmSpike` on PostgreSQL: 9 tests, 32 assertions pass.
 - PHPStan reports only the 6 "Expected domain exception class" findings that exist on the gateway before this change.
 
-Not rerun: the S4 timings of docs 33 to 36.
-The fix adds a savepoint and its release per chunk of up to 100 rows, and the schema introspection costs about 8 to 30 ms per table, once per process; updates of unique columns (for example `productNumber`) are no longer batched at all.
-The E3.04 draft (`docs/issues/E3-dal-v2/04-batched-entity-updates.md`) now lists both rules; the filed issue https://github.com/shopware/shopware/issues/23308 does not have them yet.
+S4 rerun (doc 35, "Rerun after review round 2"): the first rerun showed 121 instead of 23 statements for DAL v2 with the write levers, because the guard counted the repeated key columns; that run was discarded and the guard fixed in `46a47f1a7c9`.
+The run after the fix (2026-11-23 15:35 to 15:49, all calls rc 0, every verify equal to the DAL) gives 27 statements on MySQL, MariaDB and SQLite and 29 on PostgreSQL, 4 more than before: `SAVEPOINT` and `RELEASE SAVEPOINT` around the 2 batches.
+DAL v2 with the levers is 0.56 of the DAL on MySQL and MariaDB (doc 35: 0.54 to 0.64), 0.85 on PostgreSQL (doc 36: 0.81 to 0.88) and 0.83 on SQLite (doc 35: 0.88 to 0.92), so the savepoints cost no measurable time.
+Docs 33 and 34 keep their earlier S4 numbers and point to doc 35; doc 36 has a short section with the rerun.
+The schema introspection costs about 8 to 30 ms per table, once per process; updates of unique columns (for example `productNumber`) are no longer batched at all.
+The E3.04 draft (`docs/issues/E3-dal-v2/04-batched-entity-updates.md`) and the filed issue https://github.com/shopware/shopware/issues/23308 list both rules; the repeated key column rule of `46a47f1a7c9` is only in the draft so far.
 
 ## Related upstream work
 

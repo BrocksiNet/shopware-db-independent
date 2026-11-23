@@ -46,6 +46,7 @@ TODO:
 - [ ] Keep single row updates for commands that change a column of a unique index or of the primary key.
   One `UPDATE` checks uniqueness in scan order, single updates in command order, so with `a = 1, b = 2` the run "b to 3, a to 2" succeeds one by one but fails as one statement, and "a to 2, b to 3" fails one by one but can succeed as one statement.
   On SQLite the inline `UNIQUE` constraints (for example `product.product_number`) are internal `sqlite_autoindex_*` indexes that the DBAL schema manager does not list.
+  A key column that the payload repeats with the value of its own WHERE key is not a change: the DAL sends `version_id` (and `product_id` for translations) with every update, and counting it disables batching for every versioned entity.
 - [ ] Run each batch inside a savepoint; when it fails, roll back to the savepoint and replay its commands one by one, so only the failing command is marked failed in `WriteCommandExceptionEvent` (import/export counts errors from `isFailed()`), and the exception is the one of that command.
 - [ ] Keep `PreWriteValidationEvent`, `generateChangeSets()`, `validateCommands()` and the written events exactly as they are, they run before the loop.
 - [ ] Keep the execution order of the commands: the pending inserts are flushed before an update, an update must not move across a delete or an insert of another entity.

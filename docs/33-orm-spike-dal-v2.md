@@ -14,6 +14,7 @@ Where a lever needs a changed DAL class the class is copied into `DalV2/` and na
 Profile, levers C1, A1, R3 and W1, the DX results X1 to X3, the probes and one timing block are done and verified.
 R2 (compiled hydrators) is not built because the profile does not justify it.
 R1 (read shape) is built as two options and measured, see its section.
+The S4 numbers in this doc (statement counts and timings of lever W1) were measured before the review round 2 fixes of [doc 37](37-review-round-2.md) and are not recalculated; with those fixes the write levers send 27 instead of 23 statements (two savepoints), current S4 numbers are in [doc 35, "Rerun after review round 2"](35-orm-spike-fair-write.md#rerun-after-review-round-2).
 
 ## Method
 

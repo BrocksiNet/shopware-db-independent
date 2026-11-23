@@ -81,3 +81,9 @@ Reading the numbers:
 
 Docs 29, 33 and 35 and the issue draft E3.04 now point here instead of naming missing casts as the reason.
 For E2.01 (batching the single row updates of the product indexer updaters) this means: a batched `CASE` needs no cast on PostgreSQL as long as one branch is typed by the column, for example `ELSE <column>`.
+
+## After review round 2
+
+The rerun of the S4 block in doc 35 ("Rerun after review round 2", 2026-11-23 15:35 to 15:49) confirms the fix with the review round 2 changes in place (id codec column type cache, savepoint per batch, no batching of unique and changed key columns).
+DAL v2 with `count=window agg=stats write=key+upd` on PostgreSQL: 69.29 ms against 81.09 ms for the DAL (0.85), 29 statements instead of 25; the 4 extra statements are `SAVEPOINT` and `RELEASE SAVEPOINT` around the 2 batches.
+MySQL and MariaDB: 46.57 and 48.52 ms (0.56 of the DAL), SQLite 276.55 ms (0.83), 27 statements each.

@@ -227,6 +227,105 @@ The events share of the DAL is 0.4 to 1.5 percent (1.2 to 1.3 ms) on every engin
 Validation is not a probe category of the profile, it is part of "rest" (writer PHP: command extraction, serializers, validation, change sets), so a validation share of the DAL is not measured here.
 The cost of validation, write protection and events in the ORM paths is the full minus bare difference above, which includes the webhook lookups.
 
+## Rerun after review round 2
+
+The review round 2 fixes changed the S4 write path: the PostgreSQL id codec caches column types per connection, and DAL v2 runs each batched update inside a savepoint and no longer batches updates that change a unique or primary key column (`docs/37-review-round-2.md`).
+A first rerun (2026-11-23 15:18 to 15:31, `TAG=-3`) showed 121 instead of 23 statements for DAL v2 with the write levers: the guard counted the key columns that the DAL repeats in every update payload (`version_id`, `product_id`) as changed, so nothing was batched any more.
+That run is discarded; `poc/orm-spike` commit `46a47f1a7c9` fixes the guard (a key column counts only when its value differs from the WHERE key).
+
+One run of the same block after that fix, 2026-11-23 15:35 to 15:49, `TAG=-4`, same protocol as above (verify first, 5 warm-up and 50 measured iterations, own `--output-dir` per configuration, all 48 other lanes stopped and restarted, lock removed).
+All 108 calls returned 0 and every verify call reported equal output to the DAL.
+Host load average at the start of each engine: mysql 3.41, 4.75, 5.31; mariadb 4.70, 4.84, 5.31; postgresql 7.77, 5.26, 5.38; sqlite 5.85, 5.14, 5.30; end of the block 5.45, 6.79, 6.16.
+Raw JSON: `/var/www/html/var/orm-spike-fair-bench-4/` inside `instance-web-1`, copy in `/tmp/fair-results-4/` (not versioned).
+
+Median ms of S4 and the ratio to the dal median of this run, next to the ratios of runs 1 and 2 above.
+
+### Rerun: mysql
+
+| implementation | ms | x dal | statements | x dal doc 35 (run 1 / run 2) | statements doc 35 |
+|---|---|---|---|---|---|
+| dal | 83.30 | 1.00 | 371 | 1.00 / 1.00 | 371 |
+| dalv2 default | 79.62 | 0.96 | 371 | 1.03 / 0.98 | 371 |
+| dalv2 count=window agg=stats write=key+upd | 46.57 | 0.56 | 27 | 0.60 / 0.57 | 23 |
+| dalv2 all levers (+proj=1) | 48.89 | 0.59 | 27 | 0.64 / 0.57 | 23 |
+| dbal bare | 5.37 | 0.06 | 5 | 0.08 / 0.07 | 5 |
+| dbal full | 7.78 | 0.09 | 9 | 0.10 / 0.09 | 9 |
+| doctrine idiomatic bare | 43.34 | 0.52 | 450 | 0.61 / 0.56 | 450 |
+| doctrine idiomatic full | 54.23 | 0.65 | 454 | 0.90 / 0.57 | 454 |
+| doctrine optimized bare | 39.06 | 0.47 | 351 | 0.47 / 0.48 | 351 |
+| doctrine optimized full | 33.22 | 0.40 | 355 | 0.55 / 0.42 | 355 |
+| cycle idiomatic bare | 31.21 | 0.37 | 350 | 0.53 / 0.40 | 350 |
+| cycle idiomatic full | 54.73 | 0.66 | 354 | 0.51 / 0.44 | 354 |
+| cycle optimized bare | 31.79 | 0.38 | 350 | 0.45 / 0.42 | 350 |
+| cycle optimized full | 53.51 | 0.64 | 354 | 0.47 / 0.47 | 354 |
+
+### Rerun: mariadb
+
+| implementation | ms | x dal | statements | x dal doc 35 (run 1 / run 2) | statements doc 35 |
+|---|---|---|---|---|---|
+| dal | 86.24 | 1.00 | 371 | 1.00 / 1.00 | 371 |
+| dalv2 default | 87.08 | 1.01 | 371 | 0.94 / 1.08 | 371 |
+| dalv2 count=window agg=stats write=key+upd | 48.52 | 0.56 | 27 | 0.54 / 0.59 | 23 |
+| dalv2 all levers (+proj=1) | 48.80 | 0.57 | 27 | 0.54 / 0.57 | 23 |
+| dbal bare | 5.37 | 0.06 | 5 | 0.06 / 0.07 | 5 |
+| dbal full | 7.52 | 0.09 | 9 | 0.08 / 0.10 | 9 |
+| doctrine idiomatic bare | 52.68 | 0.61 | 450 | 0.61 / 0.64 | 450 |
+| doctrine idiomatic full | 58.92 | 0.68 | 454 | 0.60 / 0.64 | 454 |
+| doctrine optimized bare | 41.24 | 0.48 | 351 | 0.44 / 0.45 | 351 |
+| doctrine optimized full | 36.94 | 0.43 | 355 | 0.50 / 0.53 | 355 |
+| cycle idiomatic bare | 43.79 | 0.51 | 350 | 0.46 / 0.50 | 350 |
+| cycle idiomatic full | 51.75 | 0.60 | 354 | 0.55 / 0.58 | 354 |
+| cycle optimized bare | 60.88 | 0.71 | 350 | 0.45 / 0.61 | 350 |
+| cycle optimized full | 55.62 | 0.64 | 354 | 0.55 / 0.63 | 354 |
+
+### Rerun: postgresql
+
+| implementation | ms | x dal | statements | x dal doc 35 (run 1 / run 2) | statements doc 35 |
+|---|---|---|---|---|---|
+| dal | 81.09 | 1.00 | 123 | 1.00 / 1.00 | 123 |
+| dalv2 default | 77.69 | 0.96 | 123 | 1.06 / 0.92 | 123 |
+| dalv2 count=window agg=stats write=key+upd | 69.29 | 0.85 | 29 | 1.03 / 0.96 | 123 |
+| dalv2 all levers (+proj=1) | 75.01 | 0.93 | 29 | 1.06 / 1.00 | 123 |
+| dbal bare | 12.86 | 0.16 | 5 | 0.14 / 0.15 | 5 |
+| dbal full | 15.25 | 0.19 | 9 | 0.18 / 0.18 | 9 |
+| doctrine idiomatic bare | 74.63 | 0.92 | 450 | 0.92 / 0.90 | 450 |
+| doctrine idiomatic full | 81.84 | 1.01 | 454 | 1.00 / 0.92 | 454 |
+| doctrine optimized bare | 59.71 | 0.74 | 351 | 0.70 / 0.68 | 351 |
+| doctrine optimized full | 62.28 | 0.77 | 355 | 0.78 / 0.74 | 355 |
+| cycle idiomatic bare | 56.18 | 0.69 | 350 | 0.66 / 0.74 | 350 |
+| cycle idiomatic full | 61.72 | 0.76 | 354 | 0.83 / 0.75 | 354 |
+| cycle optimized bare | 55.39 | 0.68 | 350 | 0.75 / 0.71 | 350 |
+| cycle optimized full | 62.78 | 0.77 | 354 | 0.76 / 0.76 | 354 |
+
+### Rerun: sqlite
+
+| implementation | ms | x dal | statements | x dal doc 35 (run 1 / run 2) | statements doc 35 |
+|---|---|---|---|---|---|
+| dal | 333.03 | 1.00 | 371 | 1.00 / 1.00 | 371 |
+| dalv2 default | 325.48 | 0.98 | 371 | 0.94 / 0.91 | 371 |
+| dalv2 count=window agg=stats write=key+upd | 276.55 | 0.83 | 27 | 0.92 / 0.88 | 23 |
+| dalv2 all levers (+proj=1) | 291.31 | 0.87 | 27 | 0.89 / 0.87 | 23 |
+| dbal bare | 5.81 | 0.02 | 5 | 0.02 / 0.02 | 5 |
+| dbal full | 8.00 | 0.02 | 9 | 0.02 / 0.02 | 9 |
+| doctrine idiomatic bare | 201.43 | 0.60 | 450 | 0.61 / 0.59 | 450 |
+| doctrine idiomatic full | 203.45 | 0.61 | 454 | 0.63 / 0.59 | 454 |
+| doctrine optimized bare | 121.67 | 0.37 | 351 | 0.38 / 0.37 | 351 |
+| doctrine optimized full | 131.09 | 0.39 | 355 | 0.40 / 0.38 | 355 |
+| cycle idiomatic bare | 17.19 | 0.05 | 350 | 0.05 / 0.05 | 350 |
+| cycle idiomatic full | 21.64 | 0.06 | 354 | 0.07 / 0.06 | 354 |
+| cycle optimized bare | 15.28 | 0.05 | 350 | 0.05 / 0.05 | 350 |
+| cycle optimized full | 19.63 | 0.06 | 354 | 0.06 / 0.06 | 354 |
+
+Reading the numbers:
+
+- DAL v2 with the write levers sends 4 statements more than before on every engine (27 instead of 23, 29 instead of 25 on PostgreSQL after doc 36): `SAVEPOINT` and `RELEASE SAVEPOINT` around each of the 2 batches (`product` stock and `product_translation`).
+- MySQL and MariaDB: DAL v2 with the levers stays at 0.56 to 0.59 of the DAL (46.57 and 48.52 ms), within the range of runs 1 and 2 (0.54 to 0.64); the savepoints cost no measurable time here.
+- PostgreSQL: DAL v2 with the levers now gets the batched update of doc 36 in this block too, 69.29 ms or 0.85 of the DAL with 29 statements, 7 ms behind the ORM full variants (61.72 to 62.78 ms) and ahead of doctrine idiomatic full (81.84 ms).
+- SQLite: DAL v2 with the levers is 0.83 to 0.87 of the DAL, as before far behind doctrine optimized full (131.09 ms) and cycle full (about 20 ms).
+- The ORM and DBAL cells move within the noise of runs 1 and 2; single cells differ by up to about 0.3 of the DAL between runs (for example MySQL doctrine idiomatic full 0.90 / 0.57 / 0.65), so compare ranges, not single medians.
+
+The conclusion below holds; the PostgreSQL line about DAL v2 refers to runs 1 and 2, before the doc 36 fix.
+
 ## Conclusion
 
 With the contract in place the ORM variants stay faster than the DAL on MySQL, MariaDB and SQLite, and are close to the DAL on PostgreSQL for Doctrine idiomatic.
