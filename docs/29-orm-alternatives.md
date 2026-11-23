@@ -3,7 +3,7 @@
 State: 2026-11-22, research before wave 8.
 Question: the experiment put a `SqlDialect` under the DAL (`docs/10-architecture.md`).
 We never checked how much effort it would be to replace the DAL with an existing ORM or data mapper instead, and what that would bring for developer experience (DX) and performance.
-This doc holds the research; the PoC of wave 8 (`docs/28` to `docs/31`) measures three candidates (Doctrine ORM, Cycle ORM and an improved DAL v2), and the conclusion section at the end is written by wave 8 E.
+This doc holds the research; the PoC of wave 8 (`docs/30` to `docs/33`) measures three candidates (Doctrine ORM, Cycle ORM and an improved DAL v2), and the conclusion section at the end is written by wave 8 E.
 
 Raw notes of the research (not versioned): `handoffs/wave8-notes/orm-landscape.md`, `handoffs/wave8-notes/dal-inventory.md`.
 
@@ -62,7 +62,7 @@ What v2 targets, each tied to a measured finding:
 | One source of truth | Attribute entities instead of definition + entity + collection classes | DX |
 | Typed criteria | Field paths are strings (`'manufacturer.translations.name'`); generated constants or a typed builder, plus a PHPStan rule for unknown paths | DX |
 
-Every lever is measured alone and combined with the same harness and scenarios as the ORMs, and labelled internal, additive or breaking for plugins and apps (`docs/31`).
+Every lever is measured alone and combined with the same harness and scenarios as the ORMs, and labelled internal, additive or breaking for plugins and apps (`docs/33`).
 
 ## Performance data found
 
