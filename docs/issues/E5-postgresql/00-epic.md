@@ -5,7 +5,7 @@ template: epic.yaml
 title: "PostgreSQL as an experimental second database"
 parent: ""
 related: [E4]
-findings: [11, 16, 17, 19, 30]
+findings: [11, 16, 17, 19, 30, 34]
 status: draft
 upstream: ""
 ---

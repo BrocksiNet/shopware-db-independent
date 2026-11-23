@@ -5,7 +5,7 @@ template: story.yaml
 title: "PostgreSQL dialect, connection factory and translator shim behind a flag"
 parent: E5
 related: [E4.01, E4.02, E4.03, E5.02, E5.05]
-findings: [30]
+findings: [30, 34]
 status: draft
 upstream: ""
 ---
