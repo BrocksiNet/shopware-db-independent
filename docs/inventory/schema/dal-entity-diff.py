@@ -1,5 +1,5 @@
 import re,os,subprocess,sys
-root='<repo>/instance/src'
+import os; root=os.path.join(os.path.dirname(__file__), '../../../instance/src')
 names={}
 pat1=re.compile(r"const\s+ENTITY_NAME\s*=\s*'([^']+)'")
 pat2=re.compile(r"function getEntityName\(\)\s*:\s*string\s*\{\s*return\s+'([^']+)';",re.S)
