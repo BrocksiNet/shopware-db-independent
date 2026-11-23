@@ -142,7 +142,58 @@ One failure was found and fixed on the way: PostgreSQL rejected `COALESCE(p.acti
 
 ## Baseline timings
 
-TIMINGS_PLACEHOLDER
+Block of 2026-11-23, `APP_ENV=prod`, warm cache, 5 warm-up and 50 measured iterations per scenario, PHP 8.4.17, database containers with 8 CPUs / 16 GiB.
+Host load average (1, 5, 15 min) at the end of the block: 5.63, 5.76, 5.66; 4.45, 5.23, 5.48 at the start.
+Other lanes stopped: yes (47 containers, restarted afterwards); the load comes from the host itself, not from the lanes.
+Medians in ms, p95 in ms in brackets, statements per iteration, peak memory in MB (peak memory of DBAL is mostly the booted kernel).
+Raw JSON: `instance/var/orm-spike/<engine>-<impl>.json` (not versioned).
+
+### mysql
+
+| Scenario | DAL ms (p95) | DAL stmts | DAL MB | DBAL ms (p95) | DBAL stmts | DBAL MB |
+|---|---|---|---|---|---|---|
+| S1 | 15.29 (18.68) | 4 | 40.9 | 2.14 (2.27) | 1 | 24.8 |
+| S2 | 4.65 (6.48) | 5 | 50.5 | 0.51 (0.61) | 4 | 24.8 |
+| S3 | 48.92 (72.71) | 7 | 50.9 | 15.65 (19.11) | 3 | 24.8 |
+| S4 | 88.05 (116.46) | 371 | 58.1 | 5.95 (7.01) | 5 | 25.4 |
+| S5 | 26.95 (36.22) | 4 | 56.7 | 17.32 (20.95) | 1 | 24.8 |
+
+### mariadb
+
+| Scenario | DAL ms (p95) | DAL stmts | DAL MB | DBAL ms (p95) | DBAL stmts | DBAL MB |
+|---|---|---|---|---|---|---|
+| S1 | 9.99 (10.86) | 4 | 40.9 | 2.99 (4.88) | 1 | 24.8 |
+| S2 | 3.95 (4.33) | 5 | 50.5 | 0.63 (0.90) | 4 | 24.8 |
+| S3 | 34.02 (42.96) | 7 | 51.0 | 23.12 (25.13) | 3 | 24.8 |
+| S4 | 88.76 (119.71) | 371 | 58.1 | 6.32 (8.05) | 5 | 25.4 |
+| S5 | 26.87 (29.79) | 4 | 56.7 | 17.40 (19.37) | 1 | 24.8 |
+
+### postgresql
+
+| Scenario | DAL ms (p95) | DAL stmts | DAL MB | DBAL ms (p95) | DBAL stmts | DBAL MB |
+|---|---|---|---|---|---|---|
+| S1 | 20.22 (21.46) | 4 | 41.4 | 33.36 (41.75) | 1 | 25.1 |
+| S2 | 11.51 (12.84) | 5 | 51.1 | 3.00 (4.16) | 4 | 25.1 |
+| S3 | 71.66 (81.61) | 7 | 51.7 | 31.93 (36.58) | 3 | 25.1 |
+| S4 | 93.43 (115.19) | 123 | 58.6 | 11.85 (13.48) | 5 | 25.8 |
+| S5 | 40.33 (43.24) | 4 | 57.5 | 27.56 (28.39) | 1 | 25.2 |
+
+### sqlite
+
+| Scenario | DAL ms (p95) | DAL stmts | DAL MB | DBAL ms (p95) | DBAL stmts | DBAL MB |
+|---|---|---|---|---|---|---|
+| S1 | 60.51 (67.99) | 4 | 41.4 | 18.20 (19.36) | 1 | 25.2 |
+| S2 | 15.96 (16.40) | 5 | 50.9 | 0.28 (0.34) | 4 | 25.2 |
+| S3 | 129.01 (144.91) | 7 | 51.5 | 16.94 (26.41) | 3 | 25.2 |
+| S4 | 329.35 (375.70) | 371 | 58.7 | 5.52 (13.18) | 5 | 26.0 |
+| S5 | 62.17 (75.11) | 4 | 57.2 | 12.68 (13.69) | 1 | 25.3 |
+
+Observations (measured, causes not investigated):
+
+- DBAL is faster than the DAL in every scenario on MySQL, MariaDB and SQLite; on PostgreSQL S1 is slower in DBAL (33.4 ms) than in the DAL (20.2 ms) and S3 and S5 are within a factor of 1.5 to 2.
+- The DAL S4 write runs 371 statements on MySQL, MariaDB and SQLite but 123 on PostgreSQL.
+- The DBAL numbers are the floor for this data set, the DAL numbers are what ORM candidates have to beat or explain.
+
 
 ## Rebuild the data
 
