@@ -33,7 +33,7 @@ The instance is the `sw-dev` lane `pg`: http://pg.localhost:8088 (admin: http://
 0. [docs/summary.md](docs/summary.md): findings and architecture after wave 5, with diagrams
 0. [docs/core-findings.md](docs/core-findings.md): findings useful for the Shopware core, independent of PostgreSQL
 0. [docs/27-final-report.md](docs/27-final-report.md): final report of the experiment after wave 7, [docs/28-plugin-sql-inventory.md](docs/28-plugin-sql-inventory.md) the plugin SQL scan
-0. [docs/29-orm-alternatives.md](docs/29-orm-alternatives.md#conclusion): wave 8, replace the DAL with an ORM? Answer: keep the DAL and build DAL v2. Results in docs 30 to 33, all timings in [docs/34-orm-spike-final-timings.md](docs/34-orm-spike-final-timings.md)
+0. [docs/29-orm-alternatives.md](docs/29-orm-alternatives.md#conclusion): wave 8, replace the DAL with an ORM? Answer: keep the DAL and build DAL v2. Results in docs 30 to 33, all timings in [docs/34-orm-spike-final-timings.md](docs/34-orm-spike-final-timings.md), fair write comparison in [docs/35-orm-spike-fair-write.md](docs/35-orm-spike-fair-write.md)
 1. [docs/00-plan.md](docs/00-plan.md)
 2. [docs/02-decisions.md](docs/02-decisions.md)
 3. [docs/10-architecture.md](docs/10-architecture.md): current state, target architecture and the change list

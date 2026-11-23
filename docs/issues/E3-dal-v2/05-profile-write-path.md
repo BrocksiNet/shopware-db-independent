@@ -17,7 +17,8 @@ Bulk create and update of 50 products, measured in a proof of concept with both 
 
 - MySQL 54.36 ms against 6.12 ms for hand-written DBAL, about 9 times.
 - A hand-written Doctrine ORM path took 43.48 ms and a Cycle ORM path 52.29 ms on MySQL, with about 350 statements each.
-  Those paths skip validation, write protection and the written events, so the comparison is not like for like.
+  Given the same validation, write protection and written events as the DAL, these paths stay faster: on MySQL the fastest took 34 to 41 ms against 47 to 52 ms for the improved DAL; on MariaDB both are level at about 47 to 55 ms.
+  Events are 1.1 to 1.5 percent of the improved write, so the gap is in the writer PHP, not in the extra checks.
 - PostgreSQL: 89.15 ms against 57.22 ms (Doctrine) and 59.07 ms (Cycle).
 
 A profile of the existing write path (timer probes around the reader, searcher, aggregator, hydrator, events and the connection) put 58 to 63 percent of the call in PHP of the writer outside the SQL: command extraction, field serializers, validation, change sets and events.

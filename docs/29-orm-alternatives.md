@@ -340,14 +340,15 @@ What the table shows:
 - Cycle is the fastest implementation on SQLite S1 and S5 and beats the DAL and DBAL on PostgreSQL S1 (DAL v2 is slightly faster there), with 11 to 18 statements per read.
 - Hand-written DBAL is slower than the DAL on PostgreSQL S1 (33.34 against 21.35 ms); the DBAL plan analysis in doc 34 shows a join filter on `COALESCE` that cannot use an index and a window count before the top-N sort, the DAL plan could not be captured.
 - Writes are the weak spot of DAL v2: it is slower than both ORMs on S4 on every engine, although it sends far fewer statements (23 against 350).
-  The ORM write paths skip what the DAL write does (validation, write protection, the written events), so the comparison is not like for like, but on SQLite Cycle writes the 50 products in 16.86 ms against 287.10 ms for DAL v2, which says the DAL write cost on SQLite is not the statement count.
+  Doc 35 re-ran S4 with full ORM and DBAL variants that validate, check write protection and dispatch the same written events as the DAL (proven equal on all four engines): the contract costs them about 2 to 10 ms, and the ranking stays; DAL v2 is level with the ORM full variants on MariaDB, 4 to 12 ms behind the fastest on MySQL and about 20 ms behind on PostgreSQL.
+  On SQLite Cycle writes the 50 products in 16.86 ms against 287.10 ms for DAL v2, which says the DAL write cost on SQLite is not the statement count.
 - On PostgreSQL the batched update of DAL v2 does not engage (123 statements, as the DAL): an earlier spike run of the batched update failed there with `column "stock" is of type integer but expression is of type text`, so the `CASE` needs a cast per column type there.
 - Cold cache: one S2 call after `cache:clear --no-warmup` takes about 1.0 to 1.1 s for DBAL, Doctrine and Cycle and 1.6 to 1.8 s for the DAL and DAL v2 on every engine (warm 0.2 to 0.35 s, wall time including the kernel boot).
 
 ### Recommendation
 
 Keep the DAL as the public API and build DAL v2 step by step; do not replace the DAL with Doctrine ORM or Cycle ORM, and do not put either underneath it.
-Doc 34 does not change the draft below: no optimized ORM variant is ahead of DAL v2 on reads on all four engines while keeping its entity model, and the ORMs' write advantage comes from skipping DAL behaviour, not from batching.
+Doc 34 does not change the draft below: no optimized ORM variant is ahead of DAL v2 on reads on all four engines while keeping its entity model, and the ORMs' remaining write advantage is not validation and events (doc 35: same contract on all paths, events are 1.1 to 1.5 percent of the DAL v2 write) but the writer PHP of the DAL, the missing batched update on PostgreSQL and the SQL cost on SQLite.
 It adds one point: the write path is the next DAL v2 lever to work on (writer PHP is 58 to 59 percent of S4 per doc 33, the SQLite write cost is unexplained, the PostgreSQL batched update needs typed `CASE` expressions).
 
 Recommendation (originally drafted from the probe, DX and effort evidence, confirmed against doc 34):

@@ -478,7 +478,7 @@ The effort column is an estimate from the size of the changes, not a measurement
 The final block in `docs/34-orm-spike-final-timings.md` measured DAL v2 next to both ORMs under one load state; the open items for DAL v2 it adds:
 
 - Writes are the weak spot: DAL v2 with all levers is slower on S4 than optimized Doctrine and optimized Cycle on every engine (MySQL 57.49 against 43.48 and 52.29 ms, PostgreSQL 89.15 against 57.22 and 59.07 ms), although it sends 23 statements against about 350.
-  The ORM paths skip validation, write protection and the written events, so this is not like for like, but the remaining cost is writer PHP (58 to 59 percent of S4 in the profile above).
+  Doc 35 gave the ORM and DBAL paths the same validation, write protection and written events as the DAL: the contract costs them a few ms and the gap stays, so the remaining cost is writer PHP (58 to 59 percent of S4 in the profile above; events alone are 1.1 to 1.5 percent).
 - SQLite: Cycle writes the 50 products in 16.86 ms with 350 statements, DAL v2 needs 287.10 ms with 23, so the 5 ms per row of the `UPDATE product` above is not a property of SQLite itself; the cause is still not found and is the first thing to check (statement shape of the DAL update, the `TextBindingStatement` middleware, transaction handling).
 - PostgreSQL: the batched update does not engage (123 statements, as the DAL).
   A spike run of the batched update on PostgreSQL failed with `column "stock" is of type integer but expression is of type text`, so the `CASE` expression needs a cast per column type there before the per-row fallback can be dropped.

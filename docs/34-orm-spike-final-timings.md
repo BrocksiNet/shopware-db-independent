@@ -151,6 +151,8 @@ None.
 
 ## Notes
 
+- The ORM and DBAL S4 rows here skip validation, write protection and the written events; [doc 35](35-orm-spike-fair-write.md) re-runs S4 with all paths doing the same work.
+
 All 32 verify cells (8 non-dal configurations times 4 engines, S1 to S5) pass against the DAL.
 No benchmark cell failed, so no cell was rerun.
 The first attempt of the cold-cache measurement used plain `cache:clear`, which warms the cache again, so cold and warm were equal; it was discarded and rerun with `cache:clear --no-warmup`, 5 repetitions per cell, in a second lock (load at its start 5.11, 6.66, 7.69).
