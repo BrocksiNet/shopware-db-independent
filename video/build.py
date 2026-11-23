@@ -1,10 +1,12 @@
 #!/usr/bin/env python3
 """Render deck.html step by step, add a `say` voiceover and stitch an MP4 with crossfades.
 
-Usage: python3 video/build.py [--voice Samantha] [--rate 178]
+Usage: python3 video/build.py [--engine kokoro|say] [--voice af_heart] [--speed 0.95]
+Kokoro voices: af_heart (default, warm), af_bella (soft), am_michael (calm male), bf_emma (British).
+With --engine say, --voice is a macOS voice name and --rate the words per minute.
 Output: video/out/experiment.mp4 and video/out/experiment.srt
 """
-import argparse, json, pathlib, subprocess
+import argparse, json, pathlib, re, subprocess
 
 ROOT = pathlib.Path(__file__).resolve().parent
 OUT = ROOT / "out"
@@ -58,6 +60,9 @@ SCRIPT = [
     (12, 1, "Thanks for watching."),
 ]
 
+# spoken form of terms the TTS gets wrong; subtitles keep the written form
+SPOKEN = [(r"\bDAL\b", "D-A-L"), (r"\bMySQL\b", "My S Q L"), (r"\bPostgreSQL\b", "Postgres")]
+
 PAD = 0.9      # silence after each narration
 LEAD = 0.35    # silence before each narration
 XFADE = 0.4    # crossfade between steps
@@ -79,11 +84,32 @@ def srt_time(t):
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--voice", default="Samantha")
+    ap.add_argument("--engine", default="kokoro", choices=["kokoro", "say"])
+    ap.add_argument("--voice", default=None)
+    ap.add_argument("--speed", type=float, default=0.95)
     ap.add_argument("--rate", default="178")
     args = ap.parse_args()
     OUT.mkdir(exist_ok=True)
     deck = (ROOT / "deck.html").as_uri()
+
+    def spoken(text):
+        for pat, rep in SPOKEN:
+            text = re.sub(pat, rep, text)
+        return text
+
+    raw = [OUT / f"{i:02}.raw.wav" for i in range(len(SCRIPT))]
+    if args.engine == "kokoro":
+        jobs = OUT / "tts-jobs.json"
+        jobs.write_text(json.dumps({"voice": args.voice or "af_heart", "speed": args.speed,
+                                    "items": [{"text": spoken(t), "out": str(r)} for (_, _, t), r in zip(SCRIPT, raw)]}))
+        run("uv", "run", "--quiet", "--python", "3.12", "--with", "kokoro", "--with", "soundfile",
+            str(ROOT / "tts_kokoro.py"), str(jobs))
+    else:
+        for (_, _, t), r in zip(SCRIPT, raw):
+            aiff = r.with_suffix(".aiff")
+            run("say", "-v", args.voice or "Samantha", "-r", args.rate, "-o", str(aiff), spoken(t))
+            run("ffmpeg", "-y", "-v", "error", "-i", str(aiff), str(r))
+            aiff.unlink()
 
     segs = []
     for i, (scene, step, text) in enumerate(SCRIPT):
@@ -91,10 +117,8 @@ def main():
         wav = OUT / f"{i:02}.wav"
         run(CHROME, "--headless=new", "--disable-gpu", "--hide-scrollbars", "--force-device-scale-factor=1",
             "--window-size=1920,1080", "--virtual-time-budget=1000", f"--screenshot={png}", f"{deck}#{scene}-{step}")
-        aiff = OUT / f"{i:02}.aiff"
-        run("say", "-v", args.voice, "-r", args.rate, "-o", str(aiff), text)
-        run("ffmpeg", "-y", "-v", "error", "-i", str(aiff), "-ar", "48000", "-ac", "2", str(wav))
-        aiff.unlink()
+        run("ffmpeg", "-y", "-v", "error", "-i", str(raw[i]), "-ar", "48000", "-ac", "2", str(wav))
+        raw[i].unlink()
         a = duration(wav)
         segs.append({"png": png, "wav": wav, "audio": a, "len": LEAD + a + PAD, "text": text})
         print(f"{i:02} scene {scene}.{step}  {a:5.2f}s")
