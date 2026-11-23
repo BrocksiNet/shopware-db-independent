@@ -240,6 +240,7 @@ Against DAL v2 with the write levers it narrows the picture by engine (medians r
 - MariaDB: DAL v2 53.74 / 52.18 ms is level with the ORM full variants (doctrine optimized 49.16 / 46.61, cycle idiomatic 54.15 / 50.71, cycle optimized 53.86 / 55.24, doctrine idiomatic 59.54 / 56.52).
 - MySQL: DAL v2 52.09 / 46.51 ms is 4 to 12 ms behind the fastest ORM full variant (cycle optimized 40.52 in run 1, doctrine optimized 34.37 in run 2) and ahead of doctrine idiomatic full in run 1 (77.93).
 - PostgreSQL: DAL v2 85.12 / 81.62 ms is level with doctrine idiomatic full (82.98 / 77.74) and about 20 ms behind the other ORM full variants (62.73 to 68.88), because the batched update does not engage there.
+  Doc 36 found the cause (the PoC SQL translator, not `CASE` typing) and fixed it: with the batched update DAL v2 takes 68.76 ms against 84.46 ms for the DAL on PostgreSQL, measured in a separate block.
 - SQLite: DAL v2 301.02 / 292.18 ms stays far behind (doctrine optimized full 132.05 / 126.46, cycle full about 21); the profile above puts 76 percent of it in SQL, so the cause is the statements, not validation or events.
 
-The remaining write gap of DAL v2 is therefore not validation and events (events are 1.1 to 1.5 percent of its S4 time); it is writer PHP on MySQL, the missing batched update on PostgreSQL and the SQL cost on SQLite.
+The remaining write gap of DAL v2 is therefore not validation and events (events are 1.1 to 1.5 percent of its S4 time); it is writer PHP on MySQL, the missing batched update on PostgreSQL (fixed in doc 36) and the SQL cost on SQLite.

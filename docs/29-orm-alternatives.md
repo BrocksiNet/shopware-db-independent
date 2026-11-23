@@ -271,7 +271,7 @@ The effort column of doc 33 is its own estimate from the size of the change; the
 | 1 | W1a key fix in `EntityWriteGateway::getCurrentState()` (core finding 31) | internal bug fix | hours plus a regression test | S4 371 to 121 statements on MySQL, MariaDB, SQLite; no change on PostgreSQL | about 5 lines; verified in the code, see below |
 | 2 | C1 window count (core finding 32) | internal | days | S3 and S5 15 to 45 percent lower on four engines | 33 changed lines in a copy of `EntitySearcher`; needs count fallback tests per engine |
 | 3 | A1 stats fusion | internal, additive | days | one statement less on S3, no gain outside the noise | 86 lines |
-| 4 | W1b update batching (core finding 29 is the related indexer side) | internal | 1 to 2 weeks | S4 371 to 23 statements on MySQL and MariaDB; on PostgreSQL the batch did not engage, on SQLite the time did not move | about 130 changed lines in a copy of the gateway; casts on PostgreSQL, events, tests |
+| 4 | W1b update batching (core finding 29 is the related indexer side) | internal | 1 to 2 weeks | S4 371 to 23 statements on MySQL and MariaDB; on PostgreSQL the batch did not engage until the fix of doc 36 (123 to 25 statements, 84.46 to 68.76 ms), on SQLite the time did not move | about 130 changed lines in a copy of the gateway; events, tests |
 | 5 | SQL hygiene (core findings 2, 6, 14, 27) | internal | 2 to 4, judgement | removes MySQL-only behaviour (session `sql_mode`, `@n:=IF`, implicit NULL order, untyped binds) | doc 33 lists the open state per row; each is a core change; the range is mine |
 | 6 | R1 read shape | internal | 1 to 2 (doc 33), judgement | `shape=join`: SQLite S1 45, S2 67, S5 38 percent lower, nothing on MySQL, MariaDB, PostgreSQL; `shape=batch`: PostgreSQL S1 15 to 25, S2 32 to 36 percent lower, nothing on MySQL, MariaDB, SQLite | about 91 lines flat join builder, about 130 in a reader copy; statements 4 to 8 on S1 |
 | 7 | R3 DTO projections | additive | 1 to 2 for the mechanism and first entities (doc 33), 3 to 6 for broad coverage, judgement | S1 and S2 about 15 to 50 percent, nothing on S3 and S5 | 128 lines mechanism, 121 for four DTOs; the `parentId` trap (core finding 33) needs a core fix or a rule |
@@ -342,14 +342,15 @@ What the table shows:
 - Writes are the weak spot of DAL v2: it is slower than both ORMs on S4 on every engine, although it sends far fewer statements (23 against 350).
   Doc 35 re-ran S4 with full ORM and DBAL variants that validate, check write protection and dispatch the same written events as the DAL (proven equal on all four engines): the contract costs them about 2 to 10 ms, and the ranking stays; DAL v2 is level with the ORM full variants on MariaDB, 4 to 12 ms behind the fastest on MySQL and about 20 ms behind on PostgreSQL.
   On SQLite Cycle writes the 50 products in 16.86 ms against 287.10 ms for DAL v2, which says the DAL write cost on SQLite is not the statement count.
-- On PostgreSQL the batched update of DAL v2 does not engage (123 statements, as the DAL): an earlier spike run of the batched update failed there with `column "stock" is of type integer but expression is of type text`, so the `CASE` needs a cast per column type there.
+- On PostgreSQL the batched update of DAL v2 does not engage (123 statements, as the DAL): an earlier spike run of the batched update failed there with `column "stock" is of type integer but expression is of type text`, and the conclusion drawn then was that the `CASE` needs a cast per column type.
+  Doc 36 corrects this: the PoC SQL translator turned `ELSE "stock"` into the string `ELSE 'stock'`; with table-qualified column references the batch engages on PostgreSQL without casts (123 to 25 statements).
 - Cold cache: one S2 call after `cache:clear --no-warmup` takes about 1.0 to 1.1 s for DBAL, Doctrine and Cycle and 1.6 to 1.8 s for the DAL and DAL v2 on every engine (warm 0.2 to 0.35 s, wall time including the kernel boot).
 
 ### Recommendation
 
 Keep the DAL as the public API and build DAL v2 step by step; do not replace the DAL with Doctrine ORM or Cycle ORM, and do not put either underneath it.
 Doc 34 does not change the draft below: no optimized ORM variant is ahead of DAL v2 on reads on all four engines while keeping its entity model, and the ORMs' remaining write advantage is not validation and events (doc 35: same contract on all paths, events are 1.1 to 1.5 percent of the DAL v2 write) but the writer PHP of the DAL, the missing batched update on PostgreSQL and the SQL cost on SQLite.
-It adds one point: the write path is the next DAL v2 lever to work on (writer PHP is 58 to 59 percent of S4 per doc 33, the SQLite write cost is unexplained, the PostgreSQL batched update needs typed `CASE` expressions).
+It adds one point: the write path is the next DAL v2 lever to work on (writer PHP is 58 to 59 percent of S4 per doc 33, the SQLite write cost is unexplained, the PostgreSQL batched update is fixed in doc 36).
 
 Recommendation (originally drafted from the probe, DX and effort evidence, confirmed against doc 34):
 

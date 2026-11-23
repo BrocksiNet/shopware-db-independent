@@ -445,8 +445,9 @@ Reading the numbers:
   The key fix alone gives 60.60 and 59.05 ms (371 to 121 statements), the update batching alone 76.20 and 83.62 ms (371 to 273).
 - W1 on PostgreSQL does nothing: statements stay at 123 and the median at 78 to 98 ms.
   The key bug does not exist there (W1a) and the unchanged statement count shows that the batched update did not engage there.
-  The code falls back to per-row updates whenever a changed column on PostgreSQL is not an integer (`WriteGatewayV2` lines 586 to 590, because PostgreSQL types an untyped `CASE` as text).
-  Which column triggers the fallback for the product update was not checked, and no cast variant was built.
+  The code fell back to per-row updates whenever a changed column on PostgreSQL was not an integer (`WriteGatewayV2` lines 586 to 590).
+  Correction (doc 36): the reason given for that fallback, that PostgreSQL types an untyped `CASE` as text, is wrong.
+  The PoC translator read the bare column reference in `ELSE "stock"` as a MySQL string literal and turned it into `ELSE 'stock'`; with table-qualified column references the batched update runs on PostgreSQL without casts.
 - W1 on SQLite: statements go from 371 to 23, the median does not move (329.71 against 296.41 to 345.53 ms).
   The re-run profile of SQLite S4 shows 76.5 percent of the time in SQL, and the one `UPDATE product` statement (50 rows per run) accounts for 249.9 ms per run, about 5 ms per row.
   Why one row of that update costs 5 ms on SQLite was not found.
@@ -467,7 +468,7 @@ Reading the numbers:
 | A1 stats fusion | one statement less on S3, no measured gain | 86 | internal, additive | days |
 | R3 projections | S1 and S2 about 15 to 50 percent, nothing on S3 and S5 | 128 for the mechanism, 121 for the DTOs | additive | one to two weeks to cover more entities and the `parentId` rule |
 | W1a key fix | S4 on MySQL, MariaDB and SQLite 371 to 121 statements | about 5 lines in `getCurrentState` | internal bug fix | hours, plus a regression test |
-| W1b update batching | S4 371 to 23 statements on MySQL and MariaDB, no effect on PostgreSQL and SQLite time | about 130 changed lines in a copy of the gateway | internal | one to two weeks (casts on PostgreSQL, events, tests) |
+| W1b update batching | S4 371 to 23 statements on MySQL and MariaDB, no effect on PostgreSQL and SQLite time | about 130 changed lines in a copy of the gateway | internal | one to two weeks (events, tests; no casts needed on PostgreSQL, doc 36) |
 | R1 read shape | `join`: SQLite S1 45, S2 67, S5 38 percent, nothing on MySQL, MariaDB, PostgreSQL; `batch`: PostgreSQL S1 15 to 25, S2 32 to 36 percent, nothing on MySQL, MariaDB, SQLite | about 91 (flat join builder) plus about 130 (reader copy) plus 10 | internal | one to two weeks (translation join in `QueryBuilder`, to-one batching with its exceptions, tests per engine), judgement |
 | R2 compiled hydrators | at most the hydration share (3 to 15 percent) | not built | internal | not justified by the profile |
 
@@ -481,7 +482,8 @@ The final block in `docs/34-orm-spike-final-timings.md` measured DAL v2 next to 
   Doc 35 gave the ORM and DBAL paths the same validation, write protection and written events as the DAL: the contract costs them a few ms and the gap stays, so the remaining cost is writer PHP (58 to 59 percent of S4 in the profile above; events alone are 1.1 to 1.5 percent).
 - SQLite: Cycle writes the 50 products in 16.86 ms with 350 statements, DAL v2 needs 287.10 ms with 23, so the 5 ms per row of the `UPDATE product` above is not a property of SQLite itself; the cause is still not found and is the first thing to check (statement shape of the DAL update, the `TextBindingStatement` middleware, transaction handling).
 - PostgreSQL: the batched update does not engage (123 statements, as the DAL).
-  A spike run of the batched update on PostgreSQL failed with `column "stock" is of type integer but expression is of type text`, so the `CASE` expression needs a cast per column type there before the per-row fallback can be dropped.
+  A spike run of the batched update on PostgreSQL failed with `column "stock" is of type integer but expression is of type text`.
+  Correction (doc 36): this was not `CASE` typing but the PoC translator turning `ELSE "stock"` into the string `ELSE 'stock'`; with table-qualified column references the batched update engages on PostgreSQL without casts.
 - Not exercised for DAL v2 and still open: the plugin field probe on a core entity and the app custom entity probe.
 
 ## What DAL v2 keeps solving and what it removes
