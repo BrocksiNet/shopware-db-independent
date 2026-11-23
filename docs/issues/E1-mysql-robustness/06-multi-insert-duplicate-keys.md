@@ -6,8 +6,8 @@ title: "Merge rows with the same key in `MultiInsertQueryQueue`"
 parent: E1
 related: []
 findings: [12]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23293"
 ---
 
 ## Technical TODO

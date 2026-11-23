@@ -6,8 +6,8 @@ title: "Remove the select alias in `HAVING`, the unqualified `id` and the partia
 parent: E1
 related: [E1.02]
 findings: [3, 4]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23290"
 ---
 
 ## Technical TODO

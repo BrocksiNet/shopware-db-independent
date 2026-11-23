@@ -6,8 +6,8 @@ title: "Batch the single row UPDATE product statements of the product indexer up
 parent: E2
 related: [E3.04, E2.02]
 findings: [29]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23301"
 ---
 
 ## Technical TODO

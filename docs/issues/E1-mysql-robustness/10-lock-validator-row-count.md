@@ -6,8 +6,8 @@ title: "`LockValidator` uses `rowCount()` after a SELECT"
 parent: E1
 related: []
 findings: [25]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23297"
 ---
 
 ## Technical TODO

@@ -6,8 +6,8 @@ title: "DAL and core SQL: stop relying on lenient MySQL behaviour"
 parent: ""
 related: [E3, E4]
 findings: [1, 2, 3, 4, 5, 6, 12, 13, 14, 18, 22, 25, 27, 28]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23287"
 ---
 
 ## Problem we must solve

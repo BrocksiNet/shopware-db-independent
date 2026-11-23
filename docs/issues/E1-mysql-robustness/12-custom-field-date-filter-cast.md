@@ -6,8 +6,8 @@ title: "Date custom field filters cast the column but not the value"
 parent: E1
 related: [E1.11]
 findings: [28]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23299"
 ---
 
 ## Technical TODO

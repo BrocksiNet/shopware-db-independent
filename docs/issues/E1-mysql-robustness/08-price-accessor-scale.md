@@ -6,8 +6,8 @@ title: "Make scale and arithmetic of the price accessor explicit"
 parent: E1
 related: []
 findings: [13]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23295"
 ---
 
 ## Technical TODO

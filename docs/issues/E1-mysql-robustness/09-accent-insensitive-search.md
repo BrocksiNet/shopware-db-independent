@@ -6,8 +6,8 @@ title: "Decide and test whether string filters are accent-insensitive"
 parent: E1
 related: [E5.03]
 findings: [18]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23296"
 ---
 
 ## Technical TODO

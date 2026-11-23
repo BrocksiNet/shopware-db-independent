@@ -6,8 +6,8 @@ title: "Hex ids above the connection, binding in one place"
 parent: E4
 related: [E4.01, E4.06, E3.01]
 findings: [7]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23319"
 ---
 
 ## User story

@@ -6,8 +6,8 @@ title: "Make DAL selects valid under `ONLY_FULL_GROUP_BY` and stop changing `sql
 parent: E1
 related: [E1.01, E1.03]
 findings: [2]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23289"
 ---
 
 ## Technical TODO

@@ -6,8 +6,8 @@ title: "Close the attribute entity compiler gaps"
 parent: E3
 related: [E3.11]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23314"
 ---
 
 ## User story

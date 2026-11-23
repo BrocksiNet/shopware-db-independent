@@ -6,8 +6,8 @@ title: "State the NULL order of `FieldSorting` in the SQL"
 parent: E1
 related: [E5.04]
 findings: [14, 22]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23294"
 ---
 
 ## Technical TODO

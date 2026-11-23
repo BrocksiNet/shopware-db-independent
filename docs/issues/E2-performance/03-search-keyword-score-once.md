@@ -6,8 +6,8 @@ title: "Compute the search keyword score once per search request"
 parent: E2
 related: [E3.02]
 findings: [23, 24]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23303"
 ---
 
 ## Technical TODO

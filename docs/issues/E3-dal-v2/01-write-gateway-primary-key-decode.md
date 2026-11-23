@@ -6,8 +6,8 @@ title: "EntityWriteGateway misses the prefetched existence state for storage nam
 parent: E3
 related: [E3.04]
 findings: [31]
-status: reproduced
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23305"
 ---
 
 ## Shopware Version

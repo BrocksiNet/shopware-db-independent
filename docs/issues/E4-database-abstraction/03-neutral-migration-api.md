@@ -6,8 +6,8 @@ title: "Database-neutral migration API for new migrations"
 parent: E4
 related: [E4.01, E4.04, E5.01]
 findings: [8]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23320"
 ---
 
 ## User story

@@ -6,8 +6,8 @@ title: "Natural sorting in a grouped query sorts by a non-aggregated column"
 parent: E1
 related: [E1.02]
 findings: [1]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23288"
 ---
 
 ## Shopware Version

@@ -6,8 +6,8 @@ title: "Bind numeric criteria parameters with their type"
 parent: E1
 related: [E1.12]
 findings: [27]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23298"
 ---
 
 ## Technical TODO

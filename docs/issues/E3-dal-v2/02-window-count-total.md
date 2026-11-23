@@ -6,8 +6,8 @@ title: "Return the exact total of a paginated search with a window count"
 parent: E3
 related: [E1.04, E3.03]
 findings: [32]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23306"
 ---
 
 ## Technical TODO

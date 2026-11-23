@@ -6,8 +6,8 @@ title: "Decide on the read shape options join and batch"
 parent: E3
 related: [E5.02]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23312"
 ---
 
 ## Technical TODO

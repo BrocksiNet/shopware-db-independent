@@ -6,8 +6,8 @@ title: "Database abstraction groundwork: SQL dialect, id binding and neutral mig
 parent: ""
 related: [E1, E5]
 findings: [7, 8, 15, 20, 21, 26]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23317"
 ---
 
 ## Problem we must solve

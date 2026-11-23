@@ -6,8 +6,8 @@ title: "Replace session variable row counting with `ROW_NUMBER() OVER (PARTITION
 parent: E1
 related: []
 findings: [6]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23291"
 ---
 
 ## Technical TODO

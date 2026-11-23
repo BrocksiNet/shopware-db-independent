@@ -6,8 +6,8 @@ title: "Do not continue a transaction after a failed statement without a savepoi
 parent: E1
 related: []
 findings: [5]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23292"
 ---
 
 ## Technical TODO

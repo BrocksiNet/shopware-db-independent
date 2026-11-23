@@ -6,8 +6,8 @@ title: "SqlDialect service with the MySQL implementation"
 parent: E4
 related: [E4.02, E4.03, E4.06, E5.01]
 findings: [8]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23318"
 ---
 
 ## User story

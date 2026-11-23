@@ -6,8 +6,8 @@ title: "Check criteria field paths with PHPStan"
 parent: E3
 related: [E3.07]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23313"
 ---
 
 ## User story

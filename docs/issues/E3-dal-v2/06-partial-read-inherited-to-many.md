@@ -6,8 +6,8 @@ title: "Partial read of a variant returns an empty inherited to-many association
 parent: E3
 related: [E3.07]
 findings: [33]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23310"
 ---
 
 ## Shopware Version

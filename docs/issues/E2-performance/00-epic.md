@@ -6,8 +6,8 @@ title: "Fewer statements and fewer deadlocks in product writes and search"
 parent: ""
 related: [E3]
 findings: [10, 23, 24, 29]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23300"
 ---
 
 ## User story

@@ -6,8 +6,8 @@ title: "Verify plugin fields and app custom entities on the DAL v2 changes"
 parent: E3
 related: [E3.04, E3.07, E3.10]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23316"
 ---
 
 ## Technical TODO

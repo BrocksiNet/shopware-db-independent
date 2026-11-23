@@ -6,8 +6,8 @@ title: "DAL v2: keep the DAL and make it faster and typed"
 parent: ""
 related: [E1, E2]
 findings: [31, 32, 33]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23304"
 ---
 
 ## Problem we must solve

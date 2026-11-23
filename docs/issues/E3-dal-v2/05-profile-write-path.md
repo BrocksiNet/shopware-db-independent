@@ -6,8 +6,8 @@ title: "Profile the DAL write path"
 parent: E3
 related: [E3.01, E3.04]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23309"
 ---
 
 ## Technical TODO

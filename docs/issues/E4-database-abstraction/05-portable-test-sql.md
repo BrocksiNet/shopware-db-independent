@@ -6,8 +6,8 @@ title: "Remove MySQL-only SQL from tests"
 parent: E4
 related: [E4.01, E1.02, E1.10, E1.11]
 findings: [15, 21, 26]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23322"
 ---
 
 ## Technical TODO

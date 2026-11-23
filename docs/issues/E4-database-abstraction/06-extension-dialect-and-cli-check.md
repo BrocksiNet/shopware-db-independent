@@ -6,8 +6,8 @@ title: "Public dialect service for extensions and a shopware-cli check"
 parent: E4
 related: [E4.01, E4.02, E4.03]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23323"
 ---
 
 ## User story

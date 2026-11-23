@@ -6,8 +6,8 @@ title: "Batch update commands of one entity in the write gateway"
 parent: E3
 related: [E2.01, E3.01, E3.05]
 findings: [29]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23308"
 ---
 
 ## Technical TODO

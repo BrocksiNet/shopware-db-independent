@@ -6,8 +6,8 @@ title: "Read into typed DTO projections through partial loading"
 parent: E3
 related: [E3.06, E3.09]
 findings: [33]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23311"
 ---
 
 ## User story

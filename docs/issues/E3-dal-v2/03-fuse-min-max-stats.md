@@ -6,8 +6,8 @@ title: "Fuse min and max aggregations of one field into one statement"
 parent: E3
 related: [E3.02]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23307"
 ---
 
 ## Technical TODO

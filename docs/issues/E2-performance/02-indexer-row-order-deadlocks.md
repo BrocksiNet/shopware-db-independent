@@ -6,8 +6,8 @@ title: "One fixed row order in the product indexer updaters against deadlocks"
 parent: E2
 related: [E2.01, E3.04]
 findings: [10]
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23302"
 ---
 
 ## Technical TODO

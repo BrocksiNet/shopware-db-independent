@@ -6,8 +6,8 @@ title: "Decide whether classic definitions move to attribute entities"
 parent: E3
 related: [E3.10]
 findings: []
-status: checked
-upstream: ""
+status: filed
+upstream: "https://github.com/shopware/shopware/issues/23315"
 ---
 
 ## Technical TODO
