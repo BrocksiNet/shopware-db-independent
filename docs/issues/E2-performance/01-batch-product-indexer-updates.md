@@ -24,11 +24,16 @@ A sync of 50 products through `POST /api/_action/sync` sent about 475 `UPDATE pr
 Of these, 158 set `category_tree`, 50 come from the DAL write itself, 50 set `cheapest_price`, 87 set `display_group` and 41 set `rating_average`.
 The remaining statements were not attributed to an updater.
 
+The open pull request https://github.com/shopware/shopware/pull/18898 (`perf(core): reduce query count of dal:refresh:index indexers`) covers most of this issue.
+It adds an internal `MultiUpdateQueryQueue` (`UPDATE ... SET c = CASE id WHEN ? THEN ? ... ELSE c END WHERE id IN (...) AND version_id = ?`, chunks of 250) and uses it for `cheapest_price`, `cheapest_price_accessor`, `category_tree`, the tree `path` and `level` and the media `thumbnails_ro`; `display_group` moves to `WHERE id IN (:ids)` statements.
+It reports 13,350 to 5,730 statements and 17.0 s to 13.7 s for `dal:refresh:index` on MariaDB 11.4.
+Left for this issue after that pull request: `RatingAverageUpdater` still updates one row per statement, and the statement count of a sync request is not measured there.
+
 Technical TODO:
 
 - [ ] Count `UPDATE product` statements per updater for a sync of 50 products on trunk and record the numbers in the issue.
-- [ ] Write the `category_tree`, `cheapest_price` and `rating_average` values with one statement per batch, either `UPDATE ... WHERE id IN (...)` or a `CASE` expression, or a multi row upsert through `MultiInsertQueryQueue`.
-- [ ] Do the same for the `display_group` updates of `VariantListingUpdater`.
+- [ ] Write the `category_tree`, `cheapest_price` and `rating_average` values with one statement per batch (all but `rating_average` in https://github.com/shopware/shopware/pull/18898), either `UPDATE ... WHERE id IN (...)` or a `CASE` expression, or a multi row upsert through `MultiInsertQueryQueue`.
+- [ ] Do the same for the `display_group` updates of `VariantListingUpdater` (in https://github.com/shopware/shopware/pull/18898).
 - [ ] Keep the version condition on every batch statement.
 - [ ] Add a test that fixes the statement count of a multi product index run.
 - [ ] Check that MySQL and MariaDB return the same data as before and that the timing does not get worse.

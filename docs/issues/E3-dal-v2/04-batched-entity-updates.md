@@ -53,6 +53,7 @@ TODO:
 - [ ] Decide the row order inside a batch, see E2.02 for the deadlock topic of the indexer updaters.
 - [ ] Keep `ELSE <column>` in every `CASE`, so the parameter types follow the column type on PostgreSQL without casts.
 - [ ] Share the statement builder with E2.01 if both end up in the same shape.
+  The `MultiUpdateQueryQueue` of https://github.com/shopware/shopware/pull/18898 has that shape, but for the gateway it would also need a composite primary key per row (`id` and `version_id` can differ inside one write), typed parameters, and the unique column and savepoint rules above; the indexer columns it writes are not unique and have no write commands, so it does not need them.
 - [ ] Tests: unit tests of the statement builder per field type, integration tests that compare the rows written by a batch with the rows written by single updates, and the `EntityWrittenEvent` payloads.
 
 ## Research notes (not for upstream)

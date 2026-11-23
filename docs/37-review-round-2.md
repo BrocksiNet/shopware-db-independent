@@ -68,6 +68,13 @@ Not rerun: the S4 timings of docs 33 to 36.
 The fix adds a savepoint and its release per chunk of up to 100 rows, and the schema introspection costs about 8 to 30 ms per table, once per process; updates of unique columns (for example `productNumber`) are no longer batched at all.
 The E3.04 draft (`docs/issues/E3-dal-v2/04-batched-entity-updates.md`) now lists both rules; the filed issue https://github.com/shopware/shopware/issues/23308 does not have them yet.
 
+## Related upstream work
+
+The open pull request https://github.com/shopware/shopware/pull/18898 batches the indexer updates of E2.01 with a `MultiUpdateQueryQueue` in the same `CASE ... ELSE <column> END` shape.
+The two rules above do not apply to it: the columns it writes (`cheapest_price`, `category_tree`, `path`, `level`, `thumbnails_ro`) are in no unique index of `product`, `category` and `media`, and there are no write commands to mark failed.
+The `ELSE <column>` branch also keeps it free of casts on PostgreSQL (`docs/36`).
+Its `display_group` statements keep `SHA2(HEX(...))`, which is MySQL-only, as trunk does today.
+
 ## Correction: "0 schema differences against MySQL"
 
 The summary, the final report, the E5 drafts and the video said that all 910 core migrations run on PostgreSQL with zero schema differences to MySQL.
