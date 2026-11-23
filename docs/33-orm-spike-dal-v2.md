@@ -43,6 +43,14 @@ Categories: `sql` (driver execution and fetch), `read.php` (reader PHP without S
 60 measured iterations after 5 warm-up calls, `APP_ENV=prod`, warm cache.
 The shares are not from the final timing block (other lanes were running), only the shares are used from them, not the absolute milliseconds.
 
+## Harness issues found
+
+- The result file name uses the dialect name, which is `mysql` for MariaDB, so the MySQL and MariaDB result files collide in one output directory.
+  Workaround used here: a separate `--output-dir` per engine and configuration.
+- `--scenario` takes one value, the last flag wins; `--scenarios` is not an option.
+  Scenarios are run one per call.
+- S4 runs of parallel sessions collide on the shared write cleaner (`WriteException`, deadlocks, lock wait timeouts seen), so S4 numbers are only valid while holding the timing lock.
+
 ## Profile: where the DAL time goes
 
 Share of the wall time of one scenario call, DAL stack with the sales channel context, per engine.
