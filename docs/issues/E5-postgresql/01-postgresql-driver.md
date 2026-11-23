@@ -35,10 +35,13 @@ Result of a proof of concept, for scale:
 
 Translator gap: the translator of the proof of concept rejects a native `uuid` type in `CREATE TABLE` and maps only `BINARY(16)` to `uuid`.
 
+Translator gap: a double quoted column reference after `WHEN`, `THEN` or `ELSE` is read as a MySQL string literal (`ELSE "stock"` becomes `ELSE 'stock'`), so such SQL must qualify the column with its table or the translator must treat those positions as identifier positions.
+
 ## Research notes (not for upstream)
 
 - Finding: `docs/core-findings.md` row 30 (found while creating probe tables, `docs/31` line 194).
   The translator exists only on the proof of concept branch (`poc/db-independent`, `Adapter/Database/PostgreSQL/`), so the finding has no counterpart in trunk code.
+- Second translator gap: `docs/core-findings.md` row 34, found in the DAL v2 batched update (`docs/36`); the heuristic is `MySQLToPostgreSQLTranslator::isQuotedIdentifier()` (keyword list at line 464 on `poc/orm-spike`).
 - Numbers: `docs/27-final-report.md`; migrations `docs/07`, install and translator `docs/17`.
 - Trunk `e9e18ef0e7b`: only `MySQLFactory` exists as connection factory (`src/Core/Framework/Adapter/Database/MySQLFactory.php`, registered at `src/Core/Framework/DependencyInjection/services.php:303`).
 - This story depends on E4.01 to E4.03 and on a go decision (epic E5).
