@@ -70,9 +70,9 @@ E4 is phase 1 and 2 of the integration plan in `docs/27-final-report.md`, E5 is 
 | [E1.07](E1-mysql-robustness/07-explicit-null-order.md) | Improvement | State the NULL order of `FieldSorting` in the SQL | 14, 22 | draft |
 | [E1.08](E1-mysql-robustness/08-price-accessor-scale.md) | Improvement | Make scale and arithmetic of the price accessor explicit | 13 | draft |
 | [E1.09](E1-mysql-robustness/09-accent-insensitive-search.md) | Task | Decide and test whether string filters are accent-insensitive | 18 | draft |
-| [E1.10](E1-mysql-robustness/10-lock-validator-row-count.md) | Bug | `LockValidator` uses `rowCount()` after a SELECT | 25 | draft |
+| [E1.10](E1-mysql-robustness/10-lock-validator-row-count.md) | Improvement | `LockValidator` uses `rowCount()` after a SELECT | 25 | draft |
 | [E1.11](E1-mysql-robustness/11-typed-numeric-parameters.md) | Improvement | Bind numeric criteria parameters with their type | 27 | draft |
-| [E1.12](E1-mysql-robustness/12-custom-field-date-filter-cast.md) | Bug | Date custom field filters cast the column but not the value | 28 | draft |
+| [E1.12](E1-mysql-robustness/12-custom-field-date-filter-cast.md) | Improvement | Date custom field filters cast the column but not the value | 28 | draft |
 | [E2.01](E2-performance/01-batch-product-indexer-updates.md) | Improvement | Batch the single row `UPDATE product` statements of the product indexer updaters | 29 | draft |
 | [E2.02](E2-performance/02-indexer-row-order-deadlocks.md) | Improvement | One fixed row order in the product indexer updaters against deadlocks | 10 | draft |
 | [E2.03](E2-performance/03-search-keyword-score-once.md) | Improvement | Compute the search keyword score once per search request | 23, 24 | draft |

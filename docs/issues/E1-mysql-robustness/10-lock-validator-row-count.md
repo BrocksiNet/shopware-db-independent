@@ -1,7 +1,7 @@
 ---
 id: E1.10
-type: Bug
-template: bug_report.yml
+type: Improvement
+template: technical_todo.yaml
 title: "`LockValidator` uses `rowCount()` after a SELECT"
 parent: E1
 related: []
@@ -10,15 +10,7 @@ status: draft
 upstream: ""
 ---
 
-## Shopware Version
-
-trunk (code checked on `e9e18ef0e7b`, 2026-11-23)
-
-## Affected area / extension
-
-Platform(Default)
-
-## Actual behaviour
+## Technical TODO
 
 `LockValidator::containsLockedEntities()` decides whether an entity is locked from the row count of a SELECT:
 
@@ -33,13 +25,10 @@ $locked[$entityName] = $this->connection->createQueryBuilder()
 ```
 
 The PDO contract does not define `rowCount()` for a SELECT statement.
-`pdo_mysql` happens to return the number of rows.
+`pdo_mysql` happens to return the number of rows, so the code works on MySQL and MariaDB today.
 In a proof of concept `pdo_sqlite` returned a stale count from an earlier statement, so the validator reported entities as locked or unlocked incorrectly and 4 tests failed.
-On MySQL and MariaDB the code works today.
 
-## Expected behaviour
-
-The check uses a result that is defined on every driver:
+Proposed change:
 
 ```php
 ->executeQuery()
@@ -48,18 +37,14 @@ The check uses a result that is defined on every driver:
 
 The result is the same on MySQL and MariaDB.
 
-## How to reproduce
+Acceptance:
 
-Found by reading the code, not run on trunk.
-On MySQL and MariaDB there is no wrong result to reproduce; the code only relies on driver behaviour that the PDO documentation leaves open.
-
-1. Write an entity of a lock aware definition (`isLockAware()`, with a `LockedField`), for example through a repository `update()`.
-2. `PreWriteValidationEvent` reaches `LockValidator::preValidate()`, which runs the query above.
-3. On a driver whose `rowCount()` after a SELECT does not return the number of selected rows the result of the check is wrong.
+- `LockValidator` no longer calls `rowCount()` on a SELECT result.
+- The existing lock validator tests pass on MySQL and MariaDB.
 
 ## Research notes (not for upstream)
 
 - Source: `docs/core-findings.md` row 25, `docs/24-sqlite-dal.md` ("Lock validator (4)", `rowCount()` of a SELECT; the PoC uses `fetchOne() !== false`).
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Write/Validation/LockValidator.php` lines 119 to 126, the only `rowCount()` in `src/Core/Framework/DataAbstractionLayer` (grep). The finding holds on trunk.
-- Classified as bug in the findings table; on MySQL and MariaDB it is a latent defect, not a wrong result. Re-read before filing whether Improvement fits better.
+- Classified as bug in the findings table; typed here as Improvement (decided 2026-11-23) because MySQL and MariaDB give the right result today.
 - A test for it would need a second driver or a mocked `Result`; none was written.
