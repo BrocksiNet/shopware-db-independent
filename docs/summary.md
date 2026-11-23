@@ -101,12 +101,15 @@ flowchart LR
 
 About 3,650 lines in `Adapter/Database/PostgreSQL/` (translator, DDL and DML rewriters, id codec, `mysql-compat.sql` with the functions that imitate MySQL).
 The installer loads `mysql-compat.sql` itself, so no manual step is left (`docs/17-install-and-translator.md`).
-All 910 migrations run through it with 0 schema differences against MySQL (2,168 columns, 726 indexes, 1,878 constraints).
+The 910 migrations of a default install (`core.V6_3` to `core.V6_7`) run through it, and the resulting catalog (2,168 columns, 726 indexes, 1,878 constraints) has 0 differences to a reference that `docs/inventory/schema/mysql-to-pg-ddl.py` converts from the installed MariaDB schema (`scripts/check-migrations-on-postgresql.sh`, rerun 2026-11-23).
+That checks the translation of the structure, not equivalence with MySQL: both converters share the type mapping (for example `BINARY(16)` to `uuid`, `TINYINT(1)` to `boolean`), names, column order and comments are not compared, the `core.V6_8` migrations are outside the check (with them a database has 6 intended differences, `docs/13-benchmark.md`), and behaviour such as text comparison still differs (`docs/37-review-round-2.md`).
 New rules are only added when there is no other way; the target is that core SQL no longer needs it.
 
 ### Schema differences on PostgreSQL
 
-Two PostgreSQL-only migrations in `core.V6_8`, no-ops on the other databases:
+Five PostgreSQL-only migrations in `core.V6_8`, no-ops on the other databases.
+`system:install` does not run `core.V6_8`, so they need `database:migrate core.V6_8 --all`.
+The two that change the schema shape most:
 
 - `Migration1795000000PostgreSqlCaseInsensitiveSearchIndexes`: `lower(...) COLLATE ucs_basic` expression indexes and trigram indexes for search keywords and SEO paths.
 - `Migration1795000100PostgreSqlCategoryPathCollation`: `category.path` (lowercase hex ids) on the deterministic `ucs_basic` collation.

@@ -17,7 +17,7 @@ Shops whose hosting or IT standard is PostgreSQL cannot use it.
 
 ## WHY we need to solve it
 
-A proof of concept showed that the same Shopware code installs and runs on MySQL 8.4, MariaDB 10.11 and PostgreSQL 18, with all 910 core migrations running on PostgreSQL with no schema differences against MySQL.
+A proof of concept showed that the same Shopware code installs and runs on MySQL 8.4, MariaDB 10.11 and PostgreSQL 18, with the 910 migrations of a default install running on PostgreSQL and producing the same tables, columns, indexes and constraints as a reference converted from the installed MariaDB schema.
 What it costs is known: a dialect per database, hex ids above the connection, a translator shim for old migrations and extension SQL, a recommended connection setup, and decisions on behaviour that MySQL users get without asking.
 Whether to offer it is a business decision (cloud, managed databases, enterprise demand against the CI and support cost of a further database) that this epic waits for.
 

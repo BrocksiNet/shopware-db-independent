@@ -43,6 +43,10 @@ TODO:
 - [ ] Add a batched update to `EntityWriteGateway::executeCommands()` for a run of consecutive `UpdateCommand`s of one entity with the same payload columns, in chunks of at most 100 rows.
 - [ ] Build the statement as `UPDATE t SET c = CASE WHEN <pk> THEN ? ... ELSE c END WHERE (<pk>) OR (<pk>)`, and set a column directly when its value is equal in every row of the chunk.
 - [ ] Keep single row updates for `JsonUpdateCommand`, for a chunk with the same primary key twice, and for commands that do not share their payload columns.
+- [ ] Keep single row updates for commands that change a column of a unique index or of the primary key.
+  One `UPDATE` checks uniqueness in scan order, single updates in command order, so with `a = 1, b = 2` the run "b to 3, a to 2" succeeds one by one but fails as one statement, and "a to 2, b to 3" fails one by one but can succeed as one statement.
+  On SQLite the inline `UNIQUE` constraints (for example `product.product_number`) are internal `sqlite_autoindex_*` indexes that the DBAL schema manager does not list.
+- [ ] Run each batch inside a savepoint; when it fails, roll back to the savepoint and replay its commands one by one, so only the failing command is marked failed in `WriteCommandExceptionEvent` (import/export counts errors from `isFailed()`), and the exception is the one of that command.
 - [ ] Keep `PreWriteValidationEvent`, `generateChangeSets()`, `validateCommands()` and the written events exactly as they are, they run before the loop.
 - [ ] Keep the execution order of the commands: the pending inserts are flushed before an update, an update must not move across a delete or an insert of another entity.
 - [ ] Bind the values with their type (integer and string) so the statement does not rely on implicit conversion.

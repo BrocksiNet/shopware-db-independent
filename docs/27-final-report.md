@@ -9,7 +9,7 @@ Details stay in the numbered docs; `docs/summary.md` is the technical overview.
 
 - The same Shopware code installs and runs on MySQL 8.4, MariaDB 10.11 and PostgreSQL 18; SQLite installs, passes the smoke requests and runs the DAL suite (`docs/summary.md`, `docs/24`).
 - The approach that works is a `SqlDialect` per database under the DAL and for raw SQL, hex ids above the connection, native `uuid` on PostgreSQL, and the MySQL-to-PostgreSQL translator only as a shim for old migrations and extension SQL (`docs/10`, `docs/02`).
-- All 910 core migrations run on PostgreSQL through the shim with 0 schema differences against MySQL (`docs/17`).
+- The 910 migrations of a default install run on PostgreSQL through the shim, and the catalog matches a reference converted from the installed MariaDB schema (0 differences in columns, index and constraint definitions); that is a structural check of the translation, not equivalence with MySQL (`docs/17`, `docs/37`).
 - DAL integration suite: 804 tests, 0 failures on PostgreSQL and MariaDB; SQLite 795 of 804 (`docs/21` "Wave 7", `docs/24`).
 - Storefront on PostgreSQL: 1.13x to 1.46x of MariaDB with persistent connections and the plan cache, up to 1.9x with a new connection per request; it started at 2.6x to 3.6x (`docs/13` "Rerun after wave 7").
 - Writes stay the weak spot: bulk write 520 ms against 264 ms, parallel writes 3.89 against about 12.5 requests per second, 0 deadlocks (`docs/13`, `docs/26`).

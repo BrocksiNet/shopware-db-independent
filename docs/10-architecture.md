@@ -30,7 +30,7 @@ On PostgreSQL a chain of DBAL driver middlewares rewrites every statement before
 Together about 3,450 lines in `src/Core/Framework/Adapter/Database/PostgreSQL/`.
 On top of that 45 other core files are changed (connection factory, installer, DAL query helpers, migration runtime, test bootstrap, a few raw-SQL services and six old migrations).
 
-Result (`docs/09-test-run-on-postgresql.md`): all 910 migrations run with 0 schema differences, admin API, storefront and checkout work, about 90 % of the integration tests in five areas pass.
+Result (`docs/09-test-run-on-postgresql.md`): all 910 migrations of a default install run, with 0 differences to the reference catalog converted from the installed MariaDB schema, admin API, storefront and checkout work, about 90 % of the integration tests in five areas pass.
 
 ### Why this is not the target
 
@@ -109,7 +109,7 @@ Extensions that bind ids as bytes keep working on MySQL and MariaDB, and through
 ### 4. Schema and migrations
 
 - **History (910 core migrations):** stay MySQL SQL and run through the compatibility shim on other databases.
-  `scripts/check-migrations-on-postgresql.sh` proves the result equals the MySQL schema, the same check is needed for SQLite.
+  `scripts/check-migrations-on-postgresql.sh` proves the result has the same structure as the schema converted from MariaDB, the same check is needed for SQLite.
 - **New migrations:** written against a portable API (DBAL `Schema` objects or a Shopware migration helper on top of the dialect), so they need no translation.
   The schema check in CI catches migrations that only work on MySQL.
 - **Introspection:** `Column`, `TableHelper`, `information_schema` and `SHOW` queries go through DBAL's schema manager instead of MySQL catalog tables.
@@ -236,5 +236,5 @@ Tests:
 
 - Unit tests: `SqlDialectTest` (19 tests, every method on MySQL, MariaDB and PostgreSQL), `JsonFieldAccessorBuilderTest`, `MultiInsertQueryQueueTest`.
 - DAL integration tests (801 tests): MySQL 0 failed on the last run (earlier runs showed 2 to 9 flaky app fixture tests when PostgreSQL and MySQL runs overlapped), PostgreSQL 168 failed against the 184 of `docs/09-test-run-on-postgresql.md`.
-- `scripts/check-migrations-on-postgresql.sh`: 910 migrations, 0 schema differences.
+- `scripts/check-migrations-on-postgresql.sh`: 910 migrations, 0 differences to the converted reference catalog (structure only, `core.V6_8` not included).
 - Lane flows on PostgreSQL: product listing, product `PATCH` and the guest checkout all succeed.

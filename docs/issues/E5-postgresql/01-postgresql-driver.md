@@ -27,7 +27,7 @@ As a merchant or hosting partner with a PostgreSQL standard, I would like to run
 
 Result of a proof of concept, for scale:
 
-- All 910 core migrations ran on PostgreSQL 18 with 0 schema differences against MySQL.
+- The 910 migrations of a default install ran on PostgreSQL 18; the catalog had 0 differences to a reference converted from the installed MariaDB schema (structure only, behaviour such as text comparison differs).
 - 804 of 804 DAL integration tests passed on PostgreSQL and on MariaDB.
 - The translator layer is about 3,450 lines, and the compatibility script defines 87 functions.
 - The storefront was 1.13 to 1.46 times the MariaDB response time with persistent connections and the plan cache (E5.02), and up to 1.9 times with a new connection per request.

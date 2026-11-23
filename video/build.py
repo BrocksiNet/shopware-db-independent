@@ -24,7 +24,7 @@ SCRIPT = [
     (3, 3, "And every claim had to be backed by a measurement: four databases, the same machine, the same data."),
     (3, 4, "In the end, the proof of concept branch had a hundred and eighteen commits, across four hundred seventy nine files."),
     (4, 0, "Result one: it runs. The same Shopware code installs and serves requests on MySQL, MariaDB, PostgreSQL, and SQLite."),
-    (4, 1, "All nine hundred ten core migrations run on PostgreSQL, with zero schema differences to MySQL."),
+    (4, 1, "All nine hundred ten migrations of a default install run on PostgreSQL, and the tables match a reference converted from the installed MariaDB schema. Behaviour, like text comparison, still differs in places."),
     (4, 2, "The DAL integration suite, eight hundred and four tests, is fully green on PostgreSQL and MariaDB."),
     (4, 3, "And SQLite passes seven hundred ninety five of them, with nothing more than its own dialect and a few shims."),
     (5, 0, "Now performance. Here is the storefront on PostgreSQL, compared to MariaDB."),
