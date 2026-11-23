@@ -72,7 +72,7 @@ The run after the fix (2026-11-23 15:35 to 15:49, all calls rc 0, every verify e
 DAL v2 with the levers is 0.56 of the DAL on MySQL and MariaDB (doc 35: 0.54 to 0.64), 0.85 on PostgreSQL (doc 36: 0.81 to 0.88) and 0.83 on SQLite (doc 35: 0.88 to 0.92), so the savepoints cost no measurable time.
 Docs 33 and 34 keep their earlier S4 numbers and point to doc 35; doc 36 has a short section with the rerun.
 The schema introspection costs about 8 to 30 ms per table, once per process; updates of unique columns (for example `productNumber`) are no longer batched at all.
-The E3.04 draft (`docs/issues/E3-dal-v2/04-batched-entity-updates.md`) and the filed issue https://github.com/shopware/shopware/issues/23308 list both rules; the repeated key column rule of `46a47f1a7c9` is only in the draft so far.
+The E3.04 draft (`docs/issues/E3-dal-v2/04-batched-entity-updates.md`) and the filed issue https://github.com/shopware/shopware/issues/23308 list both rules, including the repeated key column rule of `46a47f1a7c9`.
 
 ## Related upstream work
 
