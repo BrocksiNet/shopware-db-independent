@@ -6,7 +6,7 @@ title: "Bind numeric criteria parameters with their type"
 parent: E1
 related: [E1.12]
 findings: [27]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -44,3 +44,4 @@ Not verified for this draft: how DBAL's `pdo_mysql` driver binds `ParameterType:
 - Finding differs on trunk: the finding says "bound untyped". On trunk `ParseResult::addParameter()` and `ParseResult::getType()` default to `ParameterType::STRING`, and `CriteriaQueryBuilder::addFilter()` passes `$parsed->getType($key)` to `setParameter()`. So the values are bound explicitly as strings, not without a type; the effect is the same.
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Search/Parser/ParseResult.php` lines 35 and 65 to 68, `Search/Parser/SqlQueryParser.php` lines 117 to 153, `Dbal/CriteriaQueryBuilder.php` lines 98 to 100 and 222 to 223, `Dbal/EntityReader.php` lines 1245 and 1246.
 - Other binding sites (aggregations, custom field filters) were not enumerated.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

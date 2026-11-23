@@ -6,7 +6,7 @@ title: "Date custom field filters cast the column but not the value"
 parent: E1
 related: [E1.11]
 findings: [28]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -48,3 +48,4 @@ Not verified for this draft: the proposed cast has not been run on any engine.
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php` lines 126 to 132, `Search/Parser/SqlQueryParser.php` lines 268 to 308 (no handling of date fields), `tests/integration/Core/Framework/DataAbstractionLayer/Field/CustomFieldTest.php` lines 673 to 712.
 - The mismatch was only observed on SQLite in the PoC; there is no failing case on MySQL or MariaDB. Classified as bug in the findings table; typed here as Improvement (decided 2026-11-23) because MySQL and MariaDB give the right result today.
 - The PoC fix on SQLite normalised the bound value through the dialect (`strftime` on the placeholder); the cast form above is a proposal, not run on any engine.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

@@ -6,7 +6,7 @@ title: "Batch update commands of one entity in the write gateway"
 parent: E3
 related: [E2.01, E3.01, E3.05]
 findings: [29]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -53,6 +53,8 @@ TODO:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: `Dbal/EntityWriteGateway.php`, `executeCommands()` line 150, `UpdateCommand` branch lines 215 to 227, `generateChangeSets()` line 514, all unchanged.
 - Lever W1b in `docs/33-orm-spike-dal-v2.md` ("Lever W1", "Reading the numbers", "Follow-up from the final timing block"), scenario S4.
   Numbers above are from the lever table: "DAL v2 untouched" 88.55 / 90.40 ms, `write=key` 60.60 / 59.05, `write=upd` 76.20 / 83.62, `write=key+upd` 49.33 / 57.81 (MySQL / MariaDB).
 - The percentages are computed from those numbers (60.60 to 49.33 is 18.6 percent, 59.05 to 57.81 is 2.1 percent).

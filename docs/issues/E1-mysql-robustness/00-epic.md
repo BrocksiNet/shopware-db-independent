@@ -6,7 +6,7 @@ title: "DAL and core SQL: stop relying on lenient MySQL behaviour"
 parent: ""
 related: [E3, E4]
 findings: [1, 2, 3, 4, 5, 6, 12, 13, 14, 18, 22, 25, 27, 28]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -43,8 +43,8 @@ Core platform: `Framework/DataAbstractionLayer` (`CriteriaQueryBuilder`, `Entity
 
 ## Out of scope
 
-- Support for a second database (epics E4 and E5).
-- Performance work (epics E2 and E3).
+- Support for a second database (E4 and a later PostgreSQL epic).
+- Performance work (E2 and E3).
 
 ## Acceptance criteria
 
@@ -56,3 +56,4 @@ Core platform: `Framework/DataAbstractionLayer` (`CriteriaQueryBuilder`, `Entity
 ## Research notes (not for upstream)
 
 - Source: `docs/core-findings.md` rows 1 to 6, 12 to 14, 18, 22, 25, 27, 28; `docs/27-final-report.md` "Required core changes" row 1, integration phase 1.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

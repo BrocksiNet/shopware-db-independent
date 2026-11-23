@@ -6,7 +6,7 @@ title: "SqlDialect service with the MySQL implementation"
 parent: E4
 related: [E4.02, E4.03, E4.06, E5.01]
 findings: [8]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -33,3 +33,7 @@ As a core developer, I would like MySQL-specific SQL to live behind one dialect 
 - The dialect spike moved reader group concat, JSON field accessor, write gateway JSON set and id types, and the `MultiInsertQueryQueue` upsert onto `SqlDialect`; 19 `SqlDialectTest` tests, DAL integration 801 tests (`docs/10`).
 - Open questions from `docs/10`: boolean binding, case rule per column, `ONLY_FULL_GROUP_BY` (trunk's `MySQLFactory.php:107-109` removes it from the session `sql_mode`, see E1.02).
 - The effort table of `docs/10` is an estimate and is not used here.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Recount on trunk c6ef9571261: 463 non-migration files import `Doctrine\DBAL\Connection;` (1425 with migrations), the raw-sql scan finds 242 of 446 in-scope files with SQL-string constructs (backticks 1,416 in 132 files, `GROUP_CONCAT` 60 in 20, `JSON_*` 86 in 19, `LOWER(HEX())` 387 in 142).
+- Trunk c6ef9571261 still has no dialect abstraction (`grep -rli 'SqlDialect\|IdBinding' src` is empty); `src/Core/Framework/Adapter/Database/` holds the same three files; `MySQLFactory.php:107` removes `ONLY_FULL_GROUP_BY` (the cited 107-109 is now the one line 107 inside the `SET` command at 104-107).
+- `EntityReader`, `EntitySearcher`, `EntityAggregator`, `EntityWriteGateway` (`Dbal/`) and `MultiInsertQueryQueue` (`Doctrine/`) exist on trunk.

@@ -6,7 +6,7 @@ title: "Decide whether classic definitions move to attribute entities"
 parent: E3
 related: [E3.10]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -17,7 +17,7 @@ This is a decision task, to be taken after E3.10 and separately from the rest of
 Every entity of the core is written as a classic definition: an `EntityDefinition` class (or `MappingEntityDefinition`, `EntityTranslationDefinition`), an entity class and a collection class, registered as a service.
 On trunk 283 classes extend one of these definition base classes, and only 2 entities are attribute entities (`MeasurementSystemEntity` and `MeasurementDisplayUnitEntity`).
 A small classic entity such as `Tag` is 253 lines in three classes plus a service definition; the attribute entity `MeasurementSystemEntity` (translations, one-to-many, custom fields) is 56 lines in one class.
-The large entities are far bigger: `product` is 1,740 lines in its definition, entity and collection.
+The large entities are far bigger: `product` is 1,755 lines in its definition, entity and collection.
 
 Moving the classic definitions to attribute entities would give one source of truth per entity, but it is a breaking change for every plugin and app that extends or subclasses a core definition, entity or collection or uses their class names in the container.
 Without E3.10 the compiler cannot express `product` at all.
@@ -35,6 +35,8 @@ TODO:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: counts re-done, 283 definition classes and 2 attribute entities are still right; `product` grew from 1,740 to 1,755 lines (322 + 1403 + 30), the draft text was updated.
 - Doc 29 conclusion "DAL v2, levers in order" row 10: "Move the existing classic definitions to attributes", breaking for plugins that extend or subclass definitions, entities and collections (judgement), effort 15 to 40 person-weeks (judgement), "one source of truth instead of 149 entity and 186 collection classes", "only 2 of 281 entities use attributes today; optional".
   The 149, 186 and 281 counts are doc 29's, counted on the instance; I did not recount them.
   The trunk counts used above (283 definition classes, 2 attribute entities) were counted with grep on `review/finding-31/src` (`extends (EntityDefinition|MappingEntityDefinition|EntityTranslationDefinition)` and `^#[Entity(`).

@@ -6,7 +6,7 @@ title: "Make DAL selects valid under `ONLY_FULL_GROUP_BY` and stop changing `sql
 parent: E1
 related: [E1.01, E1.03]
 findings: [2]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -56,5 +56,6 @@ The list of places above comes from reading the code and from a run on PostgreSQ
 - Source: `docs/core-findings.md` row 2, `docs/06-phase3-log.md` "Step 3", item 1.
 - PoC: `EntityDefinitionQueryHelper::makeSelectValidForGroupBy()` wraps selected expressions in `any_value()` on PostgreSQL 16+ only. It is a stopgap for PostgreSQL; MySQL 8.4 and MariaDB 10.11 were not run under `ONLY_FULL_GROUP_BY`.
   Whether `ANY_VALUE()` is usable on both MySQL and MariaDB as a core fix was not checked.
-- Trunk check: `src/Core/Framework/Adapter/Database/MySQLFactory.php` lines 105 to 107, `Dbal/EntityDefinitionQueryHelper.php` lines 736 to 753, `Dbal/EntityReader.php` line 423, `Dbal/EntitySearcher.php` lines 73 to 90. The finding holds on trunk.
+- Trunk check: `src/Core/Framework/Adapter/Database/MySQLFactory.php` lines 104 to 107, `Dbal/EntityDefinitionQueryHelper.php` lines 736 to 753, `Dbal/EntityReader.php` line 423, `Dbal/EntitySearcher.php` lines 72 to 89. The finding holds on trunk.
 - Epic E1 acceptance criterion 1 depends on this issue and E1.01, E1.03.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

@@ -6,7 +6,7 @@ title: "Public dialect service for extensions and a shopware-cli check"
 parent: E4
 related: [E4.01, E4.02, E4.03]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -33,3 +33,5 @@ As an extension developer, I would like a public dialect service and an early wa
 - Method limits: regex scan over tokenized PHP, SQL built by concatenation is seen only in parts, 36 plugins plus 6 were checked by hand; the numbers are an estimate.
 - Trunk has no public dialect service; this issue depends on E4.01.
 - The `shopware-cli` repository is separate; this draft needs a matching issue there.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261 still has no dialect service (`grep -rli 'SqlDialect' src` is empty).

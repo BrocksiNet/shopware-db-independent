@@ -6,7 +6,7 @@ title: "Check criteria field paths with PHPStan"
 parent: E3
 related: [E3.07]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -32,6 +32,8 @@ Limits that the design has to deal with:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: `Criteria.php` has 0 matches for `EntityDefinition`; no PHPStan rule under `DevOps/StaticAnalyze/PHPStan` mentions `Criteria`; `cheapestPrice` is defined in `SalesChannelProductDefinition.php:101`, not in `ProductDefinition`.
 - X2 in `docs/33-orm-spike-dal-v2.md` ("X2: typed criteria"); doc 29 conclusion row 8 (1 to 3 weeks, judgement).
 - Prototype: `src/Core/Framework/OrmSpike/DalV2/Typed/FieldPathChecker.php` (79 lines) on `poc/orm-spike` resolves a path against the registered definitions.
   Probe `fieldPaths` (`orm-spike:dalv2-probes`): 7 valid paths accepted, 5 typos rejected with the failing segment named, 1,025 paths generated for `product` at depth 2.

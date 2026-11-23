@@ -6,7 +6,7 @@ title: "Decide on the read shape options join and batch"
 parent: E3
 related: [E5.02]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -43,11 +43,12 @@ TODO:
 
 - [ ] Decide for MySQL and MariaDB: do not change the read shape, unless a measurement on trunk with a production sized catalog shows a gain.
 - [ ] Record the decision with the numbers above.
-- [ ] If a second database is ever supported: re-measure join on SQLite and batch on PostgreSQL with the connection setup of that database (persistent connections, plan cache, see E5.02) before building them.
+- [ ] If a second database is ever supported: re-measure join on SQLite and batch on PostgreSQL with the connection setup of that database (persistent connections, plan cache) before building them.
 - [ ] If anything is built: `batch` needs the exceptions above covered by tests per engine (partial loading, nested associations, extensions, self references, to-one without foreign key field), and the flat translation join needs the query builder of the translation join in one place.
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
 - Lever R1 in `docs/33-orm-spike-dal-v2.md` ("Lever R1", "Plans", "Timings", "Gain against DAL v2 default", "Reading"); doc 29 conclusion "DAL v2, levers in order" row 6 (judgement: 1 to 2 weeks).
 - Scenario ids: S1 listing, S2 detail, S3 search, S5 JSON criteria.
   Statement counts S1/S2/S3/S5: default 4/5/7/4, with batch 8/10/11/8.

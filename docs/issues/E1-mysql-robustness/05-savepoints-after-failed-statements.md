@@ -6,7 +6,7 @@ title: "Do not continue a transaction after a failed statement without a savepoi
 parent: E1
 related: []
 findings: [5]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -55,3 +55,4 @@ Not verified for this draft: whether production callers of `SalesChannelContextP
 - Trunk check: `src/Core/System/SalesChannel/Context/SalesChannelContextPersister.php` lines 63 to 91, `src/Core/System/CustomEntity/Schema/CustomEntitySchemaUpdater.php` lines 66 to 86, `src/Core/Framework/Webhook/Outbox/WebhookOutboxStore.php` lines 82 and 473. The context persister now uses `INSERT ... ON DUPLICATE KEY UPDATE` first and the `REPLACE` fallback only on a double conflict, which differs from the plain description in docs/09.
 - `TaskRegistry` (line 196) also catches `UniqueConstraintViolationException` around a repository create and ignores it; not checked whether a transaction is open there.
 - The webhook outbox lines were found while checking trunk, they are not in the findings table.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

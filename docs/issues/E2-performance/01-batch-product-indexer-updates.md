@@ -6,7 +6,7 @@ title: "Batch the single row UPDATE product statements of the product indexer up
 parent: E2
 related: [E3.04, E2.02]
 findings: [29]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -49,3 +49,5 @@ Technical TODO:
 - `VariantListingUpdater` and `VariantListingIndexer` (87 `display_group` updates) were not changed in the proof of concept, so there is no measured gain for them.
 - No gain from batching is measured yet, only the statement counts.
 - Related: E3.04 batches the update commands of the write gateway (the 50 DAL write statements), E2.02 covers the row order of these updaters.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- On trunk c6ef9571261 `ProductCategoryDenormalizer.php:71-87` runs the DELETE, the per product `UPDATE` loop and the tree insert in one `RetryableTransaction` (commit cd82d5c58f8, #23117); the per product loop is unchanged. Line numbers of the other updaters are unchanged since e9e18ef0e7b.

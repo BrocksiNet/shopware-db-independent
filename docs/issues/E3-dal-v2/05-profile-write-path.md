@@ -6,7 +6,7 @@ title: "Profile the DAL write path"
 parent: E3
 related: [E3.01, E3.04]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -41,6 +41,7 @@ TODO:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
 - Source: `docs/33-orm-spike-dal-v2.md` sections "Profile: where the DAL time goes", "Reading the numbers" (last bullet) and "Follow-up from the final timing block"; timing block `docs/34-orm-spike-final-timings.md`.
 - Profile shares for S4 (bulk create and update of 50 products), the `other` column is the writer PHP: MariaDB 63 percent (sql 36), MySQL 58 percent (sql 41), PostgreSQL 61 percent (sql 37); SQLite S4 left out because parallel sessions wrote to the same file.
   The follow-up section of doc 33 quotes "58 to 59 percent" for the same profile, and doc 29's recommendation repeats it; the table gives 58, 63 and 61, so the range above uses the table.

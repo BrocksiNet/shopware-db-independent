@@ -6,13 +6,13 @@ title: "Make scale and arithmetic of the price accessor explicit"
 parent: E1
 related: []
 findings: [13]
-status: draft
+status: checked
 upstream: ""
 ---
 
 ## Technical TODO
 
-Results of the price field accessor (`PriceFieldAccessorBuilder`, and the same cash rounding division in `CheapestPriceAccessorBuilder`) depend on two MySQL details.
+Results of the price field accessor (`PriceFieldAccessorBuilder`, and the same cash rounding division in `Content/Product/DataAbstractionLayer/CheapestPrice/CheapestPriceAccessorBuilder`) depend on two MySQL details.
 
 1. The scale of the cash rounding division.
    With cash rounding the accessor ends in `ROUND(#accessor# * #multiplier#, 0) / #multiplier#`.
@@ -42,3 +42,4 @@ Acceptance:
 - PoC: `SqlDialect::decimalDivisionScale($sql, 4)` (PostgreSQL `CAST(... AS NUMERIC(30, 4))`, MySQL unchanged) and `SqlDialect::castToFloat()` (PostgreSQL `CAST(... AS double precision)`, MySQL unchanged) keep the MySQL results on the other databases.
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Dbal/FieldAccessorBuilder/PriceFieldAccessorBuilder.php` lines 73 to 126 (comment on the cast to float at lines 73 to 77, `+ 0.0` at line 87, factor sub select at line 66, cash rounding division at line 125), `tests/integration/Core/Framework/DataAbstractionLayer/Search/EntityAggregatorTest.php` lines 593 to 717 (scale 4 strings), `tests/integration/Core/Framework/DataAbstractionLayer/Field/PriceFieldTest.php` line 500. The finding holds on trunk; the comment in the code already documents the `+ 0.0` cast, only the scale is undocumented.
 - The `19.525` example is from the PoC; it was not recalculated on MySQL for this draft. Which type the product `price` JSON number has when multiplied by the factor (`text * decimal`) was not checked on a server.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

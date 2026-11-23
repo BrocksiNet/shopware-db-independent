@@ -6,7 +6,7 @@ title: "DAL v2: keep the DAL and make it faster and typed"
 parent: ""
 related: [E1, E2]
 findings: [31, 32, 33]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -66,6 +66,7 @@ Core platform: `Framework/DataAbstractionLayer` (`EntityWriteGateway`, `EntitySe
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
 - Source: `docs/29-orm-alternatives.md` "Conclusion" (recommendation, lever order, effort 11 to 27 person-weeks without a break), `docs/33-orm-spike-dal-v2.md` (levers, profile, open items), `docs/34-orm-spike-final-timings.md` (one timing block, nine configurations, four engines).
 - "1.5 to 12.6 times": DAL against DBAL on MySQL in doc 34, S5 28.24/19.47 = 1.45 to S4 90.11/7.16 = 12.6. "1.7 to 3.3 times": doc 29 conclusion.
 - The spike code is on the local instance branch `poc/orm-spike` (last commit `7878aa3e709`).

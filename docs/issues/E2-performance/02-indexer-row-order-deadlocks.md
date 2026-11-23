@@ -6,7 +6,7 @@ title: "One fixed row order in the product indexer updaters against deadlocks"
 parent: E2
 related: [E2.01, E3.04]
 findings: [10]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -19,7 +19,7 @@ The updaters of `ProductIndexer::handle()` lock rows in different orders:
 - `ProductCategoryDenormalizer`, `CheapestPriceUpdater` and `RatingAverageUpdater` update one product at a time in the order of their input.
 - The write gateway updates rows in payload order.
 
-The updaters run in autocommit or in short transactions after the write has committed, so two requests that touch the same products in a different order can wait for each other.
+The updaters run in autocommit or in short transactions after the write has committed (`ProductCategoryDenormalizer` does its delete, updates and insert in one transaction), so two requests that touch the same products in a different order can wait for each other.
 MySQL and MariaDB detect such a cycle at once and the retry logic handles it.
 PostgreSQL waits for `deadlock_timeout` (default 1 s) before it aborts one transaction.
 
@@ -56,3 +56,5 @@ So a fixed order inside each updater alone is not shown to be enough, and the is
 - The per product loops exist as described for E2.01 (same files).
 - The claim "fixed order in updaters removes the deadlocks" is the proposal of finding 10 and is not proven by `docs/19`; this is why the Technical TODO starts with a measurement.
 - Related: E2.01 reduces the number of statements, which also shortens the lock windows.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: `ProductIndexer::handle()` is at lines 182 to 268, the updaters at lines 199 to 262 still run in sequence without a row lock step. `FOR UPDATE` precedents unchanged: `ChildCountUpdater.php:64`, `ProductStreamUpdater.php:263`. Since commit cd82d5c58f8 the category tree rewrite is one transaction, which holds its row locks longer than before.

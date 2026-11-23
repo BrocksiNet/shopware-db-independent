@@ -6,7 +6,7 @@ title: "Close the attribute entity compiler gaps"
 parent: E3
 related: [E3.11]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -33,6 +33,8 @@ What exists today (by reading the compiler):
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: `getFieldClass()` is at line 249 (`is_a` check line 251), `getFieldArgs()` default at line 319, field constructors unchanged, `ProductDefinition` still uses all seven fields.
 - X1 and X3 in `docs/33-orm-spike-dal-v2.md`; doc 29 conclusion row 9 (3 to 6 weeks for the gaps, judgement).
 - Doc 33 says the type map has no `ParentFkField`, `ParentAssociationField`, `ChildrenAssociationField`, `ChildCountField`, `ManyToManyIdField`, `VariantListingConfigField` and `NumberRangeField`, and no attribute for entity extensions.
   On trunk (`review/finding-31`, `DataAbstractionLayer/AttributeEntityCompiler.php`) the `getFieldClass()` method accepts a `DalField` class name as `Field::$type` (line 251) and `getFieldArgs()` passes `[$column, $property]` as default (line 319).

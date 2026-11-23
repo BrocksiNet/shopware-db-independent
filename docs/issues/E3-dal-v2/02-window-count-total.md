@@ -6,7 +6,7 @@ title: "Return the exact total of a paginated search with a window count"
 parent: E3
 related: [E1.04, E3.03]
 findings: [32]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -18,7 +18,7 @@ Both statements run the same joins and filters.
 Trunk already avoids the second statement in two cases:
 
 - A partial last page (fewer rows than the limit) gives the total as offset plus row count (`getTotalCount()`).
-- A scored search with group fields adds `COUNT(*) OVER() AS _total` through `buildWindowTotalQuery()` (https://github.com/shopware/shopware/pull/22937).
+- A scored search with an exact total and a limit adds `COUNT(*) OVER() AS _total` through `buildWindowTotalQuery()` (https://github.com/shopware/shopware/pull/22937).
 
 A search without a score field and a full page still runs the count statement.
 This is the case for every request that asks for an exact total, for example `total-count-mode=1` in a criteria request.
@@ -43,6 +43,9 @@ TODO:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: same line numbers (`search()` 43, `buildWindowTotalQuery()` 221, `getTotalCount()` 271, `WINDOW_TOTAL` 34).
+  The window count condition is `$scored && TOTAL_COUNT_MODE_EXACT && limit !== null` (`Dbal/EntitySearcher.php:93-95`), group fields are not part of it, so the draft text was corrected.
 - Finding 32 in `docs/core-findings.md`, lever C1 in `docs/33-orm-spike-dal-v2.md` ("Lever C1", lever table in "Timings").
 - Spike code: `src/Core/Framework/OrmSpike/DalV2/Read/WindowCountSearcher.php` on `poc/orm-spike`, a copy of `EntitySearcher` with 33 changed lines.
   It puts `COUNT(*) OVER() as __total` straight into the id statement; trunk's scored variant wraps the query in an outer query instead.

@@ -6,7 +6,7 @@ title: "Compute the search keyword score once per search request"
 parent: E2
 related: [E3.02]
 findings: [23, 24]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -44,3 +44,5 @@ Technical TODO:
 - Aggregations on MariaDB ran in 0.6 to 1.0 ms, so the MySQL benefit may be small.
   If the measurement shows no gain on MySQL, this issue only pays on PostgreSQL and should move to E5.
 - Related: E3.02 changes the total count of a paginated search and touches the same query builder.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: `SqlQueryParser.php:155-166`, `CriteriaQueryBuilder.php:203-229` (`_score` select) and `EntityAggregator.php:136-211` (`fetchAggregation`, score_table join at 180-210) are unchanged in content; no relevant commit since ae0190f5892.

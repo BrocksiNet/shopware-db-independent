@@ -6,7 +6,7 @@ title: "Read into typed DTO projections through partial loading"
 parent: E3
 related: [E3.06, E3.09]
 findings: [33]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -35,6 +35,7 @@ Measured in a proof of concept on MySQL, MariaDB, PostgreSQL and SQLite, median 
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
 - Lever R3 in `docs/33-orm-spike-dal-v2.md` ("Lever R3", lever table, "Reading the numbers"); finding 33 is the `parentId` trap (E3.06).
 - Spike code: `src/Core/Framework/OrmSpike/DalV2/Projection/` on `poc/orm-spike`: `Path` 23 lines, `Projector` 105, four DTOs 121 lines, scenario glue 203 lines; `Projector::project()` calls `Criteria::addFields()` with the collected paths.
   Verified equal to the DAL on S1, S2, S3 and S5 on all four engines.

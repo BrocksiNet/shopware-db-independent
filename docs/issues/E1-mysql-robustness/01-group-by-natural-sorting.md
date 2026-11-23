@@ -6,13 +6,13 @@ title: "Natural sorting in a grouped query sorts by a non-aggregated column"
 parent: E1
 related: [E1.02]
 findings: [1]
-status: draft
+status: checked
 upstream: ""
 ---
 
 ## Shopware Version
 
-trunk (code checked on `e9e18ef0e7b`, 2026-11-23)
+trunk (code checked on `c6ef9571261`, 2026-11-23)
 
 ## Affected area / extension
 
@@ -60,3 +60,4 @@ The admin search on `property_group_option` with a natural sorting is the use ca
 - The PoC uses `LENGTH(MIN(col))` / `LENGTH(MAX(col))` on every platform when the query has a group by; PostgreSQL rejected the unaggregated form.
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Dbal/CriteriaQueryBuilder.php` lines 133 to 152. The finding holds on trunk, the code is unchanged in shape.
 - No test or run on MySQL was done for this draft. Status stays draft until a unit test on the generated SQL exists.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

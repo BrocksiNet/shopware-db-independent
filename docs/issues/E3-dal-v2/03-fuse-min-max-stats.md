@@ -6,7 +6,7 @@ title: "Fuse min and max aggregations of one field into one statement"
 parent: E3
 related: [E3.02]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -34,6 +34,7 @@ TODO:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
 - Lever A1 in `docs/33-orm-spike-dal-v2.md` ("Lever A1", "Reading the numbers": "A1 shows no gain outside the noise on S1 and S5, on S3 the count drops by one statement").
 - Spike code: `src/Core/Framework/OrmSpike/DalV2/Read/StatsFusionAggregator.php` (86 lines) on `poc/orm-spike`, a wrapper around the aggregator, no copy of a DAL class.
   Verified equal to the DAL on S1, S3 and S5 on all four engines.

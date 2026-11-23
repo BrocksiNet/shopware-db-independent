@@ -6,7 +6,7 @@ title: "State the NULL order of `FieldSorting` in the SQL"
 parent: E1
 related: [E5.04]
 findings: [14, 22]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -51,3 +51,4 @@ Acceptance:
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Dbal/CriteriaQueryBuilder.php` lines 106 to 153, `Dbal/EntityAggregator.php` lines 656 to 674, `Dbal/EntityReader.php` lines 1199 and 1212 (the four character cut), `tests/integration/Core/Framework/DataAbstractionLayer/Search/EntityAggregatorTest.php` line 299. `product_number VARCHAR(64) NULL` in `src/Core/Migration/V6_3/Migration1536233120Product.php` line 27, `NumberRangeField` with `Required` in `Content/Product/ProductDefinition.php` line 175; grep found no later migration that changes the column.
 - The first-page example is from the PoC data set (`bench_pg`) and was not run on trunk.
 - Checked 2026-11-23: `ORDER BY a DESC NULLS LAST` is a syntax error (1064) on MySQL 8.4.13 and MariaDB 10.11.16. Not measured: the effect of the `IS NULL` sort key on index use on MySQL.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

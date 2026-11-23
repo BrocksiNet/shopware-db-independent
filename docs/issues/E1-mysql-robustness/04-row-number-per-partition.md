@@ -6,7 +6,7 @@ title: "Replace session variable row counting with `ROW_NUMBER() OVER (PARTITION
 parent: E1
 related: []
 findings: [6]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -49,3 +49,4 @@ Acceptance:
 - Finding differs on trunk: the finding names "to-many limit per parent" in general. On trunk the one-to-many limit already uses `ROW_NUMBER()` (`EntityReader.php` line 1179, `fetchPaginatedOneToManyMapping()`, with a comment about a deterministic window order). Only the many-to-many limit still uses session variables: `EntityReader.php` line 1030 (`SET @n = 0, @c = null`) and line 1290 (`buildManyToManyLimitQuery()`). The issue text is narrowed accordingly.
 - The method that holds the many-to-many code is `loadManyToManyWithCriteria()` (line 892).
 - PoC: `SqlDialect::rowNumberPerPartition()`, used for PostgreSQL and SQLite; MySQL kept the variables in the PoC.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

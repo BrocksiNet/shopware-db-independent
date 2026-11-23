@@ -6,7 +6,7 @@ title: "Remove MySQL-only SQL from tests"
 parent: E4
 related: [E4.01, E1.02, E1.10, E1.11]
 findings: [15, 21, 26]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -19,12 +19,11 @@ Known cases:
   `HEX()` returns upper case and the ids are lower case, so this only matches under a case-insensitive collation.
   Bind the ids as ids instead.
 - `VariantListingIndexerTest::fetchListing()` selects columns that are not in the `GROUP BY`.
-  `VariantListingUpdaterTest` uses a bare `IF()` as a placeholder.
+  `VariantListingUpdaterTest` uses `IF(parent_id IS NULL, NULL, :draftVersion)` in an `INSERT ... SELECT`.
   Group in PHP and bind `NULL`.
 - `EntityAggregatorTest` expects min, max and stats values such as `'250.0000'`, which is the `DECIMAL` scale of MySQL.
   Compare as numbers.
-- Tests call `SET FOREIGN_KEY_CHECKS`, use `0x...` hex literals and rely on the implicit backslash escape of `LIKE`.
-- `PriceFieldTest::testCashRoundingFilter` and a cash rounding case in `EntityAggregatorTest` depend on the scale and type of a division or of `text + 0.0`.
+- Tests call `SET FOREIGN_KEY_CHECKS` and use `0x...` hex literals.
 
 Technical TODO:
 
@@ -45,3 +44,6 @@ Technical TODO:
 - SQLite result without the test fixes: 804 DAL tests, 795 pass (`docs/24`).
   `SET FOREIGN_KEY_CHECKS` threw inside a transaction on SQLite and left it open.
 - Related: E1.10 (`LockValidator` and `rowCount()`) and E1.11 (untyped numeric parameters) are the production code side of the same SQLite findings.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261, verified: `TreeIndexerTest.php:284` (`WHERE HEX(id) IN (:ids)`), `VariantListingIndexerTest.php:342-351` (`fetchListing()` selects `id` and `option_ids` with `GROUP BY display_group`), `VariantListingUpdaterTest.php:147` (`IF()`), `EntityAggregatorTest.php:593` and `:630` (`'250.0000'`, `'50.0000'`), `SET FOREIGN_KEY_CHECKS` in 16 files, `0x...` literals in `EntityExtensionReadTest.php:74`, `WriterExtensionTest.php:59`, `JsonApiEncoderTest.php:85`.
+- Removed from the draft because trunk does not show them: a cash rounding case in `EntityAggregatorTest` (no match for "rounding"), a test depending on `text + 0.0` (the expression exists only in production code, `EntityWriteGateway.php:462`, not in a test), and the implicit backslash escape of `LIKE` in tests (not found). `PriceFieldTest::testCashRoundingFilter` exists at line 500, but its dependence on MySQL scale was not shown.

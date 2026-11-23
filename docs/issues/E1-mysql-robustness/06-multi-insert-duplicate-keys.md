@@ -6,7 +6,7 @@ title: "Merge rows with the same key in `MultiInsertQueryQueue`"
 parent: E1
 related: []
 findings: [12]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -45,3 +45,4 @@ Acceptance:
 - PoC: `MultiInsertQueryQueue::mergeCollidingRows()` with the key from `SqlDialect::upsertCollisionColumns()` (PostgreSQL: conflict target or primary key, other dialects: empty list, nothing merged).
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Doctrine/MultiInsertQueryQueue.php` lines 87 to 148 (class is 204 lines, `ignoreErrors` and `useReplace` options also exist), test `tests/integration/Core/Framework/DataAbstractionLayer/Doctrine/Doctrine/MultiInsertQueryQueueTest.php` lines 67 to 102, callers `src/Core/Content/Seo/SeoUrlPersister.php` line 105 and `src/Core/System/Snippet/Subscriber/CustomFieldSubscriber.php` line 72. The finding holds on trunk.
 - Not checked: whether `SeoUrlPersister` and `CustomFieldSubscriber` ever queue two rows with the same key in practice.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

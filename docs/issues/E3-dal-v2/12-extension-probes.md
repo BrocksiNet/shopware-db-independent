@@ -6,7 +6,7 @@ title: "Verify plugin fields and app custom entities on the DAL v2 changes"
 parent: E3
 related: [E3.04, E3.07, E3.10]
 findings: []
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -36,6 +36,7 @@ TODO:
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
 - Doc 33 "Probes of doc 29": "Plugin adds a field to a core entity (entity extension)" and "App custom entity at runtime" are both "not exercised"; the reasons are quoted above (needs a registered `EntityExtension`, which would change the DAL for the other lanes of the same instance; needs an app lifecycle with `custom_entity`, not part of the seeded data set).
   Doc 33 "Follow-up from the final timing block": "Not exercised for DAL v2 and still open".
 - Doc 29 probe summary: the classic DAL passes both (`EntityExtension`, `CustomEntity`); Doctrine fails the plugin field probe with `ReflectionException`, Cycle passes it with a limit; Doctrine and Cycle pass the app custom entity probe (66 and about 25 lines).

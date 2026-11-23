@@ -6,7 +6,7 @@ title: "Remove the select alias in `HAVING`, the unqualified `id` and the partia
 parent: E1
 related: [E1.02]
 findings: [3, 4]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -58,3 +58,4 @@ Acceptance:
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Dbal/CriteriaQueryBuilder.php` lines 209 to 224, `Dbal/EntityAggregator.php` lines 180 to 196 (`addGroupBy($pk)` at line 190), `src/Core/Content/Product/DataAbstractionLayer/StatesUpdater.php` lines 45 to 54. All three hold on trunk.
 - `StatesUpdater::update()` carries `@deprecated tag:v6.8.0 - Will be removed, as product states are deprecated`. Item 3 can be dropped from this issue if the removal lands first.
 - The PoC repeats the score expression in `HAVING` and qualifies the column on every platform; the 153 DAL unit tests passed on MariaDB with these changes (no new tests written).
+- Checked statically against trunk c6ef9571261 (2026-11-23).

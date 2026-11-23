@@ -6,7 +6,7 @@ title: "Fixed DDL platform for custom entity schema updates"
 parent: E4
 related: [E4.01, E4.03]
 findings: [20]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -36,3 +36,5 @@ This issue only fixes the platform choice.
   - lines 68-69 and 79/86: `SELECT @@FOREIGN_KEY_CHECKS`, `SET FOREIGN_KEY_CHECKS = 0` and its reset.
   The finding holds on trunk.
 - On MySQL and MariaDB the fix changes nothing, since the connection platform is already MySQL's; the issue is groundwork for a second database.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: lines 64, 68-69, 79, 86 and `getPlatform()` at 89 are unchanged; no commit touched the file since ae0190f5892.

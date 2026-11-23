@@ -6,7 +6,7 @@ title: "Decide and test whether string filters are accent-insensitive"
 parent: E1
 related: [E5.03]
 findings: [18]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -42,3 +42,4 @@ Acceptance:
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Search/Parser/SqlQueryParser.php` lines 155 to 198 (LIKE filters), 268 to 308 (equals), `Dbal/SchemaBuilder.php` line 170, `Dbal/FieldAccessorBuilder/JsonFieldAccessorBuilder.php` line 135.
 - Not checked: whether the developer documentation mentions the behaviour (docs repository not read), the collation of the real `product`, `customer` and other tables, which come from migrations and may differ from `SchemaBuilder`, and the collation of columns on a MySQL install with a different server default.
 - PoC decision for PostgreSQL (`lower(col) COLLATE ucs_basic`, accent-sensitive, 2026-11-20): E5.03.
+- Checked statically against trunk c6ef9571261 (2026-11-23).

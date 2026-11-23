@@ -6,7 +6,7 @@ title: "Partial read of a variant returns an empty inherited to-many association
 parent: E3
 related: [E3.07]
 findings: [33]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -56,6 +56,8 @@ Add an integration test for the fix that reads one variant fully and partially a
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Trunk c6ef9571261: `Dbal/EntityReader.php` lines unchanged (partial filter 160 to 171, parent ids 634 and 736, fallbacks 694 and 800, many-to-many 1076); still not reproduced with a test.
 - Finding 33 in `docs/core-findings.md`; found while building the DTO projections (lever R3, `docs/33-orm-spike-dal-v2.md` "Lever R3", "Verified findings while building it"): the projection of a variant (scenario S2, product detail) returned an empty `prices` list, with `#[Path('parentId')]` in the DTO it equalled the DAL on all four engines.
 - Not reproduced on trunk yet: the observation is from the spike on the instance; the code lines below were read on trunk (`review/finding-31`, `Dbal/EntityReader.php`): partial field filter lines 160 to 171, `loadOneToManyWithoutPagination()` lines 601 to 700 (parent ids at 634, fallback at 694), `loadOneToManyWithPagination()` line 716 (parent ids 736, fallback 800), many-to-many with criteria line 1076.
   Status stays `draft` until a test fails on trunk.

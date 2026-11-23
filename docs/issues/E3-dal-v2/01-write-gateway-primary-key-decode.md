@@ -39,7 +39,7 @@ Measured on a 50 product create and update: 248 of the 371 statements are these 
 
 ## Expected behaviour
 
-The lookup decodes storage named keys the same way `getExistence()` already does a few lines above (`getFields()->getByStorageName()`), hits the prefetched state and sends no extra query.
+The lookup decodes storage named keys the same way `getExistence()` already does (`getFields()->getByStorageName()`), hits the prefetched state and sends no extra query.
 With the fix the same 50 product write runs 121 statements instead of 371 (60 ms instead of 88 ms on MySQL).
 
 The property name lookup has to stay as well: `isTranslationChild()` calls `getExistence()` with `versionId`, a property name.
@@ -60,6 +60,8 @@ $field = $definition->getField($fieldName) ?? $definition->getFields()->getBySto
 
 ## Research notes (not for upstream)
 
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- On trunk c6ef9571261 `EntityWriteGateway` lives at `Dbal/EntityWriteGateway.php`; `getCurrentState()` decode is at lines 652 to 656, unchanged, and no commit since ae0190f5892 touched the file.
 - Branch `finding-31-write-gateway-decode` in the worktree `review/finding-31` (commit `76ec3f5d17a`, local): fix and the test `EntityWriteGatewayTest::testGetExistenceUsesPrefetchedStateForStorageNamedPrimaryKey`, red on trunk, green with the fix, php-cs-fixer clean, PHPStan not run.
 - Statement counts: `docs/33-orm-spike-dal-v2.md`, lever W1a; measured on the spike branch (`orm-spike:bench` S4), not on trunk.
   Re-measure on trunk before filing.

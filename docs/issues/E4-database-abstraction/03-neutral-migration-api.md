@@ -6,7 +6,7 @@ title: "Database-neutral migration API for new migrations"
 parent: E4
 related: [E4.01, E4.04, E5.01]
 findings: [8]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -33,3 +33,5 @@ Open question: how far the API reaches, because data migrations with raw SQL sti
 - Open question from `docs/10`: how far a portable migration API goes.
 - Plugin side (`docs/28`, a scan of 3,747 plugins of a store mirror from 2026-10-02): 1,389 plugins have MySQL-only DDL in 7,505 migration classes, `BINARY(16)` appears in 1,376.
   The scan is a regex over tokenized PHP, SQL built by concatenation is seen only in part; treat the numbers as an estimate.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Recount on trunk c6ef9571261: `find src/Core/Migration -name 'Migration*.php' -path '*V6_*' | wc -l` gives 919, unchanged.

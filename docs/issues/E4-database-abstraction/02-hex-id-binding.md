@@ -6,7 +6,7 @@ title: "Hex ids above the connection, binding in one place"
 parent: E4
 related: [E4.01, E4.06, E3.01]
 findings: [7]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -44,3 +44,6 @@ Design notes that came out of a proof of concept:
   Callers listed there: `SearchKeywordUpdater:212/230`, `SystemConfigService:304`, `UserConfigController:128`.
 - The proof of concept class is `IdBinding`, a static facade, with a Rector rule `BinaryUuidToIdBindingRector`.
 - Related bug: E3.01 is an example of a manual conversion bug (decode by property name).
+- Checked statically against trunk c6ef9571261 (2026-11-23).
+- Recount on trunk c6ef9571261: `grep -rlE 'Uuid::fromHexToBytes|Uuid::fromBytesToHex|LOWER\(HEX|UNHEX\(|ArrayParameterType::BINARY|ParameterType::BINARY' src --include='*.php' | grep -v '/Migration/' | wc -l` gives 314, unchanged.
+- The caller line numbers above come from the proof of concept base and were not re-checked; `UserConfigController` is not at `src/Core/Framework/Api/Controller/` on trunk.

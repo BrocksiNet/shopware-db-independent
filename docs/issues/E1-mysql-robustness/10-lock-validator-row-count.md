@@ -6,7 +6,7 @@ title: "`LockValidator` uses `rowCount()` after a SELECT"
 parent: E1
 related: []
 findings: [25]
-status: draft
+status: checked
 upstream: ""
 ---
 
@@ -48,3 +48,4 @@ Acceptance:
 - Trunk check: `src/Core/Framework/DataAbstractionLayer/Write/Validation/LockValidator.php` lines 119 to 126, the only `rowCount()` in `src/Core/Framework/DataAbstractionLayer` (grep). The finding holds on trunk.
 - Classified as bug in the findings table; typed here as Improvement (decided 2026-11-23) because MySQL and MariaDB give the right result today.
 - A test for it would need a second driver or a mocked `Result`; none was written.
+- Checked statically against trunk c6ef9571261 (2026-11-23).
