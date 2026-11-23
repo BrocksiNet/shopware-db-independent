@@ -7,3 +7,6 @@
 
 # Python bytecode
 __pycache__/
+
+# Session handoff files (local working notes, not versioned)
+/handoffs/

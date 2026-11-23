@@ -5,7 +5,7 @@ Question: the experiment put a `SqlDialect` under the DAL (`docs/10-architecture
 We never checked how much effort it would be to replace the DAL with an existing ORM or data mapper instead, and what that would bring for developer experience (DX) and performance.
 This doc holds the research; the PoC of wave 8 (`docs/30` to `docs/33`) measures three candidates (Doctrine ORM, Cycle ORM and an improved DAL v2), and the conclusion section at the end is written by wave 8 E.
 
-Raw notes of the research (not versioned): `handoffs/wave8-notes/orm-landscape.md`, `handoffs/wave8-notes/dal-inventory.md`.
+Raw notes of the research (not versioned): `handoffs/done/wave8/notes/orm-landscape.md`, `handoffs/done/wave8/notes/dal-inventory.md`.
 
 ## Why Shopware 6 has no ORM
 
@@ -78,7 +78,7 @@ None of the sources compares an ORM with the Shopware DAL, and none uses Postgre
 
 ## How much code depends on the DAL
 
-Measured on `instance/` (`poc/db-independent` at `87e1768ce3a`), commands in `handoffs/wave8-notes/dal-inventory.md`:
+Measured on `instance/` (`poc/db-independent` at `87e1768ce3a`), commands in `handoffs/done/wave8/notes/dal-inventory.md`:
 
 | What | Number |
 |---|---|
@@ -197,7 +197,7 @@ IDE typing:
 - Cycle: relations are typed by the property type; `Select::fetchAll()` is `mixed` unless `Select<Product>` is written in a docblock, and `fetchData()` results are `array<string, mixed>` (doc 32).
 - DAL v2: attribute entities come back as instances of the attribute class (`SpikeNote`), projections as readonly DTOs; field paths in criteria stay strings (doc 33).
 
-Learning curve and community, from the research notes of doc 29 (`handoffs/wave8-notes/orm-landscape.md`, Packagist and GitHub API, 2026-11-22):
+Learning curve and community, from the research notes of doc 29 (`handoffs/done/wave8/notes/orm-landscape.md`, Packagist and GitHub API, 2026-11-22):
 
 | | Doctrine ORM | Cycle ORM | DAL (reference) |
 |---|---|---|---|
