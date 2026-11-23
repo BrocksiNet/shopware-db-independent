@@ -142,7 +142,7 @@ def main():
     for k, s in enumerate(segs):
         d = int((starts[k] + LEAD + (XFADE if k else 0)) * 1000)
         af.append(f"[{n + k}:a]adelay={d}|{d}[a{k}]")
-    af.append("".join(f"[a{k}]" for k in range(n)) + f"amix=inputs={n}:normalize=0,apad,atrim=0:{total:.3f}[aout]")
+    af.append("".join(f"[a{k}]" for k in range(n)) + f"amix=inputs={n}:normalize=0,loudnorm=I=-16:TP=-1.5:LRA=11,aresample=48000,apad,atrim=0:{total:.3f}[aout]")
     vf.append(f"{prev}fade=t=in:st=0:d=0.6,fade=t=out:st={total - 1:.3f}:d=1,format=yuv420p[vout]")
 
     mp4 = OUT / "experiment.mp4"
