@@ -57,6 +57,8 @@ for ENG in "${ENGINES[@]}"; do
   spike_console cache:clear > $RUN/calls/$ENG-cacheclear.log 2>&1
   log "$ENG cache:clear rc=$? load $(load)"
   echo "load_$ENG=$(load)" >> $RUN/conditions.txt
+  # COLD_ONLY=1 skips verify and bench (rerun of the cold part only)
+  if [ -z "$COLD_ONLY" ]; then
   # verify once per config
   i=0
   for c in "${configs[@]}"; do
@@ -74,9 +76,11 @@ for ENG in "${ENGINES[@]}"; do
     spike_console orm-spike:bench --impl=$impl --scenario=all --iterations=50 --warmup=5 $opts --output-dir=$OUT/bench/$ENG/c$i > $RUN/calls/$ENG-c$i-bench.log 2>&1
     log "$ENG c$i $impl $opts bench rc=$? $(( $(date +%s) - s ))s load $(load)"
   done
-  # cold cache: clear, then one timed S2 call (wall time includes podman exec and kernel boot), then a warm call for reference
+  fi
+  # cold cache (cache:clear without warm-up, plain cache:clear warms the cache again): clear, then one timed S2 call (wall time includes podman exec and kernel boot), then a warm call for reference
   for impl in dal dbal doctrine cycle dalv2; do
-    spike_console cache:clear > /dev/null 2>&1
+   for rep in 1 2 3 4 5; do
+    spike_console cache:clear --no-warmup > /dev/null 2>&1
     t0=$(perl -MTime::HiRes=time -e 'printf "%.3f", time')
     spike_console orm-spike:bench --impl=$impl --scenario=S2 --iterations=1 --warmup=0 --output-dir=$OUT/cold/$ENG/$impl > $RUN/calls/$ENG-$impl-cold.log 2>&1
     rc=$?
@@ -85,6 +89,7 @@ for ENG in "${ENGINES[@]}"; do
     t2=$(perl -MTime::HiRes=time -e 'printf "%.3f", time')
     echo "$ENG $impl $rc $(echo "$t1 - $t0" | bc) $(echo "$t2 - $t1" | bc)" >> $RUN/cold.txt
     log "$ENG cold $impl rc=$rc"
+   done
   done
   # leave a warm cache behind for the next steps
 done

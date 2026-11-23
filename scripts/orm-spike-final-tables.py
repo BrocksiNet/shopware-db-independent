@@ -19,7 +19,10 @@ SC = ['S1', 'S2', 'S3', 'S4', 'S5']
 
 
 def load(path):
+    # the harness names the file after the SqlDialect, which reports `mysql` for MariaDB too
     try:
+        if not os.path.exists(path):
+            path = glob.glob(os.path.dirname(path) + '/*.json')[0]
         return json.load(open(path))
     except Exception:
         return None
@@ -72,16 +75,23 @@ for eng in ENGINES:
         print(f'| {eng} | {label} | ' + ' | '.join(r.get(s, 'none') for s in SC) + ' |')
 print()
 
-print('### Cold cache (clear, then one S2 call, wall time in seconds)\n')
+print('### Cold cache (cache:clear --no-warmup, then one S2 call, wall time in seconds, median of 5)\n')
 print('Wall time includes `podman exec`, kernel boot and cache build; warm = same call right after.\n')
-print('| engine | implementation | cold s | warm s | cold - warm s | rc |')
-print('|---|---|---|---|---|---|')
+print('| engine | implementation | cold s | warm s | cold - warm s | cold min-max s | rc |')
+print('|---|---|---|---|---|---|---|')
+import statistics
+rows = {}
 try:
     for line in open(f'{run}/cold.txt'):
         e, im, rc, cold, warm = line.split()
-        print(f'| {e} | {im} | {float(cold):.2f} | {float(warm):.2f} | {float(cold) - float(warm):.2f} | {rc} |')
+        rows.setdefault((e, im), []).append((int(rc), float(cold), float(warm)))
+    for (e, im), v in rows.items():
+        c = statistics.median(x[1] for x in v)
+        w = statistics.median(x[2] for x in v)
+        cs = [x[1] for x in v]
+        print(f'| {e} | {im} | {c:.2f} | {w:.2f} | {c - w:.2f} | {min(cs):.2f}-{max(cs):.2f} | {max(x[0] for x in v)} |')
 except OSError:
-    print('| no data | | | | | |')
+    print('| no data | | | | | | |')
 print()
 print('### Failed cells\n')
 print('\n'.join(f'- {f}' for f in failed) if failed else 'None.')
