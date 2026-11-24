@@ -26,10 +26,13 @@ The goal of the wave is the same as for wave 8: find out with a measured PoC sli
 Read paths:
 
 - Storefront product listing, search, suggest and detail go through the DAL.
-  With OpenSearch enabled, `ElasticsearchEntitySearcher` decorates `EntitySearcherInterface`, but only for criteria with `Criteria::STATE_ELASTICSEARCH_AWARE` (`ElasticsearchHelper::allowSearch`), which `ProductListingLoader`, `ProductDetailRoute`, `ProductSearchRoute`, the suggest route and the product stream code set.
+  With OpenSearch enabled, `ElasticsearchEntitySearcher` decorates `EntitySearcherInterface`, but only for criteria with `Criteria::STATE_ELASTICSEARCH_AWARE` (`ElasticsearchHelper::allowSearch`), which `ProductListingLoader`, `ProductSearchRoute`, the suggest route, the product stream code, and `ProductDetailRoute::findBestVariantByTerm()` set.
 - OpenSearch returns ids, a total and aggregations only.
   `EntityRepository::_search()` then calls `$criteria->cloneForRead($ids)` and reads the full entities from SQL (`src/Core/Framework/DataAbstractionLayer/EntityRepository.php:289`).
   So every listing with OpenSearch is still a full DAL read with its joins on the write database: OpenSearch offloads filtering and aggregations, not hydration.
+- On top of entity hydration, the storefront routes run extra SQL around the search:
+  `ProductListingLoader` adds `FieldGrouping('displayGroup')` (variant collapsing), computes aggregations without `postFilters`, runs `loadPreviews()` (raw SQL on `product.variant_listing_config` plus a second `searchIds()`), and then hydrates via `resolveData()`.
+  `ProductDetailRoute` does not use OpenSearch for normal detail loads at all; it runs raw SQL in `checkVariantListingConfig()`, then `productRepository->search()`, `CategoryBreadcrumbBuilder`, `ProductConfiguratorLoader`, `loadProductTranslations()`, and `cmsPageLoader->load()`.
 - SEO urls are already a materialized table (`seo_url`) read by raw SQL in `SeoResolver`.
 - Caching is the HTTP cache (`CacheStore`, reverse proxy gateways for Varnish and Fastly) plus object caches (`CachedLanguageLoader`, `CachedSalesChannelContextFactory`, ...).
 
@@ -81,12 +84,14 @@ Conclusion for wave 9: port the ideas (capability interfaces, `NotSupportedByEng
 | | Option | Read path | Fed by | Notes |
 |---|---|---|---|---|
 | O0 | Today, DAL only | DAL on the write database | none | baseline |
+| O0b | DAL v2 (wave 8) | DAL v2 all levers + projections on the write database | none | baseline: what core achieves without a read store or staleness |
 | O1 | Today with OpenSearch | OpenSearch ids, then full DAL read | `ProductIndexerEvent`, raw SQL builder | baseline, hydration stays on SQL |
-| O2 | Read store, events | full documents from the store, no DAL read | projector on `ProductIndexerEvent` / `EntityWrittenContainerEvent`, sync or queued | candidate |
-| O3 | Read store with publish table | as O2 | projector writes documents to an SQL publish table, a sync step copies them to the target engine | Spryker shape; the SQL adapter of O2 is the publish table, so O3 is O2 plus a copy step |
+| O1+ | Composed / hybrid read store | (a) existing OpenSearch `src/Elasticsearch` searcher/aggregator serving full documents from `_source`; or (b) existing OpenSearch ids + aggregations, then `Storage::mget` from Valkey or SQL JSON | `ProductIndexerEvent` / projector | reuses existing OpenSearch query semantics (`displayGroup`, `postFilters`, analyzers); Valkey in its real production role (Spryker / commercetools shape) |
+| O2 | Read store, events | full documents from one engine behind a unified query port, no DAL read | projector on `ProductIndexerEvent` / `EntityWrittenContainerEvent`, sync or queued | candidate |
+| O3 | Read store with publish table | as O2 or O1+ | projector writes documents to an SQL publish table, a sync step copies them to the target engine | Spryker shape; the SQL adapter of O2 is the publish table, so O3 is O2 plus a copy step |
 | O4 | CDC | as O2 | binlog or triggers | desk research only (handoff C) |
 
-Proposed target, to be confirmed or rejected by the PoC (O2, with O3 as a configuration of it):
+Proposed target, to be confirmed or rejected by the PoC (O1+ and O2 compared side by side, with O3 as a pipeline configuration):
 
 ```
             write model (unchanged)                         read model (new)
@@ -99,11 +104,11 @@ Proposed target, to be confirmed or rejected by the PoC (O2, with O3 as a config
                          ReadStore port: Storage, FilterAware, AggregationAware, SearchAware
             ┌──────────────┬───────────────┬────────────┬──────────────┬──────────┐
           Array      SQL JSON (MySQL,   OpenSearch    MongoDB        Valkey
-          (tests)    MariaDB, PG,                                   (key-value only)
-                     SQLite; also the
-                     publish table)
+          (tests)    MariaDB, PG,       (standalone   (port check,   (KV only; also
+                     SQLite; also the    or O1+       SSPL)          composed with
+                     publish table)      _source)                    OpenSearch: O1+)
                                             ^
-  Store API product routes ── ReadStoreGateway (criteria bridge, capability check, DAL fallback)
+  Store API product routes ── ReadStoreGateway (extension .pre hooks, criteria bridge, capability check, DAL fallback)
                               live parts stay live: rule prices, stock, availability
 ```
 
@@ -119,12 +124,12 @@ Principles:
 
 | # | Question | Measured by |
 |---|---|---|
-| Q1 | Do full documents from a read store beat O0 and O1 on detail, listing and search, per engine, and by how much? | R1 to R3, R5 |
+| Q1 | Do full documents from a read store (O1+, O2) beat O0 (`dal`), O0b (`dalv2`) and O1 (`dal-opensearch`) on detail, listing and search, per engine, and by how much? | R1 to R3b, R5 |
 | Q2 | Document shape: one document per product with all languages, currencies and the price matrix resolved at read time, or one per product × sales channel × language, pre-resolved? | document size, R1 to R3, rebuild time |
 | Q3 | Document builder: DAL based (plugin extensions included without extra work) or raw SQL (like OpenSearch today)? | build throughput (R7), extension probe |
-| Q4 | Which DAL criteria (filters, sorting, aggregations, search) can each engine answer, and what falls back? | capability matrix from the contract suite and the Store API criteria corpus |
-| Q5 | Consistency: lag from write to readable, sync vs queued, which writes are missed (raw SQL, stock changes, indexer-only writes, deletes, version merges)? | R6, miss probes |
-| Q6 | What must stay live at read time (rule prices, customer group prices, stock, availability, cart rules) and what does that cost? | R1 to R3 with live parts on and off |
+| Q4 | Which DAL criteria (filters, `postFilters`, `displayGroup` collapsing, sorting, aggregations, word search) can each engine answer, what falls back, and does Shopware need a multi-engine query port (O2) or only a `Storage` port paired with existing OpenSearch (O1+)? | capability matrix from the contract suite and the Store API criteria corpus |
+| Q5 | Consistency: lag from write to readable, sync vs queued, which writes are missed (raw SQL, stock changes, parent-to-variant inheritance updates, indexer-only writes, deletes, version merges)? | R6, miss probes |
+| Q6 | What must stay live at read time (rule prices, customer group prices, stock, availability, cart rules) — both at display time (for the page) and at query time (filtering, sorting and min/max price aggregations across the catalog before pagination) — and what does that cost? | R1 to R3b with live parts on and off, rule-price query probe |
 | Q7 | Does it scale: throughput and p95 under concurrency, the write database's load with and without the read store, a large catalogue | R5 on two dataset sizes |
 | Q8 | Effort, API and extension story: how plugins and apps add fields, what changes for the Store API, BC | handoff F estimate |
 
@@ -132,13 +137,14 @@ Scenarios (the wave 8 harness and contract are reused, S1 to S3 results must equ
 
 - R1 detail: S2 (one variant with inherited data).
 - R2 listing: S1 (24 products of one category, page 2, total).
-- R3 search: S3 (term, manufacturer filter, total, min/max price and manufacturer terms aggregations).
+- R3 substring filter + aggregations: S3 unchanged for wave 8 comparability (`ContainsFilter('name', 'LI')`, manufacturer pre-filter, total, min/max price and manufacturer terms aggregations). Note: S3 tests `FilterAware` substring matching, not full-text word search.
+- R3b storefront search: real word search (`Criteria::setTerm()`), manufacturer as `postFilter` (so the manufacturer terms aggregation stays unfiltered while hits are filtered), `FieldGrouping('displayGroup')` (variant collapsing), total, min/max price and manufacturer terms aggregations. Exercises `SearchAware`, faceted aggregations and variant collapsing.
 - R4 batch by id: `mget` of 24 ids (cross selling, wishlist, cart).
-- R5 load: R1 to R3 mixed, 1, 8 and 32 concurrent clients, throughput, p95, and CPU of the write database container.
+- R5 load: R1/R2/R3b mixed, 1, 8 and 32 concurrent pre-booted worker processes, throughput, p95, and CPU of the write database container.
 - R6 lag: write a product, poll until the read store returns the new value; sync and queued mode.
 - R7 rebuild: full rebuild time, documents per second, store size per engine.
 
-Datasets: `orm_spike` as in wave 8 (3,000 simple products, 400 parents with 4 variants) for correctness and comparison with docs 30 to 35, and `read_store_large` (100,000 simple products, 10,000 parents with 4 variants, same seed rules) for R5 and R7.
+Datasets: `orm_spike` as in wave 8 (3,000 simple products, 400 parents with 4 variants = 5,000 rows) for correctness and comparison with docs 30 to 35, and `read_store_large` (target 100,000 simple products, 10,000 parents with 4 variants = 150,000 rows; or 50,000 / 5,000 = 75,000 rows if seeding exceeds budget, documented by P) for R5 and R7.
 
 ## Plan
 
@@ -146,16 +152,16 @@ Handoffs (work packages for parallel sessions, `handoffs/wave9/`):
 
 | Handoff | Topic | Doc | Can run in parallel with |
 |---|---|---|---|
-| P | Branch, OpenSearch and MongoDB containers, `mongodb` PHP extension, large dataset, harness extension (R4 to R7, implementation ids per store), O0 and O1 baseline timings | `docs/39-read-store-baseline.md` | nothing until "branch ready", then K; S, O, M, R, C wait for "harness ready" |
-| K | Port (capability interfaces, store criteria, `NotSupportedByEngine`), product document and its schema (Q2), DAL and SQL document builders (Q3), projector (sync and queued), rebuild command, Array adapter, contract test suite, DAL criteria bridge | `docs/40-read-store-port-and-document.md` | P after "branch ready"; everything else waits for "port ready" |
+| P | Branch, OpenSearch and MongoDB containers, `mongodb` PHP extension, large dataset, harness extension (R3b, R4 to R7, implementation ids per store and composed O1+), O0 (`dal`), O0b (`dalv2`) and O1 (`dal-opensearch`) baseline timings | `docs/39-read-store-baseline.md` | nothing until "branch ready", then K; others wait for "harness ready" |
+| K | Port (capability interfaces incl. `displayGroup` collapse and `postFilters`, store criteria, `NotSupportedByEngine`), product document and its schema aligned with `SalesChannelProductEntity` runtime fields (Q2), DAL and SQL document builders (Q3), projector (sync and queued), rebuild command, Array adapter, contract test suite, DAL criteria bridge + 20-criteria corpus | `docs/40-read-store-port-and-document.md` | P after "branch ready"; S/O/M wait for "port ready" to code adapters, R/C (and S/O/M verify/rebuild) wait for "pipeline and bridge ready" |
 | S | SQL JSON adapter on MySQL, MariaDB, PostgreSQL and SQLite through `SqlDialect` (JSON columns, generated columns or expression indexes for filter fields), usable as publish table (O3) | `docs/41-read-store-sql.md` | O, M, R, C |
-| O | OpenSearch adapter: own adapter vs reuse of the existing `CriteriaParser` vs SEAL, pick by the contract suite and timings | `docs/42-read-store-opensearch.md` | S, M, R, C |
-| M | MongoDB adapter and Valkey key-value adapter | `docs/43-read-store-mongodb-valkey.md` | S, O, R, C |
-| R | Read integration: `ReadStoreGateway` behind `ProductDetailRoute`, `ProductListingLoader` and `ProductSearchRoute` (flagged), document to `SalesChannelProductEntity` vs DTO response, live parts (Q6), fallback, Store API response equality | `docs/44-read-store-integration.md` | S, O, M, C |
-| C | Consistency and extensibility: R6 lag, miss probes, plugin extension probe, rebuild blue/green, O3 copy step, CDC and trigger desk research (O4) | `docs/45-read-store-consistency.md` | S, O, M, R |
-| F | One timing block with O0, O1 and every store, Q1 to Q8 answered, effort estimate, conclusion in this doc, `docs/summary.md`, issue drafts | this doc, "Conclusion" | nothing, runs alone and last |
+| O | OpenSearch adapter: own adapter vs O1a (reuse existing `src/Elasticsearch` searcher/aggregator + `_source` document hydration) vs SEAL, pick by the contract suite and timings | `docs/42-read-store-opensearch.md` | S, M, R, C |
+| M | MongoDB adapter (time-boxed port-validation target, SSPL) and Valkey key-value adapter (standalone R1/R4 plus O1b composed OpenSearch IDs + Valkey `MGET`) | `docs/43-read-store-mongodb-valkey.md` | S, O, R, C |
+| R | Read integration: `ReadStoreGateway` via `ExtensionDispatcher` `.pre` hooks (`ProductDetailRouteExtension`, `ResolveListingExtension`, `ProductSearchRouteExtension`), document to `SalesChannelProductEntity` vs DTO response, live parts display-time & query-time (Q6), surrounding route SQL accounting, fallback, Store API response equality | `docs/44-read-store-integration.md` | S, O, M, C |
+| C | Consistency and extensibility: R6 lag, miss probes (incl. parent-to-variant inheritance updates), plugin extension probe, rebuild blue/green, O3 copy step, CDC and trigger desk research (O4) | `docs/45-read-store-consistency.md` | S, O, M, R |
+| F | One timing block with O0 (`dal`), O0b (`dalv2`), O1 (`dal-opensearch`), O1+ (composed) and every store, Q1 to Q8 answered, effort estimate, conclusion in this doc, `docs/summary.md`, issue drafts | this doc, "Conclusion" | nothing, runs alone and last |
 
-Order: P alone until "branch ready"; then K; S, O, M, R and C together once K committed "port ready" and P committed "harness ready"; F alone at the end.
+Order: P alone until "branch ready"; then K (with two commits: "port ready" unblocks S, O, M coding; "pipeline and bridge ready" plus P's "harness ready" unblocks R, C and adapter verify/rebuild); F alone at the end.
 
 Out of scope: Meilisearch, DynamoDB, Typesense (the port must allow them, the PoC does not build them), CDC implementation, the admin search index, CMS and navigation documents (named as next candidates in F), production hardening.
 
