@@ -121,8 +121,8 @@ Every adapter uses it, so the mapping lives in one place and an adapter only tra
 Everything else throws `NotSupportedByEngine::field()`, notably nested association fields such as `manufacturer.name` and payload-only fields (`#[Field(..., queryable: false)]`).
 The criteria bridge maps the association fields the product routes use to the flat fields (`manufacturer.id` to `manufacturerId`, `properties.id` to `propertyIds`).
 
-`cheapestPrice` is rounded at build time with the item rounding of each currency.
-A context whose rounding differs from the currency rounding (`StoreContext::roundsLikeCurrency()` is false) gets `NotSupportedByEngine`, so the DAL answers it.
+`price` and `cheapestPrice` are rounded at build time with the item rounding of each currency, because the DAL accessor builders (`PriceFieldAccessorBuilder`, `CheapestPriceAccessorBuilder`) round both with the context rounding in SQL.
+A context whose rounding differs from the currency rounding (`StoreContext::roundsLikeCurrency()` is false) gets `NotSupportedByEngine` for both, so the DAL answers it.
 
 ## Semantics every adapter keeps
 
@@ -171,8 +171,10 @@ All values are resolved at build time, so query time never needs a fallback, exc
 
 - Variants are complete: every inherited field holds the parent's value when the variant has none, to-many associations included (`prices`, `categoryIds`, `properties`).
 - A language map has an entry for every language of the shop, resolved with that language's fallback chain and parent inheritance.
-- `priceGross` and `priceNet` per currency: the own price of the currency, or the default currency price times the currency factor, not rounded (DAL `price.gross`).
-- `cheapestPrice` per rule key (`default` or rule id) and currency, from `cheapest_price_accessor` (the parent's for variants), rounded with the item rounding of each currency like the DAL accessor builder.
+- `priceGross` and `priceNet` per currency: the own price of the currency, else the own default currency price times the currency factor, else the same from the parent, rounded with the item rounding of the currency (as `PriceFieldAccessorBuilder` does with `IFNULL(COALESCE(...), COALESCE(...))`).
+- `cheapestPrice` per rule key (`default` or rule id) and currency, from the own `cheapest_price_accessor`, the parent's when the own is empty (the field is inherited), rounded with the item rounding of each currency like `CheapestPriceAccessorBuilder`.
+  `CheapestPriceUpdater` writes an accessor for every simple product and every variant of an active parent, none for a parent with variants.
+  `percentage` is stored as `100 - percentage`, the ratio the accessor builder returns.
 - `visibilities` per sales channel id: the visibility value (10, 20, 30), the parent's when the variant has none.
 - `searchKeywords` per language: `{keyword: ranking}` from `product_search_keyword`.
 - `extensions`: plugin data added by `DocumentExtender`s, keyed by the extender's name.
