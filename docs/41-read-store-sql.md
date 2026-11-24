@@ -126,7 +126,7 @@ Filter expressions are three valued like the reference, a document matches when 
 | Number | `CAST(... AS DOUBLE)` | `CAST(... AS DOUBLE PRECISION)` | `CAST(... AS REAL)` |
 | Case and accent insensitive equals | `COLLATE utf8mb4_unicode_ci` | `COLLATE rs_unicode_ci` | `rs_fold(x) = :folded` |
 | Contains, prefix | `LIKE` with `utf8mb4_unicode_ci`, escaped pattern | `LIKE` with `rs_unicode_ci` | `instr(rs_fold(x), needle)` or `substr` |
-| List contains | `JSON_CONTAINS(doc, JSON_QUOTE(:v), path)` | `@>` with `to_jsonb` | `EXISTS` over `json_each` |
+| List contains | `JSON_CONTAINS(JSON_EXTRACT(doc, path), JSON_QUOTE(:v))` | `@>` with `to_jsonb` | `EXISTS` over `json_each` |
 | Terms on a list | `JSON_TABLE` | `jsonb_array_elements_text` | `json_each` |
 | Null order | natural | `NULLS FIRST` for `ASC`, `NULLS LAST` for `DESC` | `NULLS FIRST` for `ASC`, `NULLS LAST` for `DESC` |
 | Unbounded `LIMIT` | `18446744073709551615` | `ALL` | `-1` |
