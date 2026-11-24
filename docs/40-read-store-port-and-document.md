@@ -7,9 +7,9 @@ Handoff K of wave 9: the port every read store adapter implements, the product d
 | Milestone | Commit in `instance/` (`poc/read-store`) | Contents |
 |---|---|---|
 | Port ready | `8358243fe58 feat(core): read store port ready` | Port, store criteria, field resolver, product document, Array adapter, contract suite |
-| Pipeline and bridge ready | pending | Document builders, `DocumentExtender`, projector, `read-store:rebuild`, criteria bridge, corpus, `store-<id>` harness implementation |
+| Pipeline and bridge ready | `78b72794c37 feat(core): read store pipeline and bridge ready` (`69cbebb016f` registers `CorpusCommand` in `bench.php`) | Document builders (`sql`, `dal`), `DocumentExtender`, projector (`sync`, `queue`), `read-store:rebuild`, criteria bridge, corpus, `StoreImplementation` harness |
 
-The sections "Q2", "Q3", "Projector", "Extension point" and "Criteria corpus" are filled at the second milestone.
+All sections below are verified against `orm_spike`, `read_store_large` and `rs_k_corpus`.
 
 ## Code layout
 
@@ -310,20 +310,154 @@ PHPStan reports no errors on the handoff K paths, `php-cs-fixer` is applied.
 
 ## Q2: document granularity
 
-Filled at the second milestone.
+Measured on 2026-11-24 under `/tmp/wave9-timing.lock`, other lanes stopped: yes (47 containers stopped), host load average 10.05 to 9.78, MySQL 8.4 write model (`read_store_large`: 150,000 products, 2 languages, 2 sales channels, 9 currencies; `orm_spike`: 5,000 products for the Array read comparison).
+
+Two layouts compared:
+
+- **Option (a)**: one document per product holding all languages, all currency and rule prices, and sales channel visibilities; the query picks the context keys at read time.
+- **Option (b)**: one document per `(product, salesChannel, language)`, pre-resolved to scalar translated fields and that sales channel's visibility.
+  Measured both over all `(salesChannel, language)` combinations (4× documents) and over visible products only (on `read_store_large` one sales channel has visibility rows for 135,000 products, so 270,000 documents across 2 languages).
+
+### Document size on `read_store_large` (150,000 products)
+
+| Layout | Documents | Median JSON (B) | p95 JSON (B) | Total JSON (MiB) | Factor vs (a) |
+|---|---|---|---|---|---|
+| Option (a): 1 per product | 150,000 | 4,488 | 5,591 | 691.51 | 1.00× |
+| Option (b): visible only (`SC × lang`) | 270,000 | 3,693 | 4,614 | 1,008.30 | 1.46× |
+| Option (b): all (`SC × lang`) | 600,000 | 3,695 | 4,792 | 2,265.95 | 3.28× |
+
+Extra projection CPU time to fan out option (a) into option (b) for 150,000 products: +5.80 s in PHP, before the additional 1.8× to 4× store writes.
+
+### Read cost on Array (`orm_spike`, 5,000 products, 5 warm-up, 50 iterations)
+
+Both options run the identical JSON decode / scan / ICU sort loop, differing only in reading a language/sales-channel map key vs a scalar field (and 5,000 vs 4,500 visible docs for R2).
+
+| Measure | Option (a) | Option (b) | Difference |
+|---|---|---|---|
+| Variant document JSON size (`S2`) | 6,420 B | 5,328 B | -17.0 % |
+| R1 JSON decode + extract (median / p95) | 0.0229 / 0.0241 ms | 0.0198 / 0.0208 ms | -3.1 µs |
+| R2 in-memory scan + ICU sort (median / p95) | 1.9851 / 3.9221 ms | 0.9771 / 1.0321 ms | -1.01 ms |
+
+### Decision
+
+**Option (a) (one document per product) is chosen.**
+Most of a Shopware product document is not translated text — it is currency/rule prices (9 currencies), `categoryTree`, `optionIds`, `propertyIds`, media, cover and scalars.
+Splitting per `(salesChannel, language)` shrinks an individual document by only ~18 % while multiplying document count, total storage and write amplification linearly by `salesChannels × languages` (already 1.46× to 3.28× with 2×2; a 5-language, 3-storefront shop would store and rewrite up to 15× as many documents on every product edit).
+Single-document decode saves ~3 µs, which is negligible against network and query round-trip times.
+Option (a) also matches Shopware's existing OpenSearch ADR (`2023-04-11-new-language-inheritance-mechanism-for-opensearch`).
+Option (b) remains a straightforward projection on top of option (a) if a key-value cache ever wants per-locale pre-rendered payloads.
 
 ## Q3: document builders
 
-Filled at the second milestone.
+Two builders implement `Builder/DocumentBuilder` (`build(list<string> $ids): array<string, array<string, mixed>>`, `reset()`, `key()`):
+
+- **`SqlDocumentBuilder`** (`sql`, default): reads raw rows from `product` (own + parent), `product_translation`, `product_price`, `product_visibility`, `product_media`, `product_property`, `product_option`, `product_search_keyword`, and referenced lookup tables (`product_manufacturer`, `tax`, `unit`, `delivery_time`, `property_group_option`, `media`) using portable `IdBinding` SQL; resolves inheritance, language fallback chains, currency/rule prices (`PriceCalculator`) and normalization (`Normalizer`) in PHP.
+- **`DalDocumentBuilder`** (`dal`): loads products via `product.repository` once per language with storefront associations (so DAL inheritance and entity extensions come along) plus one SQL read for `cheapest_price_accessor`.
+
+### Build throughput on `read_store_large` (150,000 products, batch 500)
+
+Same stopped-lanes block as Q2 (2026-11-24, other lanes stopped: yes, load average 10.05 to 9.78, MySQL 8.4, separate PHP processes for independent peak memory).
+Statement counts per 500-product batch were measured separately on `orm_spike` via MySQL `session_status.Questions`.
+
+| Builder | Documents | Time (s) | Docs / s | Peak memory (MiB) | SQL statements / 500-product batch (cold / warm scope) |
+|---|---|---|---|---|---|
+| `SqlDocumentBuilder` (`sql`) | 150,000 | 28.32 | 5,296.5 | 74.0 | 21 / 19 |
+| `DalDocumentBuilder` (`dal`) | 150,000 | 132.55 | 1,131.6 | 146.5 | 15 / 13 |
+
+- **Output equality**: strict `===` equality across all 5,000 documents on `orm_spike` (0 diffs), and identical SHA-256 (`e589a4d228ea58584d25d26fab06fa38e799887a80b5e175771833441dcef4b8`) over the first 1,000 documents on `read_store_large`.
+- **Why SQL is 4.68× faster despite more statements**: `DalDocumentBuilder` issues fewer SQL queries per batch (13 vs 19) because the DAL joins translations and associations per query, but it runs a full DAL `EntityRepository::search()` per language (2× entity hydration, struct instantiation, Criteria compilation and events), which dominates PHP CPU time and doubles peak memory.
+- **Recommendation**: `SqlDocumentBuilder` for full rebuilds and core fields; plugins attach custom data via `DocumentExtender` (which runs on both builders with batched IDs) rather than forcing full entity hydration for every product.
 
 ## Projector
 
-Filled at the second milestone.
+Lives in `src/Core/Framework/ReadStore/Projector/`.
+
+### Signals (`ReadStoreProjectorSubscriber`)
+
+| Event | Action | Notes |
+|---|---|---|
+| `ProductIndexerEvent` | `projector->schedule($event->getIds())` | Fires after `ProductIndexer` updates derived columns (`cheapest_price`, `category_tree`, `searchKeywords`, ...). `ProductIndexer::update()` already includes child variant ids when a parent is written. |
+| `ProductStockAlteredEvent` | `projector->schedule($event->getIds())` | Order stock changes bypass `ProductIndexer`. |
+| `ProductEvents::PRODUCT_DELETED_EVENT` | `projector->remove($ids)` | Immediate delete from live and pending generations; no DB read needed. |
+
+Same signal surface as `src/Elasticsearch/Product/ProductUpdater.php`. Changes to referenced entities alone (manufacturer rename, tax rate change, category rename) or raw SQL writes that bypass the DAL emit none of these events (investigated and probed in handoff C, `docs/45-read-store-consistency.md`).
+
+### Modes and configuration
+
+Configured via env parameters in `DependencyInjection/readstore.php`:
+
+- `READ_STORE_PROJECTOR_STORES`: comma-separated store keys (e.g. `sql-mysql,opensearch`); empty disables projection.
+- `READ_STORE_PROJECTOR_MODE`:
+  - `sync` (default): calls `ReadStoreProjector::project($ids)` in-request right after the indexer event.
+  - `queue`: dispatches one `ProjectProductsMessage($ids)` (`AsyncMessageInterface`, `DeduplicatableMessageInterface` with SHA hash of sorted ids) onto `messenger.default_bus`, consumed by `ProjectProductsHandler`. Note: Shopware core ships no deduplication middleware for the Doctrine transport, so duplicate messages execute idempotently.
+- `READ_STORE_PROJECTOR_BUILDER`: `sql` (default) or `dal`.
+
+### Blue/green rebuild (`Rebuilder`, `RebuildCommand`)
+
+`bin/console read-store:rebuild --store=<key> [--builder=sql|dal] [--batch-size=500]` generates a UTC microsecond generation name `g<YmdHisu>`, calls `setup($generation)`, streams `ProductIds::batches()` into `store($docs, $generation)`, and finishes with `swap($generation)` (which atomically flips the live pointer and drops the previous generation).
+Concurrent projector writes call `store($docs)` without a generation argument, so adapters write them to both live and pending generations.
 
 ## Extension point
 
-Filled at the second milestone.
+`Builder/DocumentExtender` (tagged `read_store.document_extender`) lets plugins add data to product documents during both builds and projector updates:
 
-## Criteria corpus
+```php
+interface DocumentExtender
+{
+    public function name(): string;
 
-Filled at the second milestone.
+    /** @param array<string, array<string, mixed>> $documents */
+    public function extend(array $documents): array;
+}
+```
+
+`DocumentExtenders::apply()` runs once per batch on both `SqlDocumentBuilder` and `DalDocumentBuilder`, storing each extender's return value under `extensions.<name>`.
+`FieldResolver` resolves `extensions.<name>.<key>` as `FieldType::ANY`, so stores that support `ANY` filters can query plugin fields directly (tested in `tests/unit/Core/Framework/ReadStore/Builder/DocumentExtendersTest.php`).
+Data loaded from external plugin tables is re-projected when the product changes; independent plugin-table edits must call `ReadStoreProjector::project($affectedProductIds)`.
+
+## Criteria bridge, harness and criteria corpus
+
+### Criteria bridge (`Bridge/CriteriaBridge`)
+
+Translates DAL `Criteria` passed to `sales_channel.product.repository` into `StoreCriteria` + `StoreContext`:
+
+- Adds implicit `ProductAvailableFilter(VISIBILITY_LINK)` when absent (matching `SalesChannelProductDefinition::processCriteria()`).
+- Maps association filter paths used by storefront routes to flat document lists (`categoriesRo.id` -> `categoryTree`, `categories.id` -> `categoryIds`, `streams.id` -> `streamIds`, `tags.id` -> `tagIds`, `properties.id` -> `propertyIds`, `options.id` -> `optionIds`, `manufacturer.id` -> `manufacturerId`, `tax.id` -> `taxId`, `unit.id` -> `unitId`, `deliveryTime.id` -> `deliveryTimeId`, `cover.id` -> `coverId`).
+- Converts `ProductSearchBuilder` keyword filters and `ScoreQuery` instances into `SearchTerm`.
+- Converts `EntityAggregation` into `Terms` while tracking the entity name in `BridgedCriteria::$entityAggregations`.
+- Caps `StoreContext::$ruleIds` at `shopware.dal.max_rule_prices` (like `CheapestPriceAccessorBuilder`).
+- Throws `NotSupportedByEngine` (`engine = "bridge"`) for: raw `Criteria::getTerm()` without `ProductSearchBuilder` keyword queries, `Criteria::TOTAL_COUNT_MODE_NEXT_PAGES`, multiple group fields, `CountSorting`, natural sorting, `TermsAggregation` with sorting or nested aggregations, non-keyword `ScoreQuery`, composite ids, other sales channels in `ProductAvailableFilter`, and nested/payload fields (e.g. `manufacturer.name`).
+
+### Harness (`Bench/StoreImplementation`) and `--verify`
+
+`readstore.php` registers `store-<key>` (`orm_spike.implementation`) for every store (`array`, `sql-mysql`, `sql-mariadb`, `sql-pgsql`, `sql-sqlite`, `opensearch`, `mongodb`, `valkey`, `opensearch-valkey`).
+S2 (R1) and R4 use `Storage::get()` / `Storage::mget()` directly with the `ProductAvailableFilter` check in PHP so key-value-only stores (`valkey`) answer R1 and R4 and all other stores use their primary-key path.
+S1, S3, R3b and S5 go through `CriteriaBridge` into `FilterAware` / `SearchAware`.
+
+`store-array --verify` on `orm_spike`:
+
+- **MySQL 8.4**: S1 OK, S2 OK, S3 OK, R4 OK, S5 OK. R3b hits and total match; manufacturer aggregation differs by the known DAL keyword-row over-count (71 vs DAL's 73 on Maker 17, finding 36 in `docs/core-findings.md`).
+- **PostgreSQL 18**: S1 OK, S2 OK, S3 OK, R4 OK, S5 OK.
+
+### Criteria corpus (`Bench/criteria-corpus.json`, `read-store:bench:corpus`)
+
+35 entries capturing real DAL `Criteria` produced by `ProductListingRoute` (20 entries: default, sort orders, page 2, single/multiple manufacturers, single/same-group/cross-group properties, min/max/range price, rating, shipping-free, combined filters, `no-aggregations`, `only-aggregations`, `reduce-aggregations`), `ProductSearchRoute` (5 entries: default, score, name-asc, manufacturer, price-range) and `RequestCriteriaBuilder` Store API JSON criteria (10 entries: stock range, OR contains, NOT manufacturer, main products, prefix name, mixed aggregations with filter aggregation, post-filter, options, raw `term`, nested `manufacturer.name`).
+
+During corpus verification against MySQL DAL, two semantics of `QueryEvaluator` were aligned with core:
+
+1. **Keyword search score**: when there is a single keyword filter (OR-logic, or AND-logic with one token), the DAL scores only the matching rows of the context language; with two or more token filters it scores all keyword rows across languages.
+2. **Scored collapse (`EntitySearcher::buildScoreRankedQuery()`)**: with a search term, the group representative is the highest-scoring hit (ties by lowest id) and groups are ordered by the representative's sort keys rather than `MIN()`/`MAX()` across the group.
+3. **`Terms` limit tie-breaking**: changed to highest count first, ties by ascending key (matching `CorpusCommand`'s deterministic cut of the DAL's unordered `GROUP BY ... LIMIT n`).
+
+`read-store:bench:corpus --impl=store-array` results:
+
+| Database | Match | `dal-defect` | Fallback | Diff | Skipped |
+|---|---|---|---|---|---|
+| `rs_k_corpus` (5,000 products with properties, ratings, shipping-free) | 28 | 5 | 2 | 0 | 0 |
+| `orm_spike` (5,000 products, no `product_property` rows) | 22 | 5 | 2 | 0 | 6 |
+
+- The 5 `dal-defect` entries are the 5 `ProductSearchRoute` entries where the DAL's `options` and `properties` aggregations over-count products matching multiple keyword rows (finding 36), while `store-array` equals the ground truth aggregation over the distinct hit ids.
+- The 2 `fallback` entries are intentional bridge fallbacks: `criteria-term` (raw `Criteria::setTerm` without `ProductSearchBuilder`) and `criteria-association-field` (`manufacturer.name`, payload only).
+- **0 diffs** across all 35 entries.
+
+Unit tests: `tests/unit/Core/Framework/ReadStore/` (including new `Bridge/CriteriaBridgeTest`, `Builder/DocumentExtendersTest`, `Projector/ReadStoreProjectorTest`): 451 tests across all adapters, 1,684 assertions, 0 failures, 2 expected incomplete (OpenSearch collapse descending by cheapestPrice). PHPStan clean on all handoff K files; `php-cs-fixer` applied.
