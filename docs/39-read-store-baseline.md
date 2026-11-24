@@ -215,11 +215,33 @@ Observed values (expected = `dal`, got = `dal-opensearch`):
 | S5 | total 40,600 vs 37,900 | 1,354 vs 1,246 |
 | R3b | manufacturer aggregation 2,169 vs 2,167 | 73 vs 71 |
 
-The product index holds only active products with a visibility row, and parents with children are excluded unless `displayParent=1` (`ElasticsearchProductDefinition`, WHERE clause).
-On `read_store_large` the index has 126,000 documents: 90,000 visible simple products plus 36,000 variants of visible parents (SQL counts: 90,000 and 36,000; of the 95,000 active simple products 90,000 have visibility).
-The DAL scenarios S1, S3 and S5 do not filter on visibility, so their totals and aggregations include products the index does not hold; that explains the S1, S3 and S5 totals.
-I did not establish the cause of the R3b difference of 2 in the manufacturer aggregation; it is only observed.
-So O1 is not a drop-in for S1, S3 and S5 unless the DAL side adds the visibility filter; a store that holds all products must decide explicitly what it indexes.
+Causes, verified with runs (temporary env-driven code in `DalImplementation` and `BenchCommand`, reverted and not committed):
+
+1. S1 (total), S3 and S5.
+   The first explanation in this doc, "the index holds only visible products", was wrong: the DAL scenarios go through `SalesChannelProductDefinition::processCriteria`, which already adds `ProductAvailableFilter` (active, visibility in the sales channel), so visibility is the same on both sides.
+   The real cause is the index WHERE clause in `ElasticsearchProductDefinition` (line 421): `p.child_count = 0 OR p.parent_id IS NOT NULL OR variant_listing_config displayParent = 1`.
+   Parents that have variants are not indexed (without `displayParent`), while the DAL counts them.
+   Experiment: a temporary filter `childCount = 0 OR parentId != null` on every DAL criteria of both implementations, then `orm-spike:bench --impl=dal-opensearch --scenario=S1,S3,S5,R3b --verify` with the ES environment of `spike_console_es`.
+   Result on `orm_spike`: S3 OK, S5 OK (before: 78 vs 71 and 1,354 vs 1,246).
+   Result on `read_store_large`: S1 OK, S3 OK, S5 OK (before: totals 6,000 vs 5,600, 40,600 vs 37,900 and aggregation 2,335 vs 2,168).
+   Status: verified.
+   The 126,000 documents are therefore 90,000 visible simple products plus 36,000 variants of visible parents; the index also holds inactive and invisible products, which the query filters, so the earlier phrase "only active products with a visibility row" is dropped.
+2. S1 on `orm_spike` still differs in the item order after the filter (item 7 expected `SPK-P-00005-1`, got `SPK-P-00005-2`).
+   Both variants have the same inherited name.
+   The index stores `productNumber` as a multi-valued field holding the parent number and the variant number (docvalues of the two documents: `["spk-p-00005","spk-p-00005-1"]` and `["spk-p-00005","spk-p-00005-2"]`).
+   The ascending sort on a multi-valued field uses the minimum, so both variants sort as `spk-p-00005` and tie, and the tie order is arbitrary; the DAL sorts by the variant's own number.
+   The multi-valued docvalues are read from the index; that the sort takes the minimum is OpenSearch's default for multi-valued fields, I did not run a sort query to confirm the tie order.
+   On `read_store_large` S1 is equal (no such tie in the first page).
+3. R3b manufacturer aggregation (73 vs 71 on `orm_spike`, 2,169 vs 2,167 on `read_store_large`) is a DAL over-count, not an index difference.
+   Three manufacturers differ, by 2, 2 and 3: `Maker 17` (`52d4c43cd3e4d8d31786f96db688a710`, 73 vs 71), `Maker 27` (`873b81e0aeb6067dfe9500e76fdfa917`, 70 vs 68) and `Maker 07` (`96c86feb432f092a6e6c031536df0493`, 74 vs 71) on `orm_spike`; the same three on `read_store_large`, where the DAL aggregation gives 2,169, 2,167 and 2,171 and the same seven products are counted twice, so the distinct counts are 2,167, 2,165 and 2,168 by arithmetic (`--verify` only reports the first difference, 2,169 vs 2,167).
+   The hit set is identical: with the post filter removed, the ids and manufacturers of the 230 hits (orm_spike) are equal between `dal` and `dal-opensearch`, and counting that set by manufacturer gives 71, 68, 71 for those three, which is what OpenSearch returns.
+   A terms aggregation by product `id` on the DAL side returns 7 products with count 2 (all other buckets 1): `SPK-S-00007`, `-00027`, `-00047`, `-00067`, `-00087`, `-00107`, `-00127`; two belong to Maker 17, two to Maker 27, three to Maker 07, which accounts for the 2, 2 and 3.
+   Mechanism: `ProductSearchTermInterpreter` keeps only the best `relevant_keyword_count` terms (8 in `shopware.yaml`), here `hotel` and seven dictionary terms `hotel 00007`, `hotel 00027`, ..., `hotel 00127`.
+   Each of the seven products owns one of those terms next to `hotel`, so it matches two rows in `product_search_keyword` for the context language and the DAL aggregation counts the product twice; the id query groups by product and counts once.
+   I confirmed the counts, the seven products, the cap of 8 and the keyword rows; I did not capture the SQL of the aggregation, so that the aggregation joins without `DISTINCT` is inferred from the doubled counts.
+   Effect: with the keyword search, a DAL terms aggregation can over-count products that match several of the interpreted terms; this is a core finding (finding 36 in `docs/core-findings.md`).
+
+So O1 (and a store that holds documents) is a drop-in for S1, S3 and S5 only when the DAL side excludes parents with variants, and for R3b the stores must not copy the DAL's duplicate count: the contract result is the distinct count.
 
 ### PostgreSQL id codec treats some ids as text
 
