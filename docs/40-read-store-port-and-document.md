@@ -173,7 +173,7 @@ All values are resolved at build time, so query time never needs a fallback, exc
 - A language map has an entry for every language of the shop, resolved with that language's fallback chain and parent inheritance.
 - `priceGross` and `priceNet` per currency: the own price of the currency, else the own default currency price times the currency factor, else the same from the parent, rounded with the item rounding of the currency (as `PriceFieldAccessorBuilder` does with `IFNULL(COALESCE(...), COALESCE(...))`).
 - `cheapestPrice` per rule key (`default` or rule id) and currency, from the own `cheapest_price_accessor`, the parent's when the own is empty (the field is inherited), rounded with the item rounding of each currency like `CheapestPriceAccessorBuilder`.
-  `CheapestPriceUpdater` writes an accessor for every simple product and every variant of an active parent, none for a parent with variants.
+  `CheapestPriceUpdater` writes an accessor for every active simple product and every active variant (`IFNULL(product.active, parent.active) = 1`), none for a parent with variants; on `orm_spike` (MySQL) 550 of the 3,400 products without a parent have none, the 400 parents and 150 inactive simple products.
   `percentage` is stored as `100 - percentage`, the ratio the accessor builder returns.
 - `visibilities` per sales channel id: the visibility value (10, 20, 30), the parent's when the variant has none.
 - `searchKeywords` per language: `{keyword: ranking}` from `product_search_keyword`.
