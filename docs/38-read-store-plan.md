@@ -84,7 +84,7 @@ Conclusion for wave 9: port the ideas (capability interfaces, `NotSupportedByEng
 | | Option | Read path | Fed by | Notes |
 |---|---|---|---|---|
 | O0 | Today, DAL only | DAL on the write database | none | baseline |
-| O0b | DAL v2 (wave 8) | DAL v2 all levers + projections on the write database | none | baseline: what core achieves without a read store or staleness |
+| O0b | DAL v2 (wave 8) | DAL v2 all levers + projections on the write database (planned; the measured `dalv2` rows ran without levers, see "Correction: O0b ran without levers") | none | baseline: what core achieves without a read store or staleness |
 | O1 | Today with OpenSearch | OpenSearch ids, then full DAL read | `ProductIndexerEvent`, raw SQL builder | baseline, hydration stays on SQL |
 | O1+ | Composed / hybrid read store | (a) existing OpenSearch `src/Elasticsearch` searcher/aggregator serving full documents from `_source`; or (b) existing OpenSearch ids + aggregations, then `Storage::mget` from Valkey or SQL JSON | `ProductIndexerEvent` / projector | reuses existing OpenSearch query semantics (`displayGroup`, `postFilters`, analyzers); Valkey in its real production role (Spryker / commercetools shape) |
 | O2 | Read store, events | full documents from one engine behind a unified query port, no DAL read | projector on `ProductIndexerEvent` / `EntityWrittenContainerEvent`, sync or queued | candidate |
@@ -109,7 +109,7 @@ Proposed target, to be confirmed or rejected by the PoC (O1+ and O2 compared sid
                      publish table)      _source)                    OpenSearch: O1+)
                                             ^
   Store API product routes ── ReadStoreGateway (extension .pre hooks, criteria bridge, capability check, DAL fallback)
-                              live parts stay live: rule prices, stock, availability
+                              live parts stay live: rule prices, purchase limit (stock comes from the document)
 ```
 
 Outcome (added after the conclusion): the diagram above is the plan before the PoC.
@@ -187,6 +187,7 @@ Conditions:
 - Host load average was 16.0 at the start of part 1 and between 5.5 and 20.3 during part 2. The load comes from the benchmark's own containers and workers, because the other lanes were stopped. Treat ratios as the result and absolute values as indicative.
 - Script: `/tmp/wave9-f-final-bench.sh`. Every store was rebuilt from the same database state first.
 - Every scenario ran with `--verify` against `dal` before it was timed.
+- `dalv2` ran with its default options, so without any wave 8 lever (see "Correction: O0b ran without levers" below).
 - `orm_spike` ran 5 warm-ups and 50 iterations per scenario.
 - `read_store_large` ran 5 warm-ups and 50 iterations for S2 and R4, and 3 warm-ups and fewer iterations for S1, S3 and R3b. The slow DAL cells take seconds per run.
 
@@ -290,7 +291,7 @@ O1 already gets most of the gain, and a document store on top of it removes only
 
 What the table shows:
 
-- O0b does not change the read picture at 150,000 products. `dalv2` is 5 to 12 % slower than `dal` on every scenario here. On `orm_spike` it is 1.8x faster on S2 and 1.8x slower on S1. The wave 8 levers target statement count and hydration, not the unindexed keyword and aggregation SQL that dominates at this size.
+- O0b as measured is DAL v2 without levers, so this table says nothing about DAL v2 with levers at 150,000 products (see "Correction: O0b ran without levers"). Without levers `dalv2` is 5 to 12 % slower than `dal` on every scenario here. On `orm_spike` it is 1.8x faster on S2 and 1.8x slower on S1. The wave 8 levers target statement count and hydration, not the unindexed keyword and aggregation SQL that dominates at this size, so a large change is not expected, but it is not measured.
 - Detail and `mget` are key-value reads. Every store answers them in under 1.5 ms with 0 SQL, the SQL JSON table on MySQL included.
 - Listing, filters and aggregations need a search engine at 150,000 products:
   - `store-opensearch` is equal to or slightly faster than O1.
@@ -298,6 +299,15 @@ What the table shows:
   - SQL JSON is 4x (MySQL S1) to 550x (MySQL S3) slower than O1 (`docs/41-read-store-sql.md` "Verdict").
 - Search is won by O1, because it uses OpenSearch's own term query.
 - End to end over HTTP on `orm_spike`, the read store saves up to 28 ms on detail (49.76 to 21.77 ms) and 22 ms on listing (56.71 to 34.85 ms). Search over HTTP is fastest on O1 (49.84 ms against 104.99 ms on the DAL). About 19 to 28 ms per request is fixed route and framework cost (`docs/44-read-store-integration.md` "Real Store API HTTP timings").
+
+#### Correction: O0b ran without levers
+
+Found in a doc review on 2026-11-24, after the conclusion was written.
+Neither `scripts/read-store-baseline.sh` (doc 39) nor `/tmp/wave9-f-final-bench.sh` (this block) passes `--option` for `dalv2`, and `DalV2Implementation` turns a lever on only through an option (`count=window`, `agg=stats`, `write=key+upd`, `proj=1`, `shape`).
+The R5 load worker (`LoadWorkerCommand`) calls `configure([])`, so the Q7 load rows cannot have levers either.
+Every wave 9 `dalv2` number is therefore DAL v2 with its default options, not "all levers and projections".
+The O1+ recommendation does not depend on it: O1 is 9 to 167x faster than O0 and O0b on R2, S3 and R3b in the Q1 table, and even the best wave 8 lever gain of 3.3x (`docs/34`) would leave O1 ahead on all three.
+The claim "DAL v2 does not change storefront reads at 150k" is not proven until `dalv2` with the wave 8 lever set runs on `read_store_large` (wave 10 handoff D).
 
 ### Q2: document granularity
 
@@ -346,7 +356,8 @@ On top of the adapters, the criteria bridge rejects several DAL constructs (doc 
 - non-keyword score queries
 - nested and payload fields
 
-The stores give no partial answers, and `--verify` is equal on every supported scenario.
+The stores give no partial answers.
+`--verify` is equal on every supported scenario except R3b, where every store differs from the DAL by the finding 36 over-count (see the F block `--verify` result).
 
 O1+ against O2:
 
@@ -402,11 +413,12 @@ It costs triggers on every product table (Magento `mview`) or Debezium plus a br
 | Price calculation, tax, rounding, customer-group display | live in PHP (`ProductSubscriber`), under 1 to 2 ms per 24 products, 0 extra SQL warm | – |
 | Base and rule prices | live | from `cheapestPrice.<ruleId>.<currencyId>` buckets in the document. Correct only when the context rounding equals the currency rounding; otherwise `NotSupportedByEngine` and the DAL answers |
 | App script and cart-rule prices | live | not possible in any store (same limit as SQL `cheapest_price` and O1 today) |
-| Stock, closeout | live | eventually consistent. A sold-out closeout can be listed during the lag; checkout validates against SQL |
+| Stock, availability, closeout | from the document snapshot, not live; only `calculatedMaxPurchase` is recalculated from the snapshot values | eventually consistent. A sold-out closeout can be listed during the lag; checkout validates against SQL |
 
 Source: `docs/44-read-store-integration.md` "Live parts".
 
 With live prices and stock on, R1 costs 8.58 ms and with both off 6.78 ms, on `orm_spike` through the gateway.
+"Live stock" is the `liveStock` switch of the gateway: it runs `ProductMaxPurchaseCalculator` on the snapshot values, it does not read stock from SQL.
 So live parts cost about 2 ms on detail and nothing on listing (16.56 against 17.09 ms). Search was 63.69 against 54.79 ms, a 9 ms difference that was not investigated, measured with other lanes running.
 The rest of the route stays on SQL:
 
@@ -424,7 +436,7 @@ The rest of the route stays on SQL:
 | O1b detail only (R1 p50 inside the mix) | 0.1 ms | 2.7 ms | – |
 
 Source: F block above.
-The write database is the limit for O0 and O0b at c=8, and DAL v2 does not move it.
+The write database is the limit for O0 and O0b at c=8; DAL v2 without levers does not move it, DAL v2 with levers was not run under load (see "Correction: O0b ran without levers").
 O1 removes 86 % of that load, from 136.8 to 19.4 CPU seconds, while serving 44 times as many requests.
 The remaining 2.7 statements per request are the hydration that O1+ removes.
 Throughput stays flat at c=32 (460.3 req/s), so the next limit is the PHP workers and the host, not the database.
@@ -491,7 +503,7 @@ Plugins and apps:
 
 | Option | Verdict |
 |---|---|
-| O0b (DAL v2 only) | keep building it for the write path and the admin (wave 8), but it does not change storefront reads at 150k |
+| O0b (DAL v2 only) | keep building it for the write path and the admin (wave 8); without levers it does not change storefront reads at 150k, with levers it is not measured at 150k |
 | O1 (today with OpenSearch) | already the best search path. Its 2 to 4 hydration statements per request are the remaining write database load |
 | **O1+** | **recommended**: `Storage` port + full `ProductDocument` + projector, hydration from OpenSearch `_source` first, Valkey `MGET` as the second adapter for detail and `mget` at about 0.15 ms |
 | O2 | not in core. Twice the effort for engines that lose to OpenSearch on every query scenario at 150k, and its search still needs SQL |

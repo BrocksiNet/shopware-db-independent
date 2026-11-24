@@ -46,7 +46,7 @@ flowchart TD
         SJ[("SQL JSON table<br/>no-infra detail, mget")]
     end
 
-    GW["Route integration (.pre hooks)<br/>live parts: rule prices, stock, availability<br/>DAL fallback, circuit breaker"]
+    GW["Route integration (.pre hooks)<br/>live parts: rule prices, purchase limit<br/>stock from the document snapshot<br/>DAL fallback, circuit breaker"]
 
     ADMIN --> DAL
     DAL --> DIALECT
@@ -105,7 +105,7 @@ Storefront product detail, listing and search read a `ProductDocument` (one per 
 Queries (filters, `displayGroup` collapsing, `postFilters`, aggregations, word search) stay on the existing `src/Elasticsearch` code; only the hydration moves from SQL `cloneForRead($ids)` to OpenSearch `_source` or Valkey `MGET` (`docs/38` "Conclusion").
 Why:
 
-- At 150,000 products and c=8, the DAL and DAL v2 serve about 10 requests per second on 6.3 MySQL cores; today's OpenSearch path (O1) serves 453.8 on about one core, and that core is the remaining SQL hydration (`docs/38` Q7, `docs/summary.md` "Wave 9").
+- At 150,000 products and c=8, the DAL and DAL v2 (measured without its levers, `docs/38` "Correction: O0b ran without levers") serve about 10 requests per second on 6.3 MySQL cores; today's OpenSearch path (O1) serves 453.8 on about one core, and that core is the remaining SQL hydration (`docs/38` Q7, `docs/summary.md` "Wave 9").
 - Detail from Valkey, MongoDB or SQL JSON takes 0.14 to 0.27 ms against 6.2 ms on the DAL, with 0 product SQL (`docs/summary.md` "Wave 9").
 - A multi-engine query port (O2) costs 40 to 68 person-weeks against 22 to 37 for O1+, and its engines lose to OpenSearch on every query scenario; standalone stores keep the SQL keyword interpreter for word search (574 ms or more against 25.5 ms on O1) (`docs/38` Q8, R3b).
 - The document is its own read contract, decoupled from the table layout: a storage change on the write side is no longer an API change for the storefront.
@@ -115,8 +115,12 @@ Engines in order: OpenSearch `_source` (no new infrastructure where OpenSearch r
 
 ### 5. Live parts stay live
 
-Rule prices, customer group prices, stock and availability are calculated at read time on top of the document (`ProductSubscriber`), not stored in it (`docs/38` Q6, `docs/44`).
+Rule prices, customer group prices, tax, rounding and the purchase limit (`calculatedMaxPurchase`) are calculated at read time on top of the document (`ProductSubscriber`), not pre-resolved in it (`docs/38` Q6, `docs/44`).
 Why: they depend on the cart and customer context, and pre-resolving them per rule multiplies the document count.
+
+Stock is not live.
+`stock`, `availableStock`, `available` and `isCloseout` come from the document snapshot (`DocumentHydrator`), and the live `calculatedMaxPurchase` is computed from those snapshot values.
+Stock freshness therefore depends on the projector (`ProductStockAlteredEvent`, section 6); during the lag a page can show an old stock or list a sold-out closeout, and checkout validates against SQL (`docs/38` Q6).
 
 ### 6. The projector is the only coupling
 
@@ -134,7 +138,7 @@ Criteria the bridge cannot translate, shops without OpenSearch and admin-like re
 
 ## What is not proven
 
-- O1+ end to end: wave 9 measured O1 (OpenSearch ids plus SQL hydration) and the standalone stores, and the composed OpenSearch-plus-Valkey store; OpenSearch `_source` hydration of the full document (O1a) was not built, its effort is in E6.03 (`docs/38` effort table, `docs/42` "O1a versus O2").
+- O1+ end to end: wave 9 measured O1 (OpenSearch ids plus SQL hydration) and the standalone stores, and the composed OpenSearch-plus-Valkey store, which runs queries through the standalone port adapter (Painless scoring, SQL keyword interpreter in front of it on R3b), not through `src/Elasticsearch`, so its search numbers are not O1+ numbers (`docs/42` "Critical finding on R3b"); OpenSearch `_source` hydration of the full document (O1a) was not built, its effort is in E6.03 (`docs/38` effort table, `docs/42` "O1a versus O2").
 - Whether the full document fits OpenSearch `_source` in production with many custom fields; if not, Valkey becomes the first adapter (`docs/38` "What would change the recommendation").
 - PostgreSQL in production: storefront 1.13x to 1.46x of MariaDB, writes about 2x, integration suites outside the DAL not green (`docs/27` "What is not proven").
 - Every timing comes from one developer machine; differences below about 10 % are not reliable.

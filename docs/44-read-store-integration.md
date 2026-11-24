@@ -82,8 +82,12 @@ Measured via `read-store:bench:integration --store=opensearch --mode=live-parts 
 | Shape (a): entity + `livePrices` OFF + `liveStock` OFF | 6.78 ms | 17.09 ms | 54.79 ms | 5 / 8 / 8 |
 | Shape (b): DTO (no entity hydration, no subscriber) | 5.90 ms | 19.97 ms | 64.05 ms | 5 / 8 / 8 |
 
+`liveStock` does not read stock from SQL.
+`stock`, `availableStock`, `available` and `isCloseout` always come from the document (`DocumentHydrator::hydrateEntity()`); `liveStock` ON runs `ProductMaxPurchaseCalculator` on those values, OFF copies `maxPurchase` (or the stock) from the document.
+Stock freshness depends on the projector in both cases.
+
 Running `ProductSubscriber::salesChannelLoaded()` (`ProductPriceCalculator` + `ProductMaxPurchaseCalculator` + `IsNewDetector` + `PropertyGroupSorter`) on 24 already-hydrated entities costs **< 1–2 ms in PHP** and **0 extra SQL queries** once `ProductPriceCalculator::getUnits()` is warm (1 SQL query once per worker/request if cold).
-Therefore, **display-time price calculation, tax rules, customer-group rounding, stock/max-purchase calculation, and `AppScriptProductPriceCalculator` should stay live in PHP** in Shape (a): keeping them live costs almost nothing (~1 ms for a 24-product page) while preserving 100 % compatibility with Shopware's pricing, tax, rule, and app-script ecosystem.
+Therefore, **display-time price calculation, tax rules, customer-group rounding, max-purchase calculation, and `AppScriptProductPriceCalculator` should stay live in PHP** in Shape (a): keeping them live costs almost nothing (~1 ms for a 24-product page) while preserving 100 % compatibility with Shopware's pricing, tax, rule, and app-script ecosystem.
 
 ### Query-time live parts
 
@@ -114,6 +118,9 @@ Note on `displayGroup` collapse equality: just like `ResultContract::R3B`, DAL `
 - `ReadStoreGateway::detail()` calls `$this->cacheTagCollector->addTag(EntityCacheKeyGenerator::buildProductTag($parent))`, preserving the exact cache tag (`product-<parentId>`) that Shopware's `CacheInvalidationSubscriber` invalidates when a product is written.
 - **Ordering nuance in async (`queue`) projection mode**: if `CacheInvalidationSubscriber` invalidates the HTTP cache synchronously on `EntityWrittenEvent` while the read store projector updates asynchronously via Messenger (lag `t_lag`), a cache-miss request arriving during `(t_write, t_write + t_lag)` can read the **stale** document from the read store and **re-populate the HTTP cache with stale HTML/JSON** until the next write or TTL expiry!
 - **Required fix for production async mode**: either (a) invalidate the `product-<id>` HTTP cache tag **from the projector after `Storage::store()` completes** (for OpenSearch, after refresh or via `refresh=wait_for` on single-product updates), or (b) run the projector synchronously on single-product writes (R6 sync mode, `docs/45`).
+- (b) alone does not close the window on OpenSearch: the adapter writes with `refresh=false` and a `refresh_interval` of 1 s, so a listing or search right after the write can still return the old document from the index and cache it.
+  Detail is not affected, because `mget` by id is realtime.
+  With OpenSearch, (b) needs `refresh=wait_for` on the single-product write as well, or (a); Valkey and SQL JSON have no refresh delay.
 
 ## Real Store API HTTP timings
 

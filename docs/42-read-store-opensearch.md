@@ -212,4 +212,6 @@ Comparing `store-opensearch` (`read_store_large` sanity run) with handoff P's O1
 2. To reproduce DAL's exact `score * ranking` formula over `searchKeywords`, `store-opensearch` runs a Painless `script_score` scanning `_source.rs.k` inside a `terms` + `top_hits` collapse aggregation, whereas O1 uses OpenSearch's native inverted-index BM25 `buildTermQuery()` + native `collapse`.
 
 In short: O1 already wins S1/S3/R3b query execution with 190.8 MB of index space and 28 ms R3b, while only paying 2–4 SQL hydration queries per request.
-Eliminating those 2–4 hydration queries is what O1a (`_source` hydration on `src/Elasticsearch`) or O1b (`opensearch-valkey`, `docs/43-read-store-mongodb-valkey.md`) buys, without sacrificing native OpenSearch text scoring.
+Eliminating those 2–4 hydration queries is what O1a (`_source` hydration on `src/Elasticsearch`) or an O1b built on `src/Elasticsearch` would buy, without sacrificing native OpenSearch text scoring.
+The wave 9 `opensearch-valkey` store (`docs/43-read-store-mongodb-valkey.md`) is not that O1b: it wraps this standalone `OpenSearchStorage` (`DependencyInjection/m.php`), so its `search()` runs the same Painless `script_score`, its R3b path keeps the SQL keyword interpreter in front of the store, and its R3b is as slow (582.72 ms in the final block, `docs/38`).
+It proves Valkey hydration of hits, not the recommended O1+ query path; O1+ end to end is open (wave 10 handoff A).

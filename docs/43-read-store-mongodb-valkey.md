@@ -56,6 +56,8 @@ The MongoDB `$text` index is not used: the DAL search matches keywords with the 
 It is registered as `read_store.storage.opensearch-valkey` with its own namespaces (indices `rs_ov_product_<generation>`, Valkey keys `rs_ov`), so it shares no data with the plain `opensearch` and `valkey` stores.
 OpenSearch answers `filter()`, `search()` and `aggregate()`, the ids of the hits are hydrated from Valkey with one `MGET` in the order OpenSearch returned them.
 Total, aggregations and scores come from OpenSearch unchanged.
+The OpenSearch part is the standalone port adapter of handoff O (`OpenSearchStorage`, wired in `DependencyInjection/m.php`), not the `src/Elasticsearch` query code that O1+ recommends.
+So `search()` keeps that adapter's Painless `script_score`, R3b keeps the SQL keyword interpreter in front of the store as for every standalone store, and this store measures Valkey hydration, not the O1+ query path.
 Writes: `store()` writes the documents to Valkey first and the index second, `remove()` the index first and Valkey second, so a hit always finds its document.
 A swap flips the index alias first and the Valkey pointer second.
 In that short window a hit can name a document the live Valkey generation does not hold, the store then throws `NotSupportedByEngine` and the caller falls back to the DAL, it never drops or invents a document.

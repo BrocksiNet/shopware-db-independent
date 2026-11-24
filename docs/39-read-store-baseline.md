@@ -152,8 +152,14 @@ Other lanes stopped: yes (47 containers, 60 s pause after stopping, started agai
 Host load average (1 minute) during the block: 9.2 at the start, 10.6 to 19.2 during the S/R runs; the run's own workers are included.
 The load was high for a stopped-lanes block; treat absolute values as indicative and compare only rows of this block.
 
-Implementations: `dal` = O0, `dalv2` = O0b (all levers and projections of wave 8), `dal-opensearch` = O1 (the DAL with `Criteria::STATE_ELASTICSEARCH_AWARE`, product ids from the lane's OpenSearch index built from the same database, entities from SQL).
+Implementations: `dal` = O0, `dalv2` = O0b, `dal-opensearch` = O1 (the DAL with `Criteria::STATE_ELASTICSEARCH_AWARE`, product ids from the lane's OpenSearch index built from the same database, entities from SQL).
 Cells: median / p95 in ms, statements on the write database per run in parentheses.
+
+Correction (2026-11-24, after a doc review): `dalv2` here is DAL v2 with its default options, so no wave 8 lever is on.
+`scripts/read-store-baseline.sh` passes no `--option` to `orm-spike:bench`, and `DalV2Implementation` turns a lever on only through an option (`count=window`, `agg=stats`, `write=key+upd`, `proj=1`, `shape`).
+The R5 load worker (`LoadWorkerCommand`) calls `configure([])` and cannot pass options at all.
+An earlier version of this doc called the row "all levers and projections of wave 8"; that was wrong.
+The `dalv2` rows therefore do not show what DAL v2 with levers does at 150,000 products; that run is open (`handoffs/wave10/D-timing-reliability-and-final.md`).
 
 | Dataset | Impl | S1 | S2 | S3 | R3b | R4 |
 |---|---|---|---|---|---|---|

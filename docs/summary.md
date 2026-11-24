@@ -293,12 +293,20 @@ What was built:
 - Adapters on SQL JSON (MySQL, MariaDB, PostgreSQL, SQLite), OpenSearch, MongoDB, Valkey, and OpenSearch with Valkey hydration.
 - Store API integration through the existing `.pre` route hooks.
 
-Every store passes the shared contract suite and equals the DAL on every supported scenario.
+Every store passes the shared contract suite.
+Against the DAL, with these exceptions:
+
+- On the 35-entry criteria corpus, 5 search route entries differ in the `options` and `properties` aggregations, where the DAL over-counts products that match several keyword rows (core finding 36); the stores return the distinct count.
+  The same finding makes R3b differ on the manufacturer aggregation (71 against 73 on `orm_spike`).
+- In the 50-request Store API check, SQL JSON is equal on 50 of 50 and OpenSearch on 47 of 50: 5 `price-desc` listings fall back to the DAL by design, and 3 `price-asc` listings differ in the order of variants with the same price (`docs/44` "50-request Store API equality check").
+- Constructs the criteria bridge or an adapter cannot translate fall back to the DAL instead of answering (`docs/38` Q4).
+
 The plan and the conclusion are in `docs/38-read-store-plan.md`. The results are in docs 39 to 45.
 
-Results on 150,000 products, from the final timing block:
+Results on 150,000 products, from the final timing block.
+The DAL v2 column ran with default options, so without the wave 8 levers; DAL v2 with levers is not measured at this size (`docs/38` "Correction: O0b ran without levers").
 
-| Read | DAL | DAL v2 | Read stores |
+| Read | DAL | DAL v2 without levers | Read stores |
 |---|---|---|---|
 | Detail | 6.2 ms | 6.9 ms | 0.14 to 0.27 ms on Valkey, MongoDB and SQL JSON; 1.25 ms on OpenSearch; 0 SQL |
 | Batch of 24 | 11.9 ms | 13.0 ms | 0.66 to 1.5 ms on Valkey, MongoDB and SQL JSON; 7.8 ms on OpenSearch |
