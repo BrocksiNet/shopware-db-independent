@@ -2,7 +2,8 @@
 
 Status: draft, written by handoff O of wave 9.
 The adapter is implemented and passes the contract suite.
-Timings and the O1a versus O2 comparison are pending milestone 2.
+Timings are pending milestone 2.
+The O1a decision is made from the code and is in the section "O1a versus O2".
 
 Code lives in `instance/src/Core/Framework/ReadStore/Adapter/OpenSearch/` (commit `e1a9257bc5a` in `instance/`).
 The contract test is `instance/tests/unit/Core/Framework/ReadStore/Adapter/OpenSearch/OpenSearchStorageTest.php`.
@@ -86,7 +87,7 @@ Writes use `_bulk`; the `refresh` constructor flag makes writes visible immediat
 - `cheapestPrice` creates one field per rule, currency and accessor, so `total_fields.limit` has to be raised (20000 now).
 - Bulk failures are thrown as `ReadStoreException::invalidCriteria`, because the port has no factory for an engine failure.
   That is a port concern, K decides.
-- The DI definition in `o.php` needs the `OpenSearch\Client` service from the Elasticsearch bundle.
+- The DI definition in `o.php` needs the `OpenSearch\Client` service from the Elasticsearch bundle (accepted by K).
 
 ## Rebuild time, index size, refresh lag
 
@@ -104,31 +105,59 @@ What the code determines:
 
 ## Comparison: standalone port adapter, O1a, SEAL
 
-O1a means reusing `src/Elasticsearch` (criteria parser and searcher) and hydrating from `_source`.
+O1a means reusing `src/Elasticsearch` (criteria parser, searcher, aggregator) and hydrating from `_source`.
+All paths in the O1a column are relative to `instance/src/Elasticsearch/`.
 
 | Aspect | Standalone port adapter (this) | O1a: `src/Elasticsearch` plus `_source` | SEAL OpenSearch adapter |
 | --- | --- | --- | --- |
-| Query input | `StoreCriteria` | DAL `Criteria` through `CriteriaParser` | SEAL `Search` conditions |
-| Conditions | all port filters, three-valued null logic, contains, prefix | all DAL filters including `ContainsFilter` (`WildcardQuery` `*value*`), nested filters | Identifier, Search, Equal, NotEqual, GT, GTE, LT, LTE, In, NotIn, Geo, And, Or; no Not, Contains, Prefix, null-aware equality |
-| postFilters | yes | yes (`addPostFilters`) | no |
-| `displayGroup` collapse | native collapse with exact total, limits above | native collapse plus nested groupings via `inner_hits`, `CardinalityAggregation` total, script based for several fields | `distinct` is native collapse, no exact total |
-| Word search | script score on keywords, all languages | `ProductSearchBuilder` and `buildTermQuery` with scoring | `multi_match` on a query string only |
-| Translation fallback | resolved per language chain at index time | language chain queried as `DisMaxQuery` over languages, `fillFallbackTranslation` at index time | none, static field schema |
-| Aggregations | Min, Max, Avg, Sum, Stats, Count, Terms | full DAL aggregation set via `ElasticsearchEntityAggregator` | only CountFacet (terms) and MinMaxFacet |
-| Sort | field direction, ids position, score, always id tiebreak | field sortings through `addSortings` | plain field direction, no missing control, no tiebreak, no script sort |
-| Hydration | `_source` holds the port document | `_source` includes only `id` and `autoIncrement` unless `excludeSource` is false and the environment is dev or test (`ElasticsearchProductDefinition` line 181), so `_source` hydration needs a mapping change; today it returns ids and `_score` | documents stored marshalled in `_source` |
-| Mapping | dynamic templates, key families per language, currency, rule | `getMapping()` with fixed properties, dynamic templates for prices, `FieldBuilder` for languages and custom fields | `dynamic: strict`, static schema per index, integer and float types |
-| Generations | index per generation behind an alias, swap | existing index and alias handling of `src/Elasticsearch` | no alias, create and drop an index per name |
-| Cost to adopt | new code (this adapter), needs the port | reuse of existing mapping, indexer and parser, but a second query path next to the DAL and the `_source` change | dependency plus schema mapping, would need extensions for most Shopware criteria |
+| Query input | `StoreCriteria` | DAL `Criteria` plus `EntityDefinition`; `ElasticsearchHelper::allowSearch` only answers for criteria with `Criteria::STATE_ELASTICSEARCH_AWARE` (`Framework/ElasticsearchHelper.php:85-95`) | SEAL `Search` conditions |
+| Conditions | all port filters, three-valued null logic, contains, prefix | all DAL filters through `CriteriaParser::parseFilter` (`Framework/DataAbstractionLayer/CriteriaParser.php:180-191`, unknown filters throw `unsupportedFilter`); `ContainsFilter` is a `WildcardQuery` `*value*`, per language chain in a `DisMaxQuery` (`CriteriaParser.php:673-695`) | Identifier, Search, Equal, NotEqual, GT, GTE, LT, LTE, In, NotIn, Geo, And, Or; no Not, Contains, Prefix, null-aware equality |
+| postFilters | yes | yes (`ElasticsearchHelper::addPostFilters`, line 135) | no |
+| Filters, queries, ids | translated to `bool` filters | `addFilters` wraps all filters in one AND `MultiFilter` as a `FILTER` clause (`ElasticsearchHelper.php:118-133`); ids become an `EqualsAnyFilter('id')` (`:98-116`) | ids and conditions |
+| `displayGroup` collapse | native collapse with exact total, limits above | native `collapse` (nested groupings via `inner_hits`, `CriteriaParser.php:175-188`) plus a `CardinalityAggregation` total in the searcher | `distinct` is native collapse, no exact total |
+| Word search | script score on keywords, all languages | `buildTermQuery` of the entity definition, added through `addTerm` with an optional `core.search.minScore` (`ElasticsearchHelper.php:152-172`, `:264-272`); `ProductSearchBuilder` only resets the queries and sets `criteria->setTerm()` (`Product/ProductSearchBuilder.php:29-51`) | `multi_match` on a query string only |
+| Score queries | not part of the port | `addQueries` adds `ScoreQuery` filters as `should` clauses with boost, `fuzziness` 2 on `MatchQuery` (`ElasticsearchHelper.php:174-214`) | none |
+| Translation fallback | resolved per language chain by `FieldResolver`, stored per language at index time | one index for all languages, translated fields are objects keyed by language id, searched through the context, parent and default language (ADR `adr/2023-04-11-new-language-inheritance-mechanism-for-opensearch.md`, sections "Decision" and "Searching"); `ElasticsearchFieldMapper::translated` fills null child values from the parent items (`Framework/ElasticsearchFieldMapper.php:45-74`); `ElasticsearchFieldBuilder::translated` builds one mapping entry per language with a language analyzer (`Framework/ElasticsearchFieldBuilder.php:88-128`) | none, static field schema |
+| Custom fields | `ANY` fields, string candidates only | per language object, typed from the custom field set (`ElasticsearchFieldBuilder::customFields` line 135, `getCustomFieldsMapping` line 187) | `JsonObjectField`, not queryable |
+| Aggregations | Min, Max, Avg, Sum, Stats, Count, Terms | all DAL aggregations through `ElasticsearchEntityAggregator`, same `Helper` filters, `size` 0 and `track_total_hits` false (`Framework/DataAbstractionLayer/ElasticsearchEntityAggregator.php:82-94`); the result is hydrated into the DAL aggregation collection | only CountFacet (terms) and MinMaxFacet |
+| Sort | field direction, ids position, score, always id tiebreak | `addSortings` parses every `FieldSorting` (`ElasticsearchHelper.php:216-223`) | plain field direction, no missing control, no tiebreak, no script sort |
+| Result size | up to the window with a window guard | `size` is `MAX_LIMIT` 10000 when no limit is set (`Framework/DataAbstractionLayer/ElasticsearchEntitySearcher.php:33`, `:123`) | limit and offset |
+| Hydration | `_source` holds the port document | the searcher returns ids and scores; `_source` of the product index holds only `id` and `autoIncrement` unless `SHOPWARE_ES_EXCLUDE_SOURCE` is set to true (config `Resources/config/packages/elasticsearch.yaml:136`, `:309`) or the environment is dev or test (`Product/ElasticsearchProductDefinition.php:181-183`) | documents stored marshalled in `_source` |
+| Document shape | port `Document` | the ES product document of `ElasticsearchProductDefinition::getMapping` (lines 53-186): names, prices, ids of associations, visibility fields, not the entity graph | the schema the caller defines |
+| Mapping | dynamic templates, key families per language, currency, rule | fixed properties, dynamic templates for prices, `cheapest_price_rule*` and long to double (`ElasticsearchProductDefinition.php:150-179`) | `dynamic: strict`, integer and float types |
+| Generations | index per generation behind an alias, swap | index name is `<prefix>_<entity>` (`ElasticsearchHelper::getIndexName`, line 58) with alias handling of the indexer | no alias, create and drop an index per name |
+| Cost to adopt | new code (this adapter), needs the port | reuse of mapping, indexer and parser, but the query path takes DAL `Criteria`, so it is a second path next to the port and needs the `_source` change | dependency plus schema mapping, would need extensions for most Shopware criteria |
 
-Sources read: `OpensearchSearcher.php` and `OpensearchSchemaManager.php` of the SEAL checkout (HEAD `3708776`, 2026-11-03), `ElasticsearchEntitySearcher`, `CriteriaParser::parseContainsFilter` and `ElasticsearchProductDefinition::getMapping` in `instance/src/Elasticsearch`.
-Parts of `src/Elasticsearch` not read for this draft: field builder and mapper details, the aggregator, `ElasticsearchHelper`, `ProductSearchBuilder` and the language inheritance ADR.
-The O1a column is therefore a code reading, not a measured result.
+SEAL sources read: `OpensearchSearcher.php` and `OpensearchSchemaManager.php` of the SEAL checkout (HEAD `3708776`, 2026-11-03).
+
+## O1a versus O2 (decision from code)
+
+Question: is O1a the same code as the standalone adapter?
+No.
+The two share ideas (native `collapse`, cardinality for the total, `filter` aggregations for postFilters, language chain lookups), but not code or data shape.
+
+Evidence:
+
+- O1a takes a DAL `Criteria` and an `EntityDefinition`, and every parser step resolves fields through the DAL definition (`ElasticsearchHelper.php:98-133`, `CriteriaParser.php:180-191`).
+  The port takes `StoreCriteria` and resolves fields through `FieldResolver`.
+  A prototype would need a translation `StoreCriteria` to DAL `Criteria`, which only exists as far as the port's field names match DAL names.
+- O1a queries the ES product document, field names are `name.<languageId>`, `price.<currencyId>...`, `visibility_<salesChannelId>` and so on (`ElasticsearchProductDefinition.php:53-143`).
+  The port document has other keys (`rs` object, per language and rule key families).
+  `_source` of an O1a index is therefore not the port `Document`, even with the line 181 change.
+  What `_source` can contain is whatever `fetch()` writes, a subset of the product (no media, no cross selling, no full association data), so it cannot serve the full documents of the read store without extending the indexer.
+- The ES indexer writes `<prefix>_product` indices.
+  My rules limit me to indices starting with `rs_`, and the lane's `rs_o1_*` indices belong to handoff P, so I cannot create or fill a product index for O1a without touching indices I must not touch.
+
+Conclusion: a `store-opensearch-source` prototype adds nothing the code reading does not already answer.
+What O1a would give is the existing ids plus aggregations path (O1, already a baseline of handoff P) plus a `_source` that holds a reduced ES product document once `SHOPWARE_ES_EXCLUDE_SOURCE` is true.
+Whether that reduced document is enough for a listing is a question for the milestone 2 timings and for F, not for another adapter.
+If K wants the prototype anyway, the minimal change is the flag on line 181 (already a config value) and a hydration step that reads `hits[]._source` in `ElasticsearchEntitySearcher`.
+It can be built when handoff P frees an index prefix for it.
 
 ## Timings (pending milestone 2)
 
 To be filled once the pipeline and bridge exist: bulk index time per generation, index size on disk, query latency for the contract scenarios, refresh interval versus lag.
 
-## O1a versus O2 (pending milestone 2)
+## O1a timings (pending milestone 2)
 
-To be filled with measurements of an O1a prototype against this standalone adapter.
+To be filled from handoff P's O1 baseline, not from a prototype.
