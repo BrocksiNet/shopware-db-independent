@@ -34,7 +34,15 @@ The instance is the `sw-dev` lane `pg`: http://pg.localhost:8088 (admin: http://
 0. [docs/core-findings.md](docs/core-findings.md): findings useful for the Shopware core, independent of PostgreSQL
 0. [docs/27-final-report.md](docs/27-final-report.md): final report of the experiment after wave 7, [docs/28-plugin-sql-inventory.md](docs/28-plugin-sql-inventory.md) the plugin SQL scan
 0. [docs/29-orm-alternatives.md](docs/29-orm-alternatives.md#conclusion): wave 8, replace the DAL with an ORM? Answer: keep the DAL and build DAL v2. Results in docs 30 to 33, all timings in [docs/34-orm-spike-final-timings.md](docs/34-orm-spike-final-timings.md), fair write comparison in [docs/35-orm-spike-fair-write.md](docs/35-orm-spike-fair-write.md), DAL v2 batched update on PostgreSQL in [docs/36-dal-v2-batched-update-postgresql.md](docs/36-dal-v2-batched-update-postgresql.md)
-0. [docs/38-read-store-plan.md](docs/38-read-store-plan.md): wave 9 plan, a read-optimized store (SQL JSON, OpenSearch, MongoDB, Valkey) fed from the DAL, research and options
+0. [docs/38-read-store-plan.md](docs/38-read-store-plan.md#conclusion): wave 9, a read-optimized store (SQL JSON, OpenSearch, MongoDB, Valkey) fed from the DAL. Answer: O1+, a narrow `Storage` port with product documents from OpenSearch `_source` or Valkey next to the existing OpenSearch query code, no multi-engine query port. Results:
+   - [docs/39](docs/39-read-store-baseline.md): baseline
+   - [docs/40](docs/40-read-store-port-and-document.md): port and document
+   - [docs/41](docs/41-read-store-sql.md): SQL JSON
+   - [docs/42](docs/42-read-store-opensearch.md): OpenSearch
+   - [docs/43](docs/43-read-store-mongodb-valkey.md): MongoDB and Valkey
+   - [docs/44](docs/44-read-store-integration.md): Store API integration
+   - [docs/45](docs/45-read-store-consistency.md): consistency
+   - issue drafts in `docs/issues/E6-read-store/`
 0. [docs/37-review-round-2.md](docs/37-review-round-2.md): review round 2, id codec cache, batched update semantics, corrected schema claim
 1. [docs/00-plan.md](docs/00-plan.md)
 2. [docs/02-decisions.md](docs/02-decisions.md)

@@ -277,6 +277,47 @@ Both ORMs pass the scenarios only with hand-written translation fallback, inheri
 The final timing block (`docs/34-orm-spike-final-timings.md`) confirms it: DAL v2 with all levers is 1.7 to 3.3 times faster than the DAL on reads on all four engines, optimized ORM variants reach DBAL speed only by leaving their entity model, and writes remain the weak spot of DAL v2.
 Recommendation: keep the DAL as the public API and build DAL v2 step by step, starting with the `EntityWriteGateway` decode fix (core finding 31), the window count (finding 32) and the write path; no ORM replacement.
 
+## Wave 9: a read store for the storefront?
+
+Wave 9 asked whether full product documents, built from the DAL and kept in a read store, serve detail, listing and search faster and more scalably than the DAL (O0), DAL v2 (O0b) and today's OpenSearch path (O1).
+O1 means ids from OpenSearch and entities from SQL.
+
+What was built:
+
+- One port, `Storage` plus optional filter, aggregation and search capabilities.
+- One product document per product.
+- A SQL document builder and a projector.
+- Adapters on SQL JSON (MySQL, MariaDB, PostgreSQL, SQLite), OpenSearch, MongoDB, Valkey, and OpenSearch with Valkey hydration.
+- Store API integration through the existing `.pre` route hooks.
+
+Every store passes the shared contract suite and equals the DAL on every supported scenario.
+The plan and the conclusion are in `docs/38-read-store-plan.md`. The results are in docs 39 to 45.
+
+Results on 150,000 products, from the final timing block:
+
+| Read | DAL | DAL v2 | Read stores |
+|---|---|---|---|
+| Detail | 6.2 ms | 6.9 ms | 0.14 to 0.27 ms on Valkey, MongoDB and SQL JSON; 1.25 ms on OpenSearch; 0 SQL |
+| Batch of 24 | 11.9 ms | 13.0 ms | 0.66 to 1.5 ms on Valkey, MongoDB and SQL JSON; 7.8 ms on OpenSearch |
+| Listing and filters with aggregations | about 0.14 s and 3 s | about 0.15 s and 3.2 s | OpenSearch 10 and 19 ms, close to O1 (15 and 19 ms); SQL JSON on MySQL 67 ms and 10.7 s, not usable at this size |
+| Word search | about 1.2 s | about 1.3 s | O1 25.5 ms; a standalone store 574 ms or more, because it keeps the SQL keyword interpreter |
+| Mixed load at c=8 | 10.4 req/s, 6.3 MySQL cores | 10.3 req/s, 6.4 MySQL cores | O1: 453.8 req/s on about one core; its remaining 2.7 statements per request are hydration |
+
+Recommendation: O1+.
+
+- Keep query execution on the existing OpenSearch code.
+- Add a narrow `Storage` port and the product document, served from OpenSearch `_source` first and Valkey `MGET` second.
+- SQL JSON only as a no-infrastructure detail and batch store, or as a publish table.
+- No unified multi-engine query port in core. It costs about 40 to 68 person-weeks against 22 to 37 for O1+, for engines that lose to OpenSearch on every query scenario.
+
+Consistency:
+
+- An application projector with the wave's fixes catches every DAL and stock write path probed.
+- Raw SQL writes are missed, and tax and currency changes need an async rebuild instead of a per-write update.
+- Change data capture stays a later, optional step.
+
+Issue drafts: `docs/issues/E6-read-store/`. Core findings 36 to 40.
+
 ## Open
 
 | Topic | Numbers today | Next |

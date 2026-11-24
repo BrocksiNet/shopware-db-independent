@@ -53,6 +53,7 @@ Filing anything upstream needs an explicit OK.
 | [E3](E3-dal-v2/00-epic.md) | DAL v2: keep the DAL and improve it | 12 | [#23304](https://github.com/shopware/shopware/issues/23304) |
 | [E4](E4-database-abstraction/00-epic.md) | Database abstraction groundwork: dialect, id binding, neutral migrations | 6 | [#23317](https://github.com/shopware/shopware/issues/23317) |
 | [E5](E5-postgresql/00-epic.md) | PostgreSQL as an experimental second database | 5 | not filed yet |
+| [E6](E6-read-store/00-epic.md) | Storefront product read store (O1+: OpenSearch search + `_source` / Valkey hydration) | 7 | not filed yet |
 
 E1, E2 and E3 help MySQL and MariaDB alone and need no decision about PostgreSQL.
 E4 is phase 1 and 2 of the integration plan in `docs/27-final-report.md`, E5 is phase 3; E5 depends on a go decision.
@@ -99,6 +100,13 @@ E4 is phase 1 and 2 of the integration plan in `docs/27-final-report.md`, E5 is 
 | [E5.03](E5-postgresql/03-string-filter-semantics.md) | Task | Decide the string filter semantics on PostgreSQL | 17 | draft |
 | [E5.04](E5-postgresql/04-sort-indexes-null-order.md) | Improvement | Sort indexes with the NULL order the DAL emits | 19 | draft |
 | [E5.05](E5-postgresql/05-nightly-ci.md) | Task | Nightly CI with the DAL and integration suites on PostgreSQL | | draft |
+| [E6.01](E6-read-store/01-storage-port-and-product-document.md) | Story | Read store `Storage` port, versioned `ProductDocument` schema, and `DocumentExtender` extension point | | draft |
+| [E6.02](E6-read-store/02-sql-document-builder-and-projector.md) | Story | Batch SQL `ProductDocument` builder, `ReadStoreProjector`, and referenced-entity sync listeners | 37 | draft |
+| [E6.03](E6-read-store/03-opensearch-source-and-valkey-hydration.md) | Story | O1+ hydration: serve full `ProductDocument`s from OpenSearch `_source` or Valkey `MGET` | 39 | draft |
+| [E6.04](E6-read-store/04-store-api-route-gateway-and-live-parts.md) | Story | Store API route integration via `.pre` hooks, display-time live parts, and circuit-breaker DAL fallback | 40 | draft |
+| [E6.05](E6-read-store/05-surrounding-route-sql-offload.md) | Improvement | Offload or cache surrounding SQL in `ProductDetailRoute` and `ProductListingLoader` | 38 | draft |
+| [E6.06](E6-read-store/06-pointer-generation-grace-gc.md) | Improvement | Defer old-generation deletion past max query timeout in blue/green read-store swap | | draft |
+| [E6.07](E6-read-store/07-dal-keyword-terms-aggregation-distinct.md) | Bug | DAL terms aggregation over keyword search counts products matching multiple interpreted terms twice | 36 | draft |
 
 ## Findings without an issue
 
