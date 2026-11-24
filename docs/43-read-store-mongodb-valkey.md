@@ -51,11 +51,24 @@ Aggregations run as one `$facet` pipeline without collation, hits as one pipelin
 
 The MongoDB `$text` index is not used: the DAL search matches keywords with the scoring of the reference evaluator, `$text` stems and scores differently, so using it would approximate.
 
-## Composed store O1b (design, not built)
+## Composed store O1b (OpenSearch + Valkey)
 
-OpenSearch answers `filter()`, `aggregate()` and `search()` and returns ids and scores only, the documents come from Valkey with one `mget()`.
-Writes go to both, the generation swap sets the OpenSearch alias first and the Valkey pointer second.
-It is built after the OpenSearch adapter of handoff O is committed, registered as `opensearch-valkey`.
+`OpenSearchValkeyStorage` in `Adapter/OpenSearchValkey/` wraps the OpenSearch adapter of handoff O and the Valkey adapter.
+It is registered as `read_store.storage.opensearch-valkey` with its own namespaces (indices `rs_ov_product_<generation>`, Valkey keys `rs_ov`), so it shares no data with the plain `opensearch` and `valkey` stores.
+OpenSearch answers `filter()`, `search()` and `aggregate()`, the ids of the hits are hydrated from Valkey with one `MGET` in the order OpenSearch returned them.
+Total, aggregations and scores come from OpenSearch unchanged.
+Writes: `store()` writes the documents to Valkey first and the index second, `remove()` the index first and Valkey second, so a hit always finds its document.
+A swap flips the index alias first and the Valkey pointer second.
+In that short window a hit can name a document the live Valkey generation does not hold, the store then throws `NotSupportedByEngine` and the caller falls back to the DAL, it never drops or invents a document.
+`get()`, `mget()` and `liveGeneration()` are answered by Valkey.
+The OpenSearch adapter still returns the documents it holds in its own `_source`, the composed store ignores them, so the memory saving of an index without `_source` is not realised yet.
+Contract result: 51 tests pass, 1 incomplete, 0 failed.
+The incomplete test is inherited from the OpenSearch adapter (collapse sorted by `cheapestPrice` descending is not supported, the reference orders groups by the minimum).
+One extra test proves the fallback for a hit without a document.
+
+## Limitations
+
+The addresses of MongoDB, Valkey and OpenSearch are fixed for the lane in `DependencyInjection/m.php` (`mongodb://instance-mongodb-1:27017`, `instance-valkey-1:6379`, namespaces `rs_readstore`, `rs_store`, `rs_ov`), which is fine for the PoC and has to read env variables for a product setup.
 
 ## Licensing
 
