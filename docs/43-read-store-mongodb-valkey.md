@@ -62,7 +62,7 @@ It is built after the OpenSearch adapter of handoff O is committed, registered a
 MongoDB Server since the releases after 16 October 2018 is under the Server Side Public License, earlier versions under AGPLv3: https://www.mongodb.com/legal/licensing/community-edition
 Section 13 of the SSPL requires whoever offers the program as a service to publish the source of the whole service stack under the SSPL: https://www.mongodb.com/legal/licensing/server-side-public-license
 Valkey is under the BSD 3-Clause license (file `COPYING` of the repository: https://raw.githubusercontent.com/valkey-io/valkey/unstable/COPYING), the project is described as BSD licensed and backed by the Linux Foundation: https://valkey.io/
-The SSPL is not OSI approved, so a merchant who only runs MongoDB for their own shop is not affected, a hosting provider that offers Shopware with MongoDB as a service has to check section 13 with a lawyer.
+Whether a hosting provider that offers Shopware on MongoDB falls under section 13 has to be checked with a lawyer, this document does not decide it.
 
 ## Operations
 
