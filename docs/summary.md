@@ -1,4 +1,7 @@
-# Summary after wave 7: findings and architecture
+# Summary after wave 9: findings and architecture
+
+Waves 1 to 7 are the database port, wave 8 the ORM question, wave 9 the read store.
+"Architecture now" below is the state of the PoC branch after wave 7; the target architecture across all waves (write and read side, roadmap, epics) is `docs/46-target-architecture.md`.
 
 State: 2026-11-20, research repo at `7624df5` plus the wave 7 benchmark rerun, instance branch `poc/db-independent` at `87e1768ce3a` (118 commits on trunk `ae0190f5892`, 479 files changed, 14,289 insertions and 2,515 deletions).
 Every number below comes from one of the numbered docs, the source is linked in each section.

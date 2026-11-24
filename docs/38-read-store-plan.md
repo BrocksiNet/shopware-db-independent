@@ -112,6 +112,10 @@ Proposed target, to be confirmed or rejected by the PoC (O1+ and O2 compared sid
                               live parts stay live: rule prices, stock, availability
 ```
 
+Outcome (added after the conclusion): the diagram above is the plan before the PoC.
+The PoC rejected O2, so the `FilterAware`, `AggregationAware` and `SearchAware` capabilities and the standalone query adapters are not part of the target; the port is `Storage` only, queries stay on the existing OpenSearch code, and MongoDB stays a port validation target.
+The resulting shape, together with the write side, is the diagram in `docs/46-target-architecture.md`.
+
 Principles:
 
 - The write model stays as decided in wave 8: DAL plus `SqlDialect` on the four SQL engines.

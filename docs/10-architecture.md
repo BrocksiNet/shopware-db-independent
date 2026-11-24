@@ -49,6 +49,8 @@ The translator is still valuable: it is the inventory of every difference we hit
 
 ## Target architecture
 
+Write side only, as planned after wave 2; the picture across waves 1 to 9, with DAL v2 and the read store, is `docs/46-target-architecture.md`.
+
 ```
               DAL (reader, searcher, aggregator, write gateway, field accessors)
               raw-SQL services on hot paths (cart, stock, SEO, indexers, ...)
