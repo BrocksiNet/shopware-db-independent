@@ -1,0 +1,89 @@
+{
+ "plugins": 3747,
+ "plugin_fields": {
+  "with_any": 686,
+  "total": 3283,
+  "p50": 2,
+  "p90": 10,
+  "p99": 46,
+  "max": 63
+ },
+ "plugin_sets": {
+  "with_any": 598,
+  "total": 905,
+  "p50": 1,
+  "p90": 2,
+  "p99": 8,
+  "max": 26
+ },
+ "plugins_with_product_set": 302,
+ "plugin_fields_in_plugins_with_product_set": {
+  "with_any": 296,
+  "total": 1509,
+  "p50": 2,
+  "p90": 9,
+  "p99": 56,
+  "max": 63
+ },
+ "plugins_sql_insert_custom_field": 24,
+ "plugin_types": {
+  "text": 1290,
+  "bool": 635,
+  "select": 472,
+  "int": 172,
+  "html": 150,
+  "float": 110,
+  "datetime": 107,
+  "media": 60,
+  "number": 54,
+  "colorpicker": 54,
+  "entity": 53,
+  "switch": 50,
+  "json": 39,
+  "checkbox": 20,
+  "date": 11,
+  "price": 6
+ },
+ "apps": 625,
+ "apps_unparsable": 0,
+ "app_fields": {
+  "with_any": 151,
+  "total": 2214,
+  "p50": 4,
+  "p90": 58,
+  "p99": 82,
+  "max": 114
+ },
+ "app_sets": {
+  "with_any": 151,
+  "total": 367,
+  "p50": 1,
+  "p90": 7,
+  "p99": 10,
+  "max": 32
+ },
+ "apps_with_product_set": 106,
+ "app_product_fields": {
+  "with_any": 106,
+  "total": 1608,
+  "p50": 5,
+  "p90": 49,
+  "p99": 56,
+  "max": 114
+ },
+ "app_types": {
+  "text": 839,
+  "single-select": 506,
+  "media-selection": 279,
+  "text-area": 161,
+  "bool": 150,
+  "float": 78,
+  "color-picker": 78,
+  "int": 57,
+  "single-entity-select": 24,
+  "datetime": 23,
+  "multi-entity-select": 11,
+  "multi-select": 5,
+  "price": 3
+ }
+}
