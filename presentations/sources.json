@@ -1,0 +1,1345 @@
+{
+  "core_commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+  "batch_commit": "46a47f1a7c9ebe5a6d411ef6d422f3738a58f3ae",
+  "read_store_commit": "91b22d0abbbacae892c33d4848755607f97956f7",
+  "wave10_commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+  "research_commit": "ce36f6c76e2cb6bcca404f80c83f491126a33ed1",
+  "snippets": [
+    {
+      "path": "src/Core/Framework/OrmSpike/DalV2/Write/WriteGatewayV2.php",
+      "commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+      "ranges": [
+        [
+          922,
+          934
+        ]
+      ],
+      "focus": [
+        {
+          "label": "The input key uses storage names",
+          "lines": [
+            923,
+            924
+          ]
+        },
+        {
+          "label": "Fallback resolves version_id and product_id",
+          "lines": [
+            925,
+            926,
+            927
+          ]
+        },
+        {
+          "label": "Decode before querying the prefetch bag",
+          "lines": [
+            928,
+            931,
+            932,
+            933
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/OrmSpike/DalV2/Read/WindowCountSearcher.php",
+      "commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+      "ranges": [
+        [
+          136,
+          150
+        ],
+        [
+          158,
+          158
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Use the optimization only for eligible criteria",
+          "lines": [
+            136,
+            137,
+            138,
+            139
+          ]
+        },
+        {
+          "label": "Return count and page in one statement",
+          "lines": [
+            140,
+            141,
+            142,
+            145,
+            148,
+            149
+          ]
+        },
+        {
+          "label": "Empty pages still need the count fallback",
+          "lines": [
+            158
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/OrmSpike/DalV2/Projection/Projector.php",
+      "commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+      "ranges": [
+        [
+          40,
+          51
+        ],
+        [
+          54,
+          54
+        ]
+      ],
+      "focus": [
+        {
+          "label": "DTO metadata supplies the requested field list",
+          "lines": [
+            42,
+            44,
+            45,
+            46,
+            47
+          ]
+        },
+        {
+          "label": "Use normal DAL partial loading",
+          "lines": [
+            49,
+            51
+          ]
+        },
+        {
+          "label": "Construct typed items afterwards",
+          "lines": [
+            54
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/OrmSpike/DalV2/Write/WriteGatewayV2.php",
+      "commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+      "ranges": [
+        [
+          654,
+          656
+        ],
+        [
+          659,
+          664
+        ],
+        [
+          667,
+          673
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Protect an active transaction before attempting the batch",
+          "lines": [
+            654,
+            655,
+            656
+          ]
+        },
+        {
+          "label": "Undo a failed batch before replay",
+          "lines": [
+            661,
+            662,
+            663,
+            664
+          ]
+        },
+        {
+          "label": "Replay in command order and mark the actual failing row",
+          "lines": [
+            667,
+            669,
+            671,
+            673
+          ]
+        }
+      ]
+    },
+    {
+      "path": "tests/unit/Core/Framework/OrmSpike/DalV2/Write/WriteGatewayV2BatchSemanticsTest.php",
+      "commit": "46a47f1a7c9ebe5a6d411ef6d422f3738a58f3ae",
+      "ranges": [
+        [
+          122,
+          128
+        ],
+        [
+          131,
+          136
+        ]
+      ],
+      "focus": [
+        {
+          "label": "An unchanged key still allows one batched statement",
+          "lines": [
+            122,
+            124,
+            125,
+            127,
+            128
+          ]
+        },
+        {
+          "label": "Changing a key preserves command-by-command execution",
+          "lines": [
+            131,
+            133,
+            135
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php",
+      "commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+      "ranges": [
+        [
+          327,
+          339
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Collect products, children and parents",
+          "lines": [
+            329,
+            330,
+            331,
+            332
+          ]
+        },
+        {
+          "label": "Acquire row locks in one ID order",
+          "lines": [
+            333
+          ]
+        },
+        {
+          "label": "Run the indexer work after locking",
+          "lines": [
+            338
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/Adapter/Database/PostgreSQL/IdCodecColumnTypes.php",
+      "commit": "c8c6866ac19059a67b2f280618c04e808896b3f8",
+      "ranges": [
+        [
+          41,
+          49
+        ],
+        [
+          62,
+          72
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Result-type data belongs to this connection instance",
+          "lines": [
+            41,
+            43,
+            44,
+            45,
+            48
+          ]
+        },
+        {
+          "label": "Potential type-changing statements invalidate cached entries",
+          "lines": [
+            64,
+            65
+          ]
+        },
+        {
+          "label": "A process-wide generation invalidates all local connection caches",
+          "lines": [
+            69,
+            71
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/ReadStore/Projector/ReadStoreProjectorSubscriber.php",
+      "commit": "91b22d0abbbacae892c33d4848755607f97956f7",
+      "ranges": [
+        [
+          60,
+          61
+        ],
+        [
+          64,
+          73
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Start from the IDs emitted by the indexer",
+          "lines": [
+            60,
+            61
+          ]
+        },
+        {
+          "label": "Expand parent IDs to their children",
+          "lines": [
+            64,
+            65,
+            66,
+            69
+          ]
+        },
+        {
+          "label": "Schedule the full affected set",
+          "lines": [
+            73
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/ReadStore/Adapter/MongoDb/MongoDbStorage.php",
+      "commit": "91b22d0abbbacae892c33d4848755607f97956f7",
+      "ranges": [
+        [
+          94,
+          99
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Publish the new live pointer",
+          "lines": [
+            94
+          ]
+        },
+        {
+          "label": "Immediately deleting the old generation races with readers",
+          "lines": [
+            96,
+            97,
+            98,
+            99
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Elasticsearch/Product/SourceDocument/SourceDocumentEntityReader.php",
+      "commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+      "ranges": [
+        [
+          107,
+          118
+        ],
+        [
+          129,
+          130
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Unsupported reads keep the SQL reader",
+          "lines": [
+            107,
+            108,
+            109
+          ]
+        },
+        {
+          "label": "Consume request documents and mget only missing IDs",
+          "lines": [
+            113,
+            114,
+            115,
+            117
+          ]
+        },
+        {
+          "label": "Hydrate before normal loaded-event dispatch",
+          "lines": [
+            129,
+            130
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Elasticsearch/Product/SourceDocument/SourceDocumentStorage.php",
+      "commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+      "ranges": [
+        [
+          55,
+          61
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Treat projected documents as IDs to rebuild",
+          "lines": [
+            57,
+            58
+          ]
+        },
+        {
+          "label": "Rebuild search fields and source together",
+          "lines": [
+            59
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Elasticsearch/Product/ElasticsearchProductDefinition.php",
+      "commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+      "ranges": [
+        [
+          162,
+          165
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Store the object without indexing its inner fields",
+          "lines": [
+            164
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php",
+      "commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+      "ranges": [
+        [
+          45,
+          53
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Choose the primary before a write returning rows",
+          "lines": [
+            45,
+            46
+          ]
+        },
+        {
+          "label": "fetchOne is executing a write, despite its read-shaped API",
+          "lines": [
+            49,
+            50,
+            51,
+            52,
+            53
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Content/Product/Stock/StockStorage.php",
+      "commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+      "ranges": [
+        [
+          56,
+          60
+        ]
+      ],
+      "focus": [
+        {
+          "label": "State both next values using the old row explicitly",
+          "lines": [
+            58
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php",
+      "commit": "0ed724decae08c292a96ee0ff5abf6e16b99a041",
+      "ranges": [
+        [
+          501,
+          511
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Resolve binary fields from the definition",
+          "lines": [
+            504,
+            505
+          ]
+        },
+        {
+          "label": "Pass an explicit binary parameter type",
+          "lines": [
+            506
+          ]
+        }
+      ]
+    },
+    {
+      "path": "src/Core/Framework/ReadStore/Projector/ReadStoreProjectorSubscriber.php",
+      "commit": "91b22d0abbbacae892c33d4848755607f97956f7",
+      "ranges": [
+        [
+          60,
+          61
+        ],
+        [
+          64,
+          73
+        ]
+      ],
+      "focus": [
+        {
+          "label": "Expand parents to their affected children",
+          "lines": [
+            64,
+            65,
+            66,
+            69
+          ]
+        },
+        {
+          "label": "Schedule the full affected set",
+          "lines": [
+            73
+          ]
+        }
+      ]
+    }
+  ],
+  "decks": {
+    "architecture.html": [
+      {
+        "slug": "architecture",
+        "aliases": [],
+        "title": "Scaling reads and strengthening the DAL",
+        "sources": [
+          {
+            "label": "Architecture and conclusions",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/46-target-architecture.md"
+          }
+        ]
+      },
+      {
+        "slug": "since-video",
+        "aliases": [],
+        "title": "The next questions after the video",
+        "sources": [
+          {
+            "label": "Why the larger catalog motivated a read model",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/38-read-store-plan.md"
+          },
+          {
+            "label": "Current search path versus source hydration",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          }
+        ]
+      },
+      {
+        "slug": "catalog-scale",
+        "aliases": [],
+        "title": "SQL tuning and OpenSearch at catalog scale",
+        "sources": [
+          {
+            "label": "Paired 150k mixed storefront comparisons",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "query-hydration",
+        "aliases": [
+          "read-write"
+        ],
+        "title": "Product hydration from OpenSearch documents",
+        "sources": [
+          {
+            "label": "Request-scoped buffer, reader and loaded events",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "Source reader implementation",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Elasticsearch/Product/SourceDocument/SourceDocumentEntityReader.php"
+          }
+        ]
+      },
+      {
+        "slug": "live-parts",
+        "aliases": [
+          "document"
+        ],
+        "title": "Stored product data and live entity behaviour",
+        "sources": [
+          {
+            "label": "Document layout and builder comparison",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/40-read-store-port-and-document.md"
+          },
+          {
+            "label": "ProductDocument schema",
+            "url": "https://github.com/BrocksiNet/shopware/blob/91b22d0abbbacae892c33d4848755607f97956f7/src/Core/Framework/ReadStore/Document/ProductDocument.php"
+          },
+          {
+            "label": "Wave 10 document-size probes",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/48-source-limits-custom-fields.md"
+          },
+          {
+            "label": "Source hydration and loaded-event responsibilities",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "Search visibility and cache-window evidence",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "wave9-status",
+        "aliases": [],
+        "title": "Measured payoff from source hydration",
+        "sources": [
+          {
+            "label": "Implemented source path and parity sample",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "Canonical throughput and SQL CPU",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "production-constraints",
+        "aliases": [
+          "source-size",
+          "projection-pipeline"
+        ],
+        "title": "Three constraints before production",
+        "sources": [
+          {
+            "label": "Full re-index is required for projected source documents",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "b09147c26f9 \u00b7 Re-index products instead of partial source updates",
+            "url": "https://github.com/BrocksiNet/shopware/commit/b09147c26f952776f34b4d3a6cd404ba9f88c5d2"
+          },
+          {
+            "label": "Measured full-index cells versus extrapolated large documents",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/48-source-limits-custom-fields.md"
+          },
+          {
+            "label": "3d: confirmed immediate-invalidation cache defect",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "boundaries",
+        "aliases": [
+          "read-path",
+          "dialect",
+          "id-binding",
+          "connection"
+        ],
+        "title": "Database decisions stay at the SQL boundary",
+        "sources": [
+          {
+            "label": "Database portability boundaries",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/10-architecture.md"
+          },
+          {
+            "label": "ID representation and numeric SQL operations",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/20-currency-seo-codec.md"
+          }
+        ]
+      },
+      {
+        "slug": "shim",
+        "aliases": [],
+        "title": "The compatibility path still matters",
+        "sources": [
+          {
+            "label": "Compatibility shim and target architecture",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/10-architecture.md"
+          },
+          {
+            "label": "CASE identifiers and translator interference",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/36-dal-v2-batched-update-postgresql.md"
+          },
+          {
+            "label": "Scope of the migration schema check",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/37-review-round-2.md"
+          }
+        ]
+      },
+      {
+        "slug": "postgresql-stack",
+        "aliases": [],
+        "title": "PostgreSQL beyond the DAL",
+        "sources": [
+          {
+            "label": "Classified non-DAL failures",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/49-postgresql-integration-suites.md"
+          },
+          {
+            "label": "Functional replica, TLS, search and worker checks",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/50-postgresql-production-setup.md"
+          },
+          {
+            "label": "Paired production-like journey and pooler timing",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "dal-internals",
+        "aliases": [
+          "projections"
+        ],
+        "title": "DAL improvements retain the public contracts",
+        "sources": [
+          {
+            "label": "DAL contracts and ORM probes",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/29-orm-alternatives.md"
+          },
+          {
+            "label": "Switchable DAL internals",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/33-orm-spike-dal-v2.md"
+          },
+          {
+            "label": "DAL v2 composition",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Framework/OrmSpike/DalV2/DalV2Implementation.php"
+          }
+        ]
+      },
+      {
+        "slug": "storage-port",
+        "aliases": [
+          "events"
+        ],
+        "title": "A small route experiment exposes the event boundary",
+        "sources": [
+          {
+            "label": "Newsletter storage slice and adapter limitations",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/08-dto-slice.md"
+          },
+          {
+            "label": "5657663d3e2 \u00b7 Route storage port and adapters",
+            "url": "https://github.com/BrocksiNet/shopware/commit/5657663d3e29b575ef88876e95b86953d16e70c4"
+          },
+          {
+            "label": "NewsletterRecipientStorage.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Content/Newsletter/Domain/NewsletterRecipientStorage.php#L15-L25"
+          },
+          {
+            "label": "76d413489ec \u00b7 Preserve event entities, extensions and explicit nulls",
+            "url": "https://github.com/BrocksiNet/shopware/commit/76d413489ecacf60ad8d49eddff602bb807abfa8"
+          },
+          {
+            "label": "Storage event bridge contract",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Content/Newsletter/Domain/NewsletterRecipientStorage.php#L29-L34"
+          },
+          {
+            "label": "NewsletterSubscribeRoute.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Content/Newsletter/SalesChannel/NewsletterSubscribeRoute.php#L158-L201"
+          }
+        ]
+      },
+      {
+        "slug": "timing-reliability",
+        "aliases": [],
+        "title": "Measurement and uncertainty",
+        "sources": [
+          {
+            "label": "A/A noise and paired bootstrap method",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "decisions",
+        "aliases": [],
+        "title": "Decisions for the next implementation",
+        "sources": [
+          {
+            "label": "Updated roadmap and next steps",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/46-target-architecture.md"
+          },
+          {
+            "label": "Updated E6 draft requirements",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/issues/E6-read-store/00-epic.md"
+          }
+        ]
+      },
+      {
+        "slug": "references",
+        "aliases": [],
+        "title": "Reading map by subsystem",
+        "sources": [
+          {
+            "label": "Consolidated architecture",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/46-target-architecture.md"
+          },
+          {
+            "label": "Canonical paired measurements and method",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      }
+    ],
+    "core-findings.html": [
+      {
+        "slug": "findings",
+        "aliases": [
+          "map"
+        ],
+        "title": "Code and core findings",
+        "sources": [
+          {
+            "label": "Core findings register",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Latest review",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/37-review-round-2.md"
+          },
+          {
+            "label": "Current performance authority",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "wave9-hydration",
+        "aliases": [],
+        "title": "A reader decorator consumes product documents",
+        "sources": [
+          {
+            "label": "Reader composition and unchanged repository flow",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "SourceDocumentEntityReader.php \u00b7 0ed724decae \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Elasticsearch/Product/SourceDocument/SourceDocumentEntityReader.php#L107-L130"
+          }
+        ]
+      },
+      {
+        "slug": "wave9-route-sql",
+        "aliases": [],
+        "title": "Removing product SQL does not remove the whole route",
+        "sources": [
+          {
+            "label": "Real route SQL accounting with O1a",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          }
+        ]
+      },
+      {
+        "slug": "source-partial-update",
+        "aliases": [],
+        "title": "A partial source update can silently erase search fields",
+        "sources": [
+          {
+            "label": "Finding 46: partial updates erase query fields",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Observed 516 missing search documents and fix",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "b09147c26f9 \u00b7 Re-index instead of partial source updates",
+            "url": "https://github.com/BrocksiNet/shopware/commit/b09147c26f952776f34b4d3a6cd404ba9f88c5d2"
+          },
+          {
+            "label": "SourceDocumentStorage.php \u00b7 0ed724decae \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Elasticsearch/Product/SourceDocument/SourceDocumentStorage.php#L55-L61"
+          }
+        ]
+      },
+      {
+        "slug": "source-limits",
+        "aliases": [],
+        "title": "Source storage avoids inner mapping growth",
+        "sources": [
+          {
+            "label": "Mapping budget, size assumptions and measured versus estimated cells",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/48-source-limits-custom-fields.md"
+          },
+          {
+            "label": "ElasticsearchProductDefinition.php \u00b7 0ed724decae \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Elasticsearch/Product/ElasticsearchProductDefinition.php#L162-L165"
+          }
+        ]
+      },
+      {
+        "slug": "wave9-cache-order",
+        "aliases": [],
+        "title": "Synchronous projection still leaves a search-visibility gap",
+        "sources": [
+          {
+            "label": "3d: confirmed immediate-invalidation cache defect",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          }
+        ]
+      },
+      {
+        "slug": "wave9-siblings",
+        "aliases": [
+          "wave9-counts"
+        ],
+        "title": "Affected products and aggregate counts need distinct IDs",
+        "sources": [
+          {
+            "label": "91b22d0abbb \u00b7 Expand siblings and referenced-entity changes for projection",
+            "url": "https://github.com/BrocksiNet/shopware/commit/91b22d0abbbacae892c33d4848755607f97956f7"
+          },
+          {
+            "label": "Finding 37: sibling variants omitted by the indexer event",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Sibling and inheritance miss probes",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/45-read-store-consistency.md"
+          },
+          {
+            "label": "ReadStoreProjectorSubscriber.php \u00b7 91b22d0abbb \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/91b22d0abbbacae892c33d4848755607f97956f7/src/Core/Framework/ReadStore/Projector/ReadStoreProjectorSubscriber.php#L60-L73"
+          },
+          {
+            "label": "O1 verify differences and counted products",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/39-read-store-baseline.md"
+          }
+        ]
+      },
+      {
+        "slug": "wave9-generation",
+        "aliases": [],
+        "title": "An atomic pointer swap does not finish old reads",
+        "sources": [
+          {
+            "label": "Blue/green swap under load: pointer-drop race",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/45-read-store-consistency.md"
+          },
+          {
+            "label": "MongoDbStorage.php \u00b7 91b22d0abbb \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/91b22d0abbbacae892c33d4848755607f97956f7/src/Core/Framework/ReadStore/Adapter/MongoDb/MongoDbStorage.php#L94-L99"
+          }
+        ]
+      },
+      {
+        "slug": "key-bug",
+        "aliases": [
+          "key-evidence"
+        ],
+        "title": "A key-name mismatch defeats the prefetch cache",
+        "sources": [
+          {
+            "label": "#23305 \u00b7 Primary-key prefetch miss (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23305"
+          },
+          {
+            "label": "76ec3f5d17a \u00b7 Decode storage-named keys before prefetch lookup",
+            "url": "https://github.com/BrocksiNet/shopware/commit/76ec3f5d17a8b11edaef8ef113bbf23f5cb1e755"
+          },
+          {
+            "label": "Isolated key-fix timing block",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/33-orm-spike-dal-v2.md"
+          },
+          {
+            "label": "WriteGatewayV2.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Framework/OrmSpike/DalV2/Write/WriteGatewayV2.php#L922-L934"
+          }
+        ]
+      },
+      {
+        "slug": "window",
+        "aliases": [],
+        "title": "A page can return its exact total in the same query",
+        "sources": [
+          {
+            "label": "#23306 \u00b7 Exact total with a window count (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23306"
+          },
+          {
+            "label": "c34bd716ae8 \u00b7 Window count searcher",
+            "url": "https://github.com/BrocksiNet/shopware/commit/c34bd716ae800298afa2c36a41e9ded6180bdbb2"
+          },
+          {
+            "label": "WindowCountSearcher.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Framework/OrmSpike/DalV2/Read/WindowCountSearcher.php#L136-L158"
+          }
+        ]
+      },
+      {
+        "slug": "projection",
+        "aliases": [
+          "inheritance"
+        ],
+        "title": "Partial reads need the inherited parent context",
+        "sources": [
+          {
+            "label": "#23311 \u00b7 Typed DTO projections (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23311"
+          },
+          {
+            "label": "Paired 5k listing comparison",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          },
+          {
+            "label": "Projector.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Framework/OrmSpike/DalV2/Projection/Projector.php#L40-L54"
+          },
+          {
+            "label": "#23310 \u00b7 Inherited to-many association in partial reads (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23310"
+          },
+          {
+            "label": "parentId requirement in partial reads",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/33-orm-spike-dal-v2.md"
+          }
+        ]
+      },
+      {
+        "slug": "batching",
+        "aliases": [],
+        "title": "Batching removes repeated update statements",
+        "sources": [
+          {
+            "label": "#23308 \u00b7 Batched entity updates (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23308"
+          },
+          {
+            "label": "PostgreSQL CASE fix and earlier timings",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/36-dal-v2-batched-update-postgresql.md"
+          },
+          {
+            "label": "bda47928e8d \u00b7 Qualify CASE column references",
+            "url": "https://github.com/BrocksiNet/shopware/commit/bda47928e8d586a9888ae53400e731303390abec"
+          }
+        ]
+      },
+      {
+        "slug": "unique",
+        "aliases": [],
+        "title": "Unique constraints make update order observable",
+        "sources": [
+          {
+            "label": "9cbb0be4f9e \u00b7 Preserve uniqueness and failure attribution",
+            "url": "https://github.com/BrocksiNet/shopware/commit/9cbb0be4f9e3c6f422abd900593a0233087c04c5"
+          },
+          {
+            "label": "c8c6866ac19 \u00b7 Detect inline SQLite UNIQUE constraints",
+            "url": "https://github.com/BrocksiNet/shopware/commit/c8c6866ac19059a67b2f280618c04e808896b3f8"
+          },
+          {
+            "label": "Batch semantics review",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/37-review-round-2.md"
+          },
+          {
+            "label": "#23308 \u00b7 Batch rules need to preserve single-command semantics (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23308"
+          }
+        ]
+      },
+      {
+        "slug": "failure",
+        "aliases": [],
+        "title": "A failed batch must identify the right command",
+        "sources": [
+          {
+            "label": "Failure attribution correction",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/37-review-round-2.md"
+          },
+          {
+            "label": "WriteGatewayV2.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Framework/OrmSpike/DalV2/Write/WriteGatewayV2.php#L654-L673"
+          }
+        ]
+      },
+      {
+        "slug": "batch-tests",
+        "aliases": [],
+        "title": "Batching tests and the final-code rerun",
+        "sources": [
+          {
+            "label": "WriteGatewayV2BatchSemanticsTest.php \u00b7 46a47f1a7c9 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/46a47f1a7c9ebe5a6d411ef6d422f3738a58f3ae/tests/unit/Core/Framework/OrmSpike/DalV2/Write/WriteGatewayV2BatchSemanticsTest.php#L122-L136"
+          },
+          {
+            "label": "Four-engine batch verification",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/37-review-round-2.md"
+          },
+          {
+            "label": "Post-review batching rerun",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/35-orm-spike-fair-write.md"
+          },
+          {
+            "label": "Four-engine final batching measurements",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/36-dal-v2-batched-update-postgresql.md"
+          }
+        ]
+      },
+      {
+        "slug": "profile",
+        "aliases": [],
+        "title": "The write profile points beyond event dispatch",
+        "sources": [
+          {
+            "label": "DAL write profile and tested fair contract",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/35-orm-spike-fair-write.md"
+          }
+        ]
+      },
+      {
+        "slug": "replica-returning",
+        "aliases": [],
+        "title": "A write returning rows must still choose the primary",
+        "sources": [
+          {
+            "label": "Finding 42: returning writes routed to the replica",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Guest-registration failure and primary-routing fix",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/50-postgresql-production-setup.md"
+          },
+          {
+            "label": "be901964bdb \u00b7 Route number-range returning writes to the primary",
+            "url": "https://github.com/BrocksiNet/shopware/commit/be901964bdb9846248141c1603cb526a2305a38c"
+          },
+          {
+            "label": "IncrementSqlStorage.php \u00b7 0ed724decae \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Core/System/NumberRange/ValueGenerator/Pattern/IncrementStorage/IncrementSqlStorage.php#L45-L53"
+          }
+        ]
+      },
+      {
+        "slug": "stock-assignment",
+        "aliases": [],
+        "title": "Stock updates relied on MySQL assignment order",
+        "sources": [
+          {
+            "label": "Finding 47: MySQL SET evaluation order",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Stock portability fix",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/49-postgresql-integration-suites.md"
+          },
+          {
+            "label": "0e25f43c691 \u00b7 Make stock and other core SQL portable",
+            "url": "https://github.com/BrocksiNet/shopware/commit/0e25f43c691a23116952abd5aa9e33e80590073e"
+          },
+          {
+            "label": "StockStorage.php \u00b7 0ed724decae \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Core/Content/Product/Stock/StockStorage.php#L56-L60"
+          }
+        ]
+      },
+      {
+        "slug": "blob-binding",
+        "aliases": [],
+        "title": "Blob payloads need a binary parameter type",
+        "sources": [
+          {
+            "label": "Finding 50: binary BlobField binding",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Binary payload regression and fix",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/49-postgresql-integration-suites.md"
+          },
+          {
+            "label": "7036eb087c2 \u00b7 Bind BlobField payloads as binary",
+            "url": "https://github.com/BrocksiNet/shopware/commit/7036eb087c2aa474238e2b81affd3f5830613b77"
+          },
+          {
+            "label": "EntityWriteGateway.php \u00b7 0ed724decae \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/0ed724decae08c292a96ee0ff5abf6e16b99a041/src/Core/Framework/DataAbstractionLayer/Dbal/EntityWriteGateway.php#L501-L511"
+          }
+        ]
+      },
+      {
+        "slug": "locks",
+        "aliases": [],
+        "title": "Concurrent indexers need a consistent lock order",
+        "sources": [
+          {
+            "label": "#23302 \u00b7 Consistent row order in indexers (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23302"
+          },
+          {
+            "label": "Deadlocks and ordered locks",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/19-postgresql-parallel-writes.md"
+          },
+          {
+            "label": "Sequential lock cost and write profiling",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/26-postgresql-bulk-write.md"
+          },
+          {
+            "label": "ProductIndexer.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Content/Product/DataAbstractionLayer/ProductIndexer.php#L327-L339"
+          }
+        ]
+      },
+      {
+        "slug": "semantics",
+        "aliases": [],
+        "title": "Database defaults change visible results",
+        "sources": [
+          {
+            "label": "#23294 \u00b7 Explicit NULL order (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23294"
+          },
+          {
+            "label": "#23296 \u00b7 String-filter accent semantics (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23296"
+          },
+          {
+            "label": "NULL ordering, collations and indexes",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/23-postgresql-api-reads.md"
+          }
+        ]
+      },
+      {
+        "slug": "cache",
+        "aliases": [],
+        "title": "SQL text alone cannot identify result types",
+        "sources": [
+          {
+            "label": "071e6d9bea0 \u00b7 Scope UUID metadata cache to the connection",
+            "url": "https://github.com/BrocksiNet/shopware/commit/071e6d9bea034742914d9eab8776700e84ec6d64"
+          },
+          {
+            "label": "Codec cache review and limitations",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/37-review-round-2.md"
+          },
+          {
+            "label": "IdCodecColumnTypes.php \u00b7 c8c6866ac19 \u00b7 selected lines",
+            "url": "https://github.com/BrocksiNet/shopware/blob/c8c6866ac19059a67b2f280618c04e808896b3f8/src/Core/Framework/Adapter/Database/PostgreSQL/IdCodecColumnTypes.php#L41-L72"
+          }
+        ]
+      },
+      {
+        "slug": "portability-followups",
+        "aliases": [
+          "smaller"
+        ],
+        "title": "Other core fixes make behaviour explicit",
+        "sources": [
+          {
+            "label": "Complete findings register",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Integration fixes",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/49-postgresql-integration-suites.md"
+          },
+          {
+            "label": "Worker and shared-cache findings",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/50-postgresql-production-setup.md"
+          },
+          {
+            "label": "#23297 \u00b7 Avoid rowCount after SELECT (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23297"
+          },
+          {
+            "label": "#23289 \u00b7 Strict grouping (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23289"
+          },
+          {
+            "label": "#23291 \u00b7 Window row numbering (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23291"
+          },
+          {
+            "label": "#23293 \u00b7 Duplicate keys in one upsert (recorded issue link)",
+            "url": "https://github.com/shopware/shopware/issues/23293"
+          }
+        ]
+      },
+      {
+        "slug": "postgresql-suites",
+        "aliases": [],
+        "title": "PostgreSQL-only failures fell from 386 to 90",
+        "sources": [
+          {
+            "label": "Suite totals and PG-only classification",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/49-postgresql-integration-suites.md"
+          }
+        ]
+      },
+      {
+        "slug": "priorities",
+        "aliases": [
+          "wave9-gates",
+          "references"
+        ],
+        "title": "Core work to review next",
+        "sources": [
+          {
+            "label": "Issue map",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/issues/README.md"
+          },
+          {
+            "label": "Updated roadmap",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/46-target-architecture.md"
+          },
+          {
+            "label": "Canonical conclusions and remaining limits",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/51-timing-reliability.md"
+          },
+          {
+            "label": "Updated E6 draft, not filed",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/issues/E6-read-store/00-epic.md"
+          },
+          {
+            "label": "47-o1a-source-hydration.md",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/47-o1a-source-hydration.md"
+          },
+          {
+            "label": "48-source-limits-custom-fields.md",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/48-source-limits-custom-fields.md"
+          },
+          {
+            "label": "49-postgresql-integration-suites.md",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/49-postgresql-integration-suites.md"
+          },
+          {
+            "label": "50-postgresql-production-setup.md",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/50-postgresql-production-setup.md"
+          },
+          {
+            "label": "core-findings.md",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/core-findings.md"
+          },
+          {
+            "label": "Post-review batching rerun",
+            "url": "https://github.com/BrocksiNet/shopware-db-independent/blob/ce36f6c76e2cb6bcca404f80c83f491126a33ed1/docs/35-orm-spike-fair-write.md"
+          }
+        ]
+      }
+    ]
+  }
+}

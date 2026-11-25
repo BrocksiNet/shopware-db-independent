@@ -1,0 +1,25 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Shopware experiment · Walkthroughs</title>
+  <style>
+    :root{color-scheme:light}*{box-sizing:border-box}body{margin:0;background:#f5f2eb;color:#142c37;font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}main{max-width:1180px;margin:0 auto;padding:75px 42px 45px}.eyebrow{font-size:14px;font-weight:750;letter-spacing:2px;text-transform:uppercase;color:#087e83;margin:0 0 35px}h1{font-size:clamp(46px,6vw,77px);letter-spacing:-3px;line-height:1.05;font-weight:720;margin:0 0 27px}.intro{font-size:23px;line-height:1.5;color:#5f7279;max-width:850px;margin-bottom:53px}.decks{display:grid;grid-template-columns:1fr 1fr;gap:38px}.deck{color:inherit;text-decoration:none;border-top:3px solid #087e83;padding:25px 0 30px;display:flex;flex-direction:column;align-items:start}.number{font:17px ui-monospace,monospace;color:#087e83}.deck h2{font-size:39px;letter-spacing:-1.3px;line-height:1.1;margin:25px 0 20px}.deck p{font-size:20px;line-height:1.5;color:#5f7279;margin:0 0 23px}.meta{font:14px ui-monospace,monospace;color:#5f7279}.start{background:#087e83;color:white;padding:13px 21px;margin-top:25px;font-size:17px;font-weight:650}.deck:hover .start{background:#125a61}.deck:hover h2{text-decoration:underline;text-underline-offset:6px}a:focus-visible{outline:3px solid #c26636;outline-offset:7px}.controls{border-top:1px solid #cbd6d0;padding-top:24px;margin-top:35px;display:flex;gap:35px;flex-wrap:wrap;font-size:16px;color:#5f7279}.controls p{line-height:1.8;margin:0}kbd{font:13px ui-monospace,monospace;background:#e2ebe4;padding:4px 7px;border-radius:3px;color:#142c37}.note{font-size:15px;line-height:1.6;color:#5f7279;margin-top:26px;max-width:900px}@media(max-width:700px){main{padding:40px 24px}.decks{grid-template-columns:1fr}.intro{font-size:20px;margin-bottom:35px}.deck h2{font-size:34px}}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">Shopware database experiment · research snapshot 25 November 2026</p>
+    <h1>Two ways into<br>the experiment</h1>
+    <p class="intro">The video made the case for keeping the DAL. These walkthroughs explore what follows: storefront reads at 150,000 products, PostgreSQL across the wider application, and focused core improvements.</p>
+    <div class="decks">
+      <a class="deck" href="architecture.html#1"><span class="number">01 / THE BIG PICTURE</span><h2>Story and<br>architecture</h2><p>Why larger catalogs motivated product documents in OpenSearch, how the database boundaries fit, and what remains before production.</p><span class="meta">15 slides · motivation, design and decisions</span><span class="start">Open architecture ↗</span></a>
+      <a class="deck" href="core-findings.html#1"><span class="number">02 / THE CODE AND EVIDENCE</span><h2>Code and<br>core findings</h2><p>Open the PHP and SQL by subsystem: OpenSearch correctness, DAL reads and writes, then PostgreSQL and cross-engine bugs.</p><span class="meta">25 slides · choose a subsystem chapter</span><span class="start">Open core findings ↗</span></a>
+    </div>
+    <div class="controls"><p><kbd>←</kbd> <kbd>→</kbd> slides &nbsp; <kbd>H</kbd> code highlights<br><kbd>N</kbd> speaker notes &nbsp; <kbd>S</kbd> sources</p><p><kbd>1</kbd> slide 1 &nbsp; <kbd>O</kbd> slide picker &nbsp; <kbd>F</kbd> fullscreen<br><kbd>?</kbd> help &nbsp; <kbd>Esc</kbd> close panels</p></div>
+    <p class="note">Open either HTML file directly in a browser. No server, install or internet connection is needed to present. GitHub source links need network access and may require repository access. Speaker notes appear in the same window, so keep them closed when sharing the whole window.</p>
+    <p class="note">The story assumes familiarity with the experiment video. The code deck defines its read path and can be used by chapter. Sources include pinned files, commits and research records. Source hydration is a prototype behind a feature flag; PostgreSQL support gaps remain.</p>
+  </main>
+</body>
+</html>
