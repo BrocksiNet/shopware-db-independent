@@ -1,0 +1,12 @@
+{"mode":"default","trial":1,"status1":200,"r1_ms":32.83,"imm_old":true,"imm_new":true,"r2_ms":1.88,"r2_hit":true,"r2_old":true,"r2_new":true}
+{"mode":"default","trial":2,"status1":200,"r1_ms":32.45,"imm_old":true,"imm_new":true,"r2_ms":1.71,"r2_hit":true,"r2_old":true,"r2_new":true}
+{"mode":"default","trial":3,"status1":200,"r1_ms":40.37,"imm_old":true,"imm_new":true,"r2_ms":1.91,"r2_hit":true,"r2_old":true,"r2_new":true}
+{"mode":"default","trial":4,"status1":200,"r1_ms":37.37,"imm_old":true,"imm_new":true,"r2_ms":1.44,"r2_hit":true,"r2_old":true,"r2_new":true}
+{"mode":"default","trial":5,"status1":200,"r1_ms":32.73,"imm_old":true,"imm_new":true,"r2_ms":1.86,"r2_hit":true,"r2_old":true,"r2_new":true}
+SUMMARY default: stale_immediate=0/5 poisoned_after_1.3s=0/5 r2_cache_hits=5/5
+{"mode":"refresh","trial":1,"status1":200,"r1_ms":33.34,"imm_old":false,"imm_new":true,"r2_ms":1.47,"r2_hit":true,"r2_old":false,"r2_new":true}
+{"mode":"refresh","trial":2,"status1":200,"r1_ms":35.3,"imm_old":false,"imm_new":true,"r2_ms":1.45,"r2_hit":true,"r2_old":false,"r2_new":true}
+{"mode":"refresh","trial":3,"status1":200,"r1_ms":36.58,"imm_old":false,"imm_new":true,"r2_ms":1.31,"r2_hit":true,"r2_old":false,"r2_new":true}
+{"mode":"refresh","trial":4,"status1":200,"r1_ms":34.29,"imm_old":false,"imm_new":true,"r2_ms":1.36,"r2_hit":true,"r2_old":false,"r2_new":true}
+{"mode":"refresh","trial":5,"status1":200,"r1_ms":33.85,"imm_old":false,"imm_new":true,"r2_ms":1.7,"r2_hit":true,"r2_old":false,"r2_new":true}
+SUMMARY refresh: stale_immediate=0/5 poisoned_after_1.3s=0/5 r2_cache_hits=5/5

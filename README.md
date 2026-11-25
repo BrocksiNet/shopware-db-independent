@@ -30,9 +30,15 @@ The instance is the `sw-dev` lane `pg`: http://pg.localhost:8088 (admin: http://
 
 ## Start reading
 
-0. [docs/46-target-architecture.md](docs/46-target-architecture.md): target architecture after waves 1 to 9 (SqlDialect, DAL v2, O1+ read store), reasons per layer, roadmap and core changes per epic
-0. [docs/summary.md](docs/summary.md): findings and architecture after wave 9, with diagrams
-0. [docs/core-findings.md](docs/core-findings.md): findings useful for the Shopware core, independent of PostgreSQL
+0. [docs/46-target-architecture.md](docs/46-target-architecture.md): target architecture after waves 1 to 10 (SqlDialect, DAL v2, O1+ read store), wave 10 verdicts, roadmap and core changes per epic
+0. [docs/summary.md](docs/summary.md): findings and architecture after wave 10, with diagrams
+0. [docs/core-findings.md](docs/core-findings.md): 50 findings useful for the Shopware core, independent of PostgreSQL
+0. Wave 10 — proving the open items of doc 46:
+   - [docs/47-o1a-source-hydration.md](docs/47-o1a-source-hydration.md): O1a (`ProductDocument` in OpenSearch `_source`) built and measured end to end
+   - [docs/48-source-limits-custom-fields.md](docs/48-source-limits-custom-fields.md): OpenSearch `_source` scaling limits across 0..5,000 custom fields × 1..20 languages
+   - [docs/49-postgresql-integration-suites.md](docs/49-postgresql-integration-suites.md): non-DAL integration suites on PostgreSQL (386 → 90 PG-only failures across 8,072 tests, all classified)
+   - [docs/50-postgresql-production-setup.md](docs/50-postgresql-production-setup.md): PostgreSQL production-like setup (primary + replica, TLS, OpenSearch, workers, PgBouncer)
+   - [docs/51-timing-reliability.md](docs/51-timing-reliability.md): host A/A noise floors, paired AB/BA 95 % bootstrap CIs (`scripts/wave10-paired.py`), DAL v2 150k with levers, OpenSearch HTTP cache poisoning check, canonical verdicts
 0. [docs/27-final-report.md](docs/27-final-report.md): final report of the experiment after wave 7, [docs/28-plugin-sql-inventory.md](docs/28-plugin-sql-inventory.md) the plugin SQL scan
 0. [docs/29-orm-alternatives.md](docs/29-orm-alternatives.md#conclusion): wave 8, replace the DAL with an ORM? Answer: keep the DAL and build DAL v2. Results in docs 30 to 33, all timings in [docs/34-orm-spike-final-timings.md](docs/34-orm-spike-final-timings.md), fair write comparison in [docs/35-orm-spike-fair-write.md](docs/35-orm-spike-fair-write.md), DAL v2 batched update on PostgreSQL in [docs/36-dal-v2-batched-update-postgresql.md](docs/36-dal-v2-batched-update-postgresql.md)
 0. [docs/38-read-store-plan.md](docs/38-read-store-plan.md#conclusion): wave 9, a read-optimized store (SQL JSON, OpenSearch, MongoDB, Valkey) fed from the DAL. Answer: O1+, a narrow `Storage` port with product documents from OpenSearch `_source` or Valkey next to the existing OpenSearch query code, no multi-engine query port. Results:

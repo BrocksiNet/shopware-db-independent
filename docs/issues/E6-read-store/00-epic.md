@@ -18,7 +18,7 @@ Storefront product detail, listing, and search read directly from the normalized
 
 A proof of concept across 150,000 products showed that:
 
-- Plain DAL and DAL v2 listing and search saturate an 8-core MySQL server at c=8 (10.4 req/s, p95 3.3 s, about 6.3 cores of MySQL CPU in the final timing block), whereas today's OpenSearch path (O1) serves 453.8 req/s at p95 35.4 ms with about one MySQL core, all of it the remaining SQL hydration (`docs/38-read-store-plan.md#conclusion`).
+- Plain DAL serves 14.1 req/s and DAL v2 with all wave 8 levers serves 17.4 req/s (+24 %, still saturating 8 MySQL cores at 120 s CPU in 15 s, R3b p50 = 1.95 s), whereas today's OpenSearch path (O1) serves 532 req/s, and O1a (`_source` document hydration, built and measured in wave 10) serves **756 req/s** (**1.42×** O1, 95 % CI `[1.32, 1.48]`) while cutting MySQL CPU by **84 %** (`15.1 → 2.44 s`, `docs/47`, `docs/51` 3c & 3e).
 - Eliminating SQL product hydration by serving pre-assembled `ProductDocument`s from OpenSearch `_source` or Valkey `MGET` cuts product-read SQL statements to **0** on Detail and Listing, achieves sub-millisecond key-value detail/mget reads (0.1–0.2 ms in Valkey), and decouples storefront read scaling from the write schema.
 - Building a full multi-engine query abstraction (translating arbitrary DAL `Criteria` to SQL JSON, MongoDB, and OpenSearch) has poor return on investment: SQL JSON adapters cannot match OpenSearch on 150k search/filter/aggregation queries, and OpenSearch's existing `src/Elasticsearch` query builder already solves Shopware's hardest query semantics (`displayGroup` collapsing, `postFilters`, analyzers, synonym/ngram search).
 - Therefore the high-leverage architecture is **O1+**: keep Shopware's existing OpenSearch searcher/aggregator for query execution, introduce a small pluggable `Storage` key-value/document port (`get`/`mget`/`store`/`remove`, blue/green `setup`/`swap`) with OpenSearch `_source`, Valkey, and optional SQL JSON adapters, and keep the SQL write database as the sole source of truth.
@@ -61,6 +61,6 @@ Core framework (`ReadStore` port, builder, projector), `Elasticsearch` bundle (`
 
 ## Research notes (not for upstream)
 
-- Full Wave 9 evidence: `docs/38-read-store-plan.md` (Conclusion), `docs/39-read-store-baseline.md` through `docs/45-read-store-consistency.md`.
+- Full Wave 9 & 10 evidence: `docs/38-read-store-plan.md` (Conclusion), `docs/39-read-store-baseline.md` through `docs/45-read-store-consistency.md`, `docs/47-o1a-source-hydration.md` (O1a built & measured), `docs/48-source-limits-custom-fields.md` (custom-field scaling limits), `docs/51-timing-reliability.md` (canonical paired CIs & HTTP cache window).
 - Core findings: `docs/core-findings.md` rows 36, 37, 38, 39, 40.
 - Working PoC branch: `poc/read-store` in `instance/` (`src/Core/Framework/ReadStore/`).

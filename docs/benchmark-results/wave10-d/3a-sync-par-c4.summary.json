@@ -1,0 +1,53 @@
+{
+  "label_a": "mariadb-persistent",
+  "label_b": "pg-plancache",
+  "rounds": 10,
+  "resamples": 10000,
+  "seed": 42,
+  "metrics": {
+    "sync_c4_err": {
+      "n": 10,
+      "a_median": 0.0,
+      "a_min": 0.0,
+      "a_max": 0.0,
+      "a_cv_pct": 0.0,
+      "b_median": 0.0,
+      "b_min": 0.0,
+      "b_max": 0.0,
+      "b_cv_pct": 0.0,
+      "ratio": NaN,
+      "ratio_ci95": [
+        NaN,
+        NaN
+      ],
+      "paired_ratio_median": NaN,
+      "paired_ratio_ci95": [
+        NaN,
+        NaN
+      ],
+      "aa_max_dev_pct": NaN
+    },
+    "sync_c4_rps": {
+      "n": 10,
+      "a_median": 10.8895,
+      "a_min": 8.945,
+      "a_max": 11.685,
+      "a_cv_pct": 9.506148329686674,
+      "b_median": 3.7415000000000003,
+      "b_min": 2.923,
+      "b_max": 4.694,
+      "b_cv_pct": 15.830797396723517,
+      "ratio": 0.3435878598650076,
+      "ratio_ci95": [
+        0.28323984743100744,
+        0.38382823206943806
+      ],
+      "paired_ratio_median": 0.3337008663009734,
+      "paired_ratio_ci95": [
+        0.3098846570738826,
+        0.37532939913768026
+      ],
+      "aa_max_dev_pct": 71.67601525689926
+    }
+  }
+}

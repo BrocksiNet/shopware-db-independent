@@ -329,15 +329,29 @@ Consistency:
 
 Issue drafts: `docs/issues/E6-read-store/`. Core findings 36 to 40.
 
+## Wave 10: proving the open items of doc 46
+
+Wave 10 ran five work packages (A–E) against the four unproven points of `docs/46-target-architecture.md` (`docs/47` to `docs/51`), adding core findings 41 to 50.
+
+- **A — O1a (`_source` hydration) end to end (`docs/47`)**: wired `ProductDocument` into OpenSearch `_source` (`enabled: false`) alongside `src/Elasticsearch`'s existing query builder. Store API equality is 50 of 50 (46 from document, 4 counted SQL fallbacks), product-read SQL drops to 0 on listing and search, and at 150k products c=8 throughput rises from **532 to 756 req/s** (**1.42×**, 95 % CI `[1.32, 1.48]`) while MySQL CPU drops **−84 %** (`15.1 → 2.44 s`, `docs/51` 3e). Partial `_update` breaks unstored search fields, so writes must re-index through `ElasticsearchIndexer::updateIds()`.
+- **B — OpenSearch `_source` limits with custom fields (`docs/48`)**: measured 0..5,000 custom fields × 1..20 languages. Storing `rs_document` with `enabled: false` avoids OpenSearch's 1,000-field mapping cap (which Shopware's blanket app custom-field auto-mapping hits at ~330 fields). Measured 150k index size is 0.42 GB (0 × 1) to 0.96 GB (100 × 5), extrapolating to 2.7 GB (1,000 × 5) and 53.5 GB (5,000 × 20); deduplicating per-language custom-field copies and byte-budgeted bulk batches belong in E6.03. Valkey (O1b) does not shrink document RAM (1.08–1.13× JSON).
+- **C — Integration suites outside the DAL on PostgreSQL (`docs/49`)**: ran `Core/Checkout`, `Core/System`, `Core/Content`, `Storefront`, and `Core/Framework` (8,072 tests) against MariaDB as reference. PostgreSQL-only failures fell from **386 to 90** (98.9 % pass rate outside 9 shared MariaDB failures; `Core/System` excl. `CustomEntity` = 0, `Storefront` = 1), with all 90 classified into 6 groups. `CustomEntity` runtime DDL (8/12) remains the main structural blocker (E4.04).
+- **E — PostgreSQL production-like setup (`docs/50`)**: ran primary + streaming replica, TLS (`DATABASE_SSL_*`), OpenSearch, messenger/scheduler workers, and PgBouncer 1.26.1 (transaction mode) end-to-end with 0 walk failures. Added `DATABASE_REPLICA_*` and `DATABASE_SSL_*` to `PostgreSQLFactory` and fixed primary routing for `INSERT ... RETURNING` writes.
+- **D — Timing reliability and canonical block (`docs/51`, `scripts/wave10-paired.py`)**: measured A/A host noise (`±1.7 %` SQLite CLI, `±3.8 %` pinned MySQL CLI, `±5.7–8.2 %` unpinned DB CLI, `±9.7–11.8 %` HTTP storefront) and re-ran every headline comparison with 10 paired AB/BA rounds and 95 % bootstrap CIs on one quiet host:
+  - PostgreSQL vs MariaDB (persistent + plan cache, catalog): uncached storefront **1.13–1.30×** (`home` 1.16×, `listing` 1.13×, `detail` 1.26×, clean `search` 1.30× paired), bulk sync **1.81×** seq / **0.34×** c=4 rps; production-like walk with HTTP cache + OpenSearch **1.18×** total (`1.00–1.05×` browse, `1.37×` order); PgBouncer adds **1.31×** over direct persistent+plan-cache (`0` errors).
+  - DAL v2 *with* wave 8 levers at 150k: cuts latency 20–54 % and lifts c=8 throughput **+24 %** (`14.1 → 17.4 req/s`, disproving doc 38's lever-less "no change" claim), while still saturating 8 MySQL cores and remaining 43× below O1a.
+  - OpenSearch HTTP cache window: under `refresh=false` with synchronous projection and immediate invalidation, **9/10** immediate Store API listings returned stale names and **5/5** Storefront pages poisoned Shopware's HTTP cache past `+1.3 s`; explicit refresh (10.0 ms) or `refresh=wait_for` (857 ms) reduced both to 0.
+
 ## Open
 
 | Topic | Numbers today | Next |
 |---|---|---|
-| Fixed cost per request on PostgreSQL | storefront 1.13x to 1.46x of MariaDB with persistent connections and the plan cache, up to 1.9x with a new connection per request (wave 7 rerun); a new backend costs about 28 ms on its first pass (`docs/25`) | persistent connections or a pooler in the recommended setup, planning of wide DAL statements |
-| Storefront search on PostgreSQL | trigram index in place (149.6 to 93.5 ms persistent), 1.38x to 1.46x of MariaDB | seven aggregations repeat the keyword score subquery (`docs/25`), keywords below three characters scan sequentially |
-| Bulk write on PostgreSQL | 520 ms against 264 ms, 3.89 against 12.5 requests per second in parallel | fewer statements per request (475 `UPDATE product`), core change for every database (`docs/26`, `docs/core-findings.md`) |
-| DAL integration failures | 0 on PostgreSQL and MariaDB (804 tests), 10 on SQLite | SQLite: decimal scale of aggregates, datetime parameter normalisation |
-| Benchmark spread | wave 7 ranges of the run medians are wider than the wave 6 to 7 differences on most scenarios | quieter host or more paired repeats before claiming effects below 10 % |
-| `ci` collation on string filters | each `LIKE` about 50x slower than on `ucs_basic` | needs a decision on accent and case semantics |
-| Migrations | historic ones depend on the translator | a database-neutral migration API, also the precondition for SQLite |
-| Extensions with raw MySQL | run through the shim | deprecation path, public dialect service |
+| Fixed cost per request on PostgreSQL | uncached storefront 1.13× to 1.30× of MariaDB with persistent connections and plan cache (`docs/51` 3a), 1.63× to 1.85× with a new connection; production-like walk with HTTP cache + OpenSearch 1.18× total, 1.37× order (`docs/51` 3f); PgBouncer adds 1.31× over direct | persistent connections + plan cache or PgBouncer ≥ 1.21 in recommended setup (E5.02) |
+| Storefront search on PostgreSQL | 1.30× paired (post-VACUUM, clean) of MariaDB persistent; degrades under interleaved bulk writes before autovacuum catches up (`docs/51` 3a) | seven aggregations repeat the keyword score subquery (`docs/25`), keywords below three characters scan sequentially |
+| Bulk write on PostgreSQL | 507 ms against 281 ms (1.81×), 3.74 against 10.9 req/s at c=4 (0.34×, 0 errors, `docs/51` 3a) | fewer statements per request (475 `UPDATE product`), core change for every database (E2.01) |
+| Integration failures on PostgreSQL | 0 on DAL (804 tests), 90 PG-only across 8,072 tests in 5 non-DAL suites (98.9 % pass rate; `Core/System` excl. `CustomEntity` = 0, `Storefront` = 1; `docs/49`); 10 on SQLite DAL | E4.04 (`CustomEntity` runtime DDL, 8/12) + 2–3 dev-weeks for remaining classified failures (E5.05) |
+| Single-machine benchmark | noise floor measured (`±1.7–8.2 %` CLI, `±9.7–11.8 %` HTTP storefront) and 95 % bootstrap CIs on every headline claim (`docs/51`); still one Apple M4 Pro host | verify E5/E6 performance budgets on target Linux bare-metal / cloud hardware |
+| OpenSearch HTTP cache window & custom-field sizing | `refresh=false` poisons HTTP cache on immediate invalidation (`5/5`, `docs/51` 3d); 1,000+ custom fields × 20 langs grow index unless deduplicated (`docs/48`) | enforce invalidation delay > `refresh_interval` or post-refresh invalidation (E6.02/E6.04); deduplicate per-language custom fields & byte-budget bulk batches (E6.03) |
+| `ci` collation on string filters | each `LIKE` about 50× slower than on `ucs_basic` | needs a decision on accent and case semantics (E5.03) |
+| Migrations | historic ones depend on the translator | a database-neutral migration API, also the precondition for SQLite (E4.03) |
+| Extensions with raw MySQL | run through the shim | deprecation path, public dialect service (E4.06) |

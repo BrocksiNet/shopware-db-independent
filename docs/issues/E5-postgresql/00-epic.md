@@ -26,7 +26,7 @@ Whether to offer it is a business decision (cloud, managed databases, enterprise
 After epic E4 (dialect, id binding, neutral migrations):
 
 - PostgreSQL dialect, connection factory, PostgreSQL-only indexes, MySQL compatibility functions and the translator shim, behind a flag (E5.01).
-- Recommended connection setup: persistent connections or a pooler and a per-connection plan cache (E5.02).
+- Recommended connection setup: persistent connections + plan cache or PgBouncer ≥ 1.21 (transaction mode), read replicas (`DATABASE_REPLICA_*`), and TLS (`DATABASE_SSL_*`) (E5.02).
 - Decision on the semantics of string filters on PostgreSQL (E5.03).
 - Sort indexes with the NULL order the DAL emits (E5.04).
 - Nightly CI with the DAL and integration suites on PostgreSQL (E5.05).
@@ -46,7 +46,6 @@ Core platform: connection setup, dialect, DAL, migrations; CI; developer and hos
 ## Out of scope
 
 - Official support with a CI matrix on every PR and a performance budget (a later phase).
-- OpenSearch and read replica support on PostgreSQL.
 - SQLite (optional, after epic E4).
 
 ## Acceptance criteria
@@ -58,6 +57,6 @@ Core platform: connection setup, dialect, DAL, migrations; CI; developer and hos
 ## Research notes (not for upstream)
 
 - Core developer feedback (2026-11-23): not worth the effort; benchmarks favouring PostgreSQL are mostly synthetic, ports from MySQL or MariaDB were reported to get slower, and the ecosystem is MySQL-based. Recorded as a risk in `docs/27-final-report.md`; it weighs on the go decision this epic depends on.
-- Source: `docs/27-final-report.md` (TL;DR, "Required core changes" rows 6 and 7, phase 3, risks), `docs/core-findings.md` rows 11, 16, 17, 19, 30, `docs/22`, `docs/23`.
-- Known risk: write and import performance on PostgreSQL is about 2x MySQL (`docs/27`).
-- Branch `poc/db-independent` holds the working implementation.
+- Source: `docs/27-final-report.md` (TL;DR, "Required core changes" rows 6 and 7, phase 3, risks), `docs/core-findings.md` rows 11, 16, 17, 19, 30, and 42 to 50, `docs/22`, `docs/23`, `docs/49` (non-DAL suites: 386 → 90 PG-only failures across 8,072 tests, 98.9 % pass rate), `docs/50` (production setup: replicas, TLS, OpenSearch, workers, PgBouncer), `docs/51` (canonical paired CIs: uncached storefront 1.13–1.30× MariaDB, production walk 1.18× MariaDB, PgBouncer 1.31× direct PG, bulk write 1.81× seq / 0.34× c=4 rps).
+- Known risk: write and import performance on PostgreSQL is about 1.8–2.1× MariaDB (`docs/27`, `docs/51`).
+- Branch `poc/wave10` (fork `BrocksiNet/shopware`) holds the latest working implementation.

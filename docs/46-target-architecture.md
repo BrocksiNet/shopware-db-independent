@@ -1,8 +1,14 @@
-# 46 Target architecture after waves 1 to 9
+# 46 Target architecture after waves 1 to 10
 
-Status: 2026-11-24, after wave 9.
-This doc puts the results of waves 1 to 9 into one picture: the write side (`SqlDialect`, DAL v2) and the read side (O1+ read store), why each layer looks the way it does, and the order in which the core gets there.
-It adds no new measurement; every number links to the doc it comes from.
+Status: 2026-11-25, updated after wave 10 (originally written 2026-11-24 after wave 9).
+This doc puts the results of waves 1 to 10 into one picture: the write side (`SqlDialect`, DAL v2) and the read side (O1+ read store), why each layer looks the way it does, and the order in which the core gets there.
+Every number links to the doc it comes from.
+
+What changed after wave 10 and why:
+
+- "What is not proven" was rewritten with explicit verdicts per point from `docs/47` to `docs/51`: O1a (`_source` hydration) is now built and measured; OpenSearch custom-field scaling limits are mapped; integration suites outside the DAL are down to 90 PostgreSQL-only failures across 8,072 tests; PostgreSQL production setup (replicas, TLS, OpenSearch, workers, PgBouncer) ran end-to-end; and every headline comparison now carries a paired AB/BA 95 % bootstrap CI on a quiet host.
+- Section 4 and the roadmap note two refinements from wave 10 D (`docs/51`): DAL v2 *with* the wave 8 levers improves 150k reads by 1.24× to 2.15× (`17.4` vs `14.1 req/s` at c=8, disproving doc 38's "no change" statement measured without levers) while remaining 43× below O1a (`756 req/s`), so the O1+ architecture holds; and OpenSearch's 1 s `refresh_interval` poisons Shopware's HTTP cache on immediate invalidation under `refresh=false` (5/5 trials), which E6.02/E6.04 must guard against.
+- TL;DR, diagram, and phase order did not change: every architectural choice held under wave 10 verification.
 
 Earlier partial pictures:
 
@@ -105,7 +111,7 @@ Storefront product detail, listing and search read a `ProductDocument` (one per 
 Queries (filters, `displayGroup` collapsing, `postFilters`, aggregations, word search) stay on the existing `src/Elasticsearch` code; only the hydration moves from SQL `cloneForRead($ids)` to OpenSearch `_source` or Valkey `MGET` (`docs/38` "Conclusion").
 Why:
 
-- At 150,000 products and c=8, the DAL and DAL v2 (measured without its levers, `docs/38` "Correction: O0b ran without levers") serve about 10 requests per second on 6.3 MySQL cores; today's OpenSearch path (O1) serves 453.8 on about one core, and that core is the remaining SQL hydration (`docs/38` Q7, `docs/summary.md` "Wave 9").
+- At 150,000 products and c=8, the DAL serves 14.1 req/s and DAL v2 with all wave 8 levers serves 17.4 req/s (+24 %, still saturating 8 MySQL cores, `docs/51` 3c; wave 9's ~10 req/s ran DAL v2 without levers); today's OpenSearch path (O1) serves 532 req/s, and O1a (`_source` hydration) serves 756 req/s while cutting MySQL CPU by 84 % (`docs/47`, `docs/51` 3e).
 - Detail from Valkey, MongoDB or SQL JSON takes 0.14 to 0.27 ms against 6.2 ms on the DAL, with 0 product SQL (`docs/summary.md` "Wave 9").
 - A multi-engine query port (O2) costs 40 to 68 person-weeks against 22 to 37 for O1+, and its engines lose to OpenSearch on every query scenario; standalone stores keep the SQL keyword interpreter for word search (574 ms or more against 25.5 ms on O1) (`docs/38` Q8, R3b).
 - The document is its own read contract, decoupled from the table layout: a storage change on the write side is no longer an API change for the storefront.
@@ -136,12 +142,14 @@ Why:
 
 Criteria the bridge cannot translate, shops without OpenSearch and admin-like reads go to the DAL, counted and logged, never silently wrong (`docs/38` "Principles", `docs/44`).
 
-## What is not proven
+## What was unproven after wave 9 — Wave 10 verdicts
 
-- O1+ end to end: wave 9 measured O1 (OpenSearch ids plus SQL hydration) and the standalone stores, and the composed OpenSearch-plus-Valkey store, which runs queries through the standalone port adapter (Painless scoring, SQL keyword interpreter in front of it on R3b), not through `src/Elasticsearch`, so its search numbers are not O1+ numbers (`docs/42` "Critical finding on R3b"); OpenSearch `_source` hydration of the full document (O1a) was not built, its effort is in E6.03 (`docs/38` effort table, `docs/42` "O1a versus O2").
-- Whether the full document fits OpenSearch `_source` in production with many custom fields; if not, Valkey becomes the first adapter (`docs/38` "What would change the recommendation").
-- PostgreSQL in production: storefront 1.13x to 1.46x of MariaDB, writes about 2x, integration suites outside the DAL not green (`docs/27` "What is not proven").
-- Every timing comes from one developer machine; differences below about 10 % are not reliable.
+| Point from wave 9 | Verdict | Evidence & limits |
+|---|---|---|
+| 1. O1+ (`_source` hydration, O1a) end to end | **Proven** (with write-path & cache-window conditions) | Built and measured on 5k and 150k products (`docs/47`, `docs/51` 3e): 50/50 Store API equality, 0 product-read SQL on listing/search, c=8 throughput at 150k rises **1.42×** (`532 → 756 req/s`, CI `[1.32, 1.48]`) and MySQL CPU drops **−84 %** (`15.1 → 2.44 s`, CI `[0.156, 0.163]`). Writes require full re-index via `ElasticsearchIndexer::updateIds()` (partial `_update` drops unstored search fields); immediate HTTP cache invalidation under `refresh=false` poisons the HTTP cache (`5/5` trials, `docs/51` 3d), so invalidation delay must exceed `refresh_interval` or run post-refresh. |
+| 2. Full `ProductDocument` in OpenSearch `_source` with many custom fields | **Proven with limits** | Mapped across 0..5,000 custom fields × 1..20 languages (`docs/48`): storing `rs_document` with `enabled: false` avoids the 1,000-field mapping limit (`mapping.total_fields.limit`), which today's app custom-field auto-mapping hits at ~330 fields. Measured index size at 150k is 0.42 GB (0 × 1) to 0.96 GB (100 × 5), extrapolating to 2.7 GB (1,000 × 5) and 53.5 GB (5,000 × 20); per-language duplication and byte-budgeted bulk batching must be fixed in E6.03. Valkey (O1b) does not solve document size (1.08–1.13× JSON). |
+| 3. PostgreSQL in production (replicas, TLS, OpenSearch, workers, PgBouncer, non-DAL suites) | **Proven with limits** | **Production stack (`docs/50`, `docs/51` 3f)**: primary + streaming replica, TLS, OpenSearch, workers, and PgBouncer 1.26.1 (transaction mode) all ran end-to-end with 0 walk failures. Full storefront walk total is **1.18×** MariaDB (`750` vs `637 ms`, CI `[1.09, 1.23]`; cached browse steps `1.00–1.05×`, `order` `1.37×`); PgBouncer adds **1.31×** over direct persistent+plan-cache (`1,012` vs `771 ms`, CI `[1.13, 1.38]`). Uncached storefront (persistent + plan cache) holds at **1.13–1.30×** MariaDB (`docs/51` 3a); bulk sync holds at **1.81×** seq / **0.34×** c=4 rps. **Non-DAL integration suites (`docs/49`)**: down from 386 to **90** PostgreSQL-only failures across 8,072 tests (98.9 % pass rate; `Core/System` outside `CustomEntity` = 0, `Storefront` = 1), all classified; `CustomEntity` runtime DDL (8/12) remains the main structural gap (E4.04). |
+| 4. Single-machine timings & unmeasured "~10 % noise" floor | **Proven with limits** | Still **one developer machine** (Apple M4 Pro / Podman AppleHV VM); absolute numbers remain host-specific (`docs/51`). Replaced the guess with measured A/A noise floors (`±1.7 %` SQLite CLI, `±3.8 %` pinned MySQL CLI, `±5.7–8.2 %` unpinned DB CLI, `±9.7–11.8 %` HTTP storefront) and 10-round AB/BA 95 % bootstrap CIs (`scripts/wave10-paired.py`). Doc 38's "DAL v2 does not change 150k reads" is **disproven** (levers cut 150k latency 20–54 % and raise c=8 throughput +24 %), while the conclusion that DAL v2 cannot replace OpenSearch at 150k **holds**. |
 
 ## Roadmap
 
@@ -188,6 +196,6 @@ E5 and E6 are drafts and not filed upstream.
 
 ## Next steps
 
-1. Phase 0: an RFC or ADR from this doc, with the PostgreSQL go or stop as its main decision.
-2. Build and measure O1a (full document in OpenSearch `_source`) before E6 is filed, since it is the recommended first adapter and was not measured.
-3. File E6 after that measurement; file E5 only on a go for PostgreSQL.
+1. Phase 0: an RFC or ADR from this doc (plus `docs/47` to `docs/51`), with the PostgreSQL go or stop as its main decision.
+2. File E6 (read store) upstream — O1a is now built and measured (`docs/47`, `docs/48`, `docs/51`), and the wave 10 custom-field, full-reindex, and HTTP cache-window requirements are incorporated into the E6 issue drafts (`docs/issues/E6-read-store/`).
+3. File E5 (PostgreSQL) only on a go decision for PostgreSQL, after E4.04 (`CustomEntity` runtime DDL) and the remaining 90 classified integration failures (`docs/49`) are scoped.
