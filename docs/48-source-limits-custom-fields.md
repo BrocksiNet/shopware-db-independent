@@ -6,7 +6,7 @@ If not, where is the limit, and does Valkey (O1b) take over?
 
 ## Verdict
 
-Partly proven.
+Proven for 0 and 100 custom fields at 1 and 5 languages on all 150,000 products; the larger cells are measured on product subsets and extrapolated (see "OpenSearch (step 4)" for the limits of that method).
 
 - Limits: A's layout (doc 47, `rs_document` mapped `enabled: false`) adds one mapped field, whatever the custom field and language count.
   The limit that breaks is today's custom field mapping, not `_source`: with every custom field mapped, 1,000 custom fields at 20 languages need 49,796 of Shopware's 50,000 fields, and 5,000 at 5 languages need 61,501.
@@ -14,11 +14,16 @@ Partly proven.
   At 150,000 products, the median document is 3.9 KB with no custom fields and one language, 52 KB at 1,000 fields × 5 languages, 198 KB at 1,000 × 20 and 934 KB at 5,000 × 20 (130.6 GiB of JSON).
 - Valkey does not take over where `_source` gets too big: it holds the same document at 1.08 to 1.13 times the JSON size, and `MGET` of 24 with decoding takes 11.1 ms (p50) at 1,000 × 20 and 52.7 ms at 5,000 × 20.
   The fix for size is the document layout (custom field values once, not once per language), not another store.
-- Not proven: index size, rebuild time on OpenSearch, R1 / R2 / R3b latency and heap.
-  `instance-opensearch-1` was OOM-killed (exit 137) during the whole handoff and the podman VM disk is 97 % full, above the flood stage watermark (see "Blocked").
+- OpenSearch indexes every cell up to 5,000 custom fields × 20 languages with 0 bulk item errors, and the heap stays below 3.0 GB of 4 GiB while indexing.
+  Index size for 150,000 products: 0.42 GB at 0 × 1 and 0.96 GB at 100 × 5 (measured); 2.1 GB at 100 × 20, 2.7 GB at 1,000 × 5, 11.4 GB at 1,000 × 20, 12.8 GB at 5,000 × 5 and 53.5 GB at 5,000 × 20 (extrapolated).
+  For large documents the index takes about 0.45 bytes per byte of document JSON.
+- Rebuild of 150,000 products: 3 to 5 minutes up to 100 × 5 (measured), about 11 minutes at 1,000 × 20, 18 at 5,000 × 5 and 50 at 5,000 × 20 (extrapolated, the per-1,000 rate varies by up to 60 % between runs).
+- Latency: the listing (S1, R2) median is 11 to 12 ms at 0 × 5 and 100 × 5 on the full index, then 18 ms at 1,000 × 5, 27 ms at 1,000 × 20, 34 ms at 5,000 × 5 and 111 ms (p95 259 ms) at 5,000 × 20 on subset indices; search (R3b) goes from 26 to 31 ms to 168 ms.
+- Bulk: at 5,000 × 20 a batch of 100 product ids (about 84 indexable documents) is 84.2 MB at most, 80 % of the 100 MB `http.max_content_length`; it went through, but 100 indexable documents would be about 94 MB.
 
-Where it is fine, from what was measured: up to about 1,000 custom fields × 5 languages or 100 × 20 (median 34 to 52 KB, 4.8 to 7.3 GiB of JSON for 150,000 products, `MGET` of 24 decoded in 2.4 to 3.1 ms).
-Where it breaks on paper: today's mapping at 1,000 × 20, and a 100-product bulk request at 5,000 × 20 (see "Limits").
+Where it is fine: up to 1,000 custom fields × 5 languages or 100 × 20 (index up to 2.7 GB, listing median up to 18 ms, `MGET` of 24 decoded in 2.4 to 3.1 ms).
+Where it degrades: 1,000 × 20 and 5,000 × 5 (11 to 13 GB, listing 27 to 34 ms, rebuild 11 to 18 minutes); today's mapping already breaks at 1,000 × 20 (see "Limits").
+Where it is not acceptable: 5,000 × 20 (53 GB for 150,000 products, listing 111 ms, bulk requests at 80 % of the request limit).
 
 ## Setup
 
@@ -112,8 +117,9 @@ A's layout stays at 836 fields at 20 languages, below even the OpenSearch defaul
 A bulk request carries 100 products.
 At 5,000 × 20 the `rs_document` alone of 100 products is 93.5 MB at the mean document size and 96.9 MB at the largest, 89.2 and 92.4 MiB of the 100 MiB `http.max_content_length`, before the indexed fields and the action lines; a batch with fully filled products (9.2 MB each) is far above it.
 At 1,000 × 20 it is 19.9 MB (mean), so the batch limit matters only for the stress case, but the batch has to be cut by bytes, not by product count, once the document is in `_source`.
+Measured in step 4: a batch of 100 ids holds about 84 indexable documents, and the whole bulk request is 17.6 MB (p50) at 1,000 × 20 and 78.6 MB (p50) and 84.2 MB (max) at 5,000 × 20, which OpenSearch accepted.
 
-## Document size at 150,000 products (step 4, without OpenSearch)
+## Document size at 150,000 products (step 4, JSON only)
 
 `--mode=documents`, JSON of the full document as A writes it into `rs_document`, every product of `read_store_large`.
 Document build (2 languages, no custom fields): 46.1 s for 150,000 products; augment and encode per cell in the last column (CPU of the probe, not OpenSearch indexing).
@@ -161,14 +167,89 @@ Memory is `MEMORY USAGE` per key; the `used_memory` delta of the first and secon
 Doc 38 had 780 MiB for 150,000 products at 2 languages; the 0 × 1 cell here has 654 MiB, consistent with one language less.
 Decoding, not the network, dominates in every cell (0.12 against 0.63 ms at 0 × 1, 0.24 against 2.39 ms at 100 × 20); a listing of 24 at 1,000 × 20 decodes 4.8 MB of JSON per request.
 
-## Blocked: OpenSearch columns of step 4
+## OpenSearch (step 4)
 
-Not measured: indexing success, index size, rebuild time on OpenSearch, R1 / R2 / R3b latency and heap.
+`--mode=opensearch` (instance `poc/wave10` `abfb03dfc3d`), one cell per run, 2026-11-25 10:15 to 10:48.
+Each cell creates `rs_w10_b_c<fields>x<languages>__product_<random>` with Shopware's product mapping (`IndexMappingProvider`, language fields expanded to the cell's languages) and index settings (`elasticsearch.index.config`), fetches the documents with `ElasticsearchProductDefinition::fetch()` in batches of 100 product ids as `es:index` does, adds the custom fields and languages to A's `rs_document` (doc 47, `enabled: false`) and sends one bulk request per batch.
+Size is the primaries store after `_refresh` and `_flush`, without `_forcemerge`, on a single node without replicas; heap is `_nodes/stats/jvm` before and every 10 batches (`-Xmx4g`).
+Every index was deleted right after it was measured; disk stayed at 88 to 89 %, available memory before each cell 1.2 to 1.8 GB.
+VM load average 5.1 to 12.4 (`sys_getloadavg()` in `instance-web-1`), host 22 to 47, other lanes stopped: no (handoff C ran PostgreSQL suites).
+Raw lines: `docs/inventory/custom-fields/opensearch-cells.jsonl`.
 
-- `instance-opensearch-1` (`-Xms4g -Xmx4g`) stayed in "Exited (137)", `OOMKilled=true`, during the handoff (last checked 20:38, killed at 20:27); the VM had 15.9 GB with 0.8 GB free and 2.7 GB available, while other lanes ran (stopping them was refused for A, doc 47).
-- The VM disk was 97 % full (100 GB, 3.2 GB free), above the 95 % flood stage, so even a running node would block bulk writes into the index.
+The indexer indexes 126,000 of the 150,000 products (as in doc 47), so a batch of 100 ids carries about 84 documents.
 
-To run them: free about 5 GB of VM disk, stop the lanes or give OpenSearch the memory, copy `read_store_large` documents into `rs_w10_b_*` indices per cell (A's env helper `/tmp/wave10-a/env.sh` and this probe's `CustomFieldDocumentSet` give the documents), then `_cat/indices`, `_nodes/stats/jvm` and the route bench of doc 47 "Open".
+| Custom fields | Languages | Products scanned | Indexed | Index | Bytes per indexed product | `rs_document` p50 / max | Bulk request p50 / max | Rebuild | Per 1,000 scanned | Heap max sampled |
+|---|---|---|---|---|---|---|---|---|---|---|
+| 0 | 1 | 150,000 | 126,000 | 424.3 MB | 3,368 | 3,936 / 5,791 | 0.58 / 0.67 MB | 204.8 s | 1.37 s | 2.71 GB |
+| 0 | 5 | 150,000 | 126,000 | 691.4 MB | 5,488 | 6,197 / 8,809 | 0.95 / 1.09 MB | 290.7 s | 1.94 s | 2.86 GB |
+| 100 | 1 | 150,000 | 126,000 | 530.1 MB | 4,207 | 5,068 / 7,430 | 0.66 / 0.76 MB | 249.2 s | 1.66 s | 2.84 GB |
+| 100 | 5 | 150,000 | 126,000 | 956.8 MB | 7,594 | 11,252 / 17,028 | 1.34 / 1.55 MB | 176.3 s | 1.18 s | 2.90 GB |
+| 0 | 5 | 20,000 | 16,722 | 97.0 MB | 5,799 | 6,202 / 8,809 | 0.94 / 1.07 MB | 22.4 s | 1.12 s | 2.73 GB |
+| 100 | 5 | 20,000 | 16,722 | 130.8 MB | 7,821 | 11,247 / 16,965 | 1.33 / 1.49 MB | 36.2 s | 1.81 s | 2.70 GB |
+| 0 | 20 | 20,000 | 16,722 | 215.1 MB | 12,862 | 14,624 / 20,089 | 2.30 / 2.60 MB | 119.3 s | 5.96 s | 2.56 GB |
+| 100 | 20 | 20,000 | 16,722 | 279.2 MB | 16,698 | 33,890 / 52,665 | 3.85 / 4.29 MB | 33.6 s | 1.68 s | 2.95 GB |
+| 1,000 | 1 | 20,000 | 16,722 | 155.2 MB | 9,283 | 13,252 / 15,643 | 1.34 / 1.50 MB | 22.4 s | 1.12 s | 2.66 GB |
+| 1,000 | 5 | 20,000 | 16,722 | 352.7 MB | 21,093 | 52,428 / 58,073 | 4.76 / 5.29 MB | 34.9 s | 1.74 s | 2.77 GB |
+| 5,000 | 1 | 20,000 | 16,722 | 419.7 MB | 25,097 | 50,133 / 52,887 | 4.41 / 4.88 MB | 41.4 s | 2.07 s | 2.76 GB |
+| 1,000 | 20 | 10,000 | 8,366 | 754.1 MB | 90,142 | 198,458 / 216,720 | 17.6 / 19.4 MB | 44.8 s | 4.48 s | 1.75 GB |
+| 5,000 | 5 | 10,000 | 8,366 | 850.1 MB | 101,611 | 236,310 / 244,895 | 20.2 / 22.2 MB | 72.9 s | 7.29 s | 2.45 GB |
+| 5,000 | 20 | 2,000 | 1,668 | 708.7 MB | 424,894 | 934,467 / 966,561 | 78.6 / 84.2 MB | 40.2 s | 20.1 s | 2.83 GB |
+
+Every cell: 0 bulk item errors; "Indexed" is `_count` of the index; the full cells have 1,196,268 Lucene documents for 126,000 products (nested fields), mapped fields 133 / 281 / 836 at 1 / 5 / 20 languages (A's layout, custom fields never mapped).
+MB is 10^6 bytes here.
+Rebuild is the probe's wall time (fetch, augment, bulk); fetch alone is 59 to 80 s of it for 150,000 products.
+
+### Extrapolation to 150,000 products
+
+- index_150k = store_bytes / products_indexed × 126,000
+- rebuild_150k = rebuild seconds per 1,000 scanned products × 150
+
+| Custom fields | Languages | From | Index for 150,000 | Rebuild for 150,000 |
+|---|---|---|---|---|
+| 0 | 1 | measured | 0.42 GB | 205 s |
+| 0 | 5 | measured | 0.69 GB | 291 s |
+| 100 | 1 | measured | 0.53 GB | 249 s |
+| 100 | 5 | measured | 0.96 GB | 176 s |
+| 0 | 20 | 20,000 | 1.62 GB | 894 s |
+| 100 | 20 | 20,000 | 2.10 GB | 252 s |
+| 1,000 | 1 | 20,000 | 1.17 GB | 168 s |
+| 1,000 | 5 | 20,000 | 2.66 GB | 261 s |
+| 5,000 | 1 | 20,000 | 3.16 GB | 311 s |
+| 1,000 | 20 | 10,000 | 11.36 GB | 672 s |
+| 5,000 | 5 | 10,000 | 12.80 GB | 1,093 s |
+| 5,000 | 20 | 2,000 | 53.54 GB | 3,015 s |
+
+Limits of the subset method:
+
+- A subset is the first N product ids in id order (as `ProductIds` yields them), not a random sample; its indexed share is 83.6 to 83.7 % against 84.0 % for all products.
+- Bytes per product of a subset index overestimate the full index: by 5.7 % at 0 × 5 and 3.0 % at 100 × 5 (20,000 against 150,000), and by 10.2 % at 0 × 1 for a 2,000-product test run (3,713 against 3,368).
+  The extrapolated sizes are therefore upper bounds within about 10 %.
+- The rebuild rate is not stable under the other lanes' load: the same cell gave 1.94 s (full) and 1.12 s (20,000) per 1,000 at 0 × 5, and 1.18 s and 1.81 s at 100 × 5; 0 × 20 (5.96 s) ran at VM load 12.4.
+  Take the rebuild column as an order of magnitude; only the large cells (4.5 to 20 s per 1,000) are clearly slower.
+- Latency on a subset runs against an index of 1,668 to 16,722 products, not 126,000; it shows the cost of large documents in a response, not of a large index.
+- Heap is sampled every 10 batches, so the 2,000-product cell has 2 samples.
+- No `_forcemerge`, one node, no replicas: a production index with one replica needs twice the size.
+
+### R1 / R2 / R3b sanity
+
+`orm-spike:bench --impl=dal-opensearch --scenario=S2,S1,R3b --iterations=50 --warmup=5`, A's O1a env (`SHOPWARE_ES_SOURCE_DOCUMENT=1`) with `SHOPWARE_ES_INDEX_PREFIX` set to the cell's alias, `APP_ENV=prod`, median / p95 ms.
+S2 is the detail of one variant (R1), S1 the listing (R2), R3b the storefront search.
+
+| Custom fields | Languages | Index | S2 (R1) | S1 (R2) | R3b | Heap after |
+|---|---|---|---|---|---|---|
+| 0 | 5 | 150,000 | 7.03 / 10.97 | 11.07 / 49.76 | 30.71 / 49.83 | 2.61 GB |
+| 100 | 5 | 150,000 | 6.60 / 9.47 | 11.89 / 15.79 | 25.95 / 31.63 | 2.36 GB |
+| 0 | 20 | 20,000 | - | 9.70 / 13.37 | 16.16 / 18.28 | 2.92 GB |
+| 100 | 20 | 20,000 | - | 14.63 / 39.96 | 23.47 / 77.76 | 0.92 GB |
+| 1,000 | 5 | 20,000 | - | 18.42 / 33.46 | 25.04 / 39.01 | 1.81 GB |
+| 1,000 | 20 | 10,000 | - | 26.57 / 29.68 | 32.84 / 41.70 | 0.76 GB |
+| 5,000 | 5 | 10,000 | - | 34.11 / 62.13 | 64.25 / 173.71 | 2.47 GB |
+| 5,000 | 20 | 2,000 | - | 110.54 / 258.61 | 167.84 / 402.14 | 1.52 GB |
+
+- S2 fails on every subset ("S2 variant not found or not visible"): the bench's variant is not among the first N products.
+- Cells with 1 language have no route numbers: the bench's sales channel reads in Deutsch (`01a20cb3…`), which a 1-language cell drops, and OpenSearch answers "No mapping found for [name.01a20cb3acbe752682b5bc973150d2eb] in order to sort on".
+- A measured O1a on the same data at 2 languages and 0 custom fields with 30 iterations: S2 4.71, S1 9.53, R3b 28.39 ms (doc 47); the full cells here are in the same range.
+- `instance-opensearch-1` was OOM-killed once by the VM (exit 137, 10:31:19) between two cells, while no index of this handoff was being built; it was started again and the cell (100 × 5) was rerun.
 
 ## What core needs: proposed change to E6.03
 
@@ -180,12 +261,12 @@ E6.03 (`docs/issues/E6-read-store/03-opensearch-source-and-valkey-hydration.md`)
 3. New criterion, guard: before an index is created, count the mapped fields; above a share of `index.mapping.total_fields.limit` (for example 80 %) log which custom fields cause it, instead of failing in the middle of `es:index`.
 4. New criterion, document shape: custom field values are stored once per product plus per language only where a translation has its own value; the language fallback is resolved at read time.
    Today's per-language copy makes the 1,000 × 20 document 15 times the 1,000 × 1 document (198 KB against 13 KB).
-5. New criterion, indexing: bulk requests are cut by bytes (well below `http.max_content_length`), not only by `SHOPWARE_ES_INDEXING_BATCH_SIZE` products.
-6. Replace "~454 MB OpenSearch index or ~780 MiB Valkey RAM per 150,000 products" by the size per custom field and language: about 90 bytes per filled custom field and language plus about 560 bytes per language (this doc, tables above), and the note that index size and latency above 0 custom fields are not measured yet.
+5. New criterion, indexing: bulk requests are cut by bytes (well below `http.max_content_length`), not only by `SHOPWARE_ES_INDEXING_BATCH_SIZE` products; at 5,000 × 20 one batch of 100 ids was 84.2 MB of the 100 MB limit.
+6. Replace "~454 MB OpenSearch index or ~780 MiB Valkey RAM per 150,000 products" by the size per custom field and language: about 90 bytes of JSON per filled custom field and language plus about 560 bytes per language, and an index of 0.42 GB (0 × 1) to 0.96 GB (100 × 5) measured and 2.7 GB (1,000 × 5) to 53.5 GB (5,000 × 20) extrapolated per 150,000 products, one replica doubling it (this doc, tables above).
 7. O1b is a fallback for OpenSearch availability or hydration latency, not for document size: Valkey holds the same document at 1.08 to 1.13 times its JSON size.
 
 ## Open
 
-- Step 4 on OpenSearch (see "Blocked").
-- Point 2 stays "partly proven": limits and sizes are measured, the OpenSearch cost of these sizes is not.
+- Cells above 100 × 5 on all 150,000 products (needs up to 54 GB of free disk and a VM without the other lanes), with `_forcemerge` and one replica.
+- Route latency for 1,000 custom fields and more on a full-size index, and S2 (R1) on those cells.
 - `flat_object` for flagged custom fields as an alternative to one keyword plus two sub-fields per language.
